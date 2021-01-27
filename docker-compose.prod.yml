@@ -1,0 +1,135 @@
+version: "3.8"
+
+services:
+  django:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    command: sh -c "wait-for db:5432 && wait-for redis:6379 && wait-for broker:5672 && gunicorn DATv3.wsgi --workers 3 --threads 1 --worker-class=gevent --worker-connections=500 --bind unix:/tmp/socket/gunicorn.sock"
+    volumes:
+      - django_static_volume:/usr/src/app/static
+      - django_media_volume:/usr/src/app/media
+      - socket:/tmp/socket/
+    expose:
+      - 8000
+    env_file:
+      - ./backend/.env.prod
+    depends_on:
+      - db
+      - broker
+      - redis
+    entrypoint: ["sh", "/usr/src/app/entrypoint.sh"]
+    networks:
+      - back
+    links:
+      - redis
+      - broker
+
+  db:
+    image: postgres:13.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - back
+    env_file:
+      - ./postgres/.env
+    expose:
+      - 5432
+    restart: unless-stopped
+
+  broker:
+    image: rabbitmq:3.8-rc-management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=mypass
+    networks:
+      - back
+    expose:
+      - 5672
+      - 15672
+    restart: unless-stopped
+
+  redis:
+    image: redis:6.0-alpine
+    networks:
+      - back
+    expose:
+      - 6379
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    command: sh -c "wait-for broker:5672 -- celery -A DATv3 worker -l info"
+    volumes:
+      - django_static_volume:/usr/src/app/static
+      - django_media_volume:/usr/src/app/media
+    env_file:
+      - ./backend/.env.prod
+    depends_on:
+      - broker
+    networks:
+      - back
+    links:
+      - broker
+    restart: unless-stopped
+
+  flower:
+    build:
+      context: flower
+      dockerfile: Dockerfile
+    command: sh -c "wait-for broker:5672 -- flower --url_prefix=flower --address=0.0.0.0 --port=5555 --broker=amqp://admin:mypass@broker:5672/ --broker=amqp://admin:mypass@broker:5672/ --broker_api=http://admin:mypass@broker:15672/api/"
+    environment:
+      - FLOWER_BASIC_AUTH=admin:admin_flower
+    volumes:
+      - flower_static_volume:/usr/local/lib/python3.8/site-packages/flower/static/
+    networks:
+      - back
+    links:
+      - redis
+      - broker
+    expose:
+      - 5555
+    depends_on:
+      - broker
+      - worker
+      - django
+    restart: unless-stopped
+
+  nginx:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+      args:
+        - API_SERVER=${ENV_API_SERVER}
+        - WS_SERVER=${ENV_WS_SERVER}
+    entrypoint: ["nginx", "-g", "daemon off;"]
+    volumes:
+      - django_static_volume:/usr/src/app/django_files/static
+      - django_media_volume:/usr/src/app/media
+      - flower_static_volume:/usr/src/app/flower_files/static
+      - socket:/tmp/socket/
+    ports:
+      - 10080:80
+      - 443:443
+    networks:
+      - back
+      - front
+    depends_on:
+      - django
+      - flower
+    links:
+      - flower
+    restart: always
+
+networks:
+  front:
+  back:
+
+volumes:
+  postgres_data:
+  django_static_volume:
+  django_media_volume:
+  flower_static_volume:
+  socket:

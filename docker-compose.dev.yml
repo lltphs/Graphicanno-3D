@@ -1,0 +1,161 @@
+version: "3.8"
+
+services:
+  django:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./backend:/usr/src/app
+      - django_static_volume:/usr/src/app/static
+      - django_media_volume:/usr/src/app/media
+    expose:
+      - 8000
+    env_file:
+      - ./backend/.env.dev
+    command: sh -c "wait-for db:5432 && wait-for redis:6379 && wait-for broker:5672 && python manage.py runserver 0.0.0.0:8000"
+    depends_on:
+      - db
+      - broker
+      - redis
+    entrypoint: ["sh", "/usr/src/app/entrypoint.sh"]
+    networks:
+      - back
+      - front
+    restart: unless-stopped
+
+  db:
+    image: postgres:13.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - back
+    env_file:
+      - ./postgres/.env
+    expose:
+      - 5432
+    restart: unless-stopped
+
+  # react:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile.dev
+  #     args:
+  #       - API_SERVER=${ENV_API_SERVER}
+  #       - WS_SERVER=${ENV_WS_SERVER}
+  #   volumes:
+  #     - ./frontend/src:/usr/src/app/src
+  #     - ./frontend/public:/usr/src/app/public
+  #     - react_node_modules:/usr/src/app/node_modules
+  #   networks:
+  #     - front
+  #   expose:
+  #     - 3000
+  #   command: npm run start --port 3000
+  #   stdin_open: true
+  #   tty: true
+  #   restart: unless-stopped
+
+  # pgadmin:
+  #   image: dpage/pgadmin4:4.27
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+  #     PGADMIN_DEFAULT_PASSWORD: admin
+  #   networks:
+  #     - back
+  #   ports:
+  #     - "5050:80"
+  #   volumes:
+  #     - pgadmin-data-development:/var/lib/pgadmin
+  #   links:
+  #     - "db:pgsql-server"
+  #   depends_on:
+  #     - db
+  #   restart: unless-stopped
+
+  broker:
+    image: rabbitmq:3.8-rc-management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=mypass
+    networks:
+      - back
+    expose:
+      - 5672
+      - 15672
+    restart: unless-stopped
+
+  redis:
+    image: redis:6.0-alpine
+    networks:
+      - back
+    expose:
+      - 6379
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    command: sh -c "wait-for broker:5672 -- celery -A DATv3 worker -l info"
+    volumes:
+      - ./backend:/usr/src/app
+      - django_static_volume:/usr/src/app/static
+      - django_media_volume:/usr/src/app/media
+    env_file:
+      - ./backend/.env.dev
+    depends_on:
+      - db
+      - broker
+      - django
+    networks:
+      - back
+    restart: unless-stopped
+
+  # worker-beat:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile.dev
+  #   command: sh -c "wait-for broker:5672 && wait-for django:8000 -- celery -A DATv3 beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+  #   volumes:
+  #     - ./backend:/usr/src/app
+  #     - ./media:/usr/src/app/media
+  #     - /usr/src/app/static
+  #   env_file:
+  #     - ./backend/.env.dev
+  #   depends_on:
+  #     - db
+  #     - broker
+  #     - django
+  #   networks:
+  #     - main
+  #   restart: on-failure
+
+  nginx:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.nginx.dev
+    volumes:
+      - django_static_volume:/usr/src/app/django_files/static
+      - django_media_volume:/usr/src/app/media
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - back
+      - front
+    depends_on:
+      - django
+      # - react
+    restart: always
+
+networks:
+  front:
+  back:
+
+volumes:
+  postgres_data:
+  django_static_volume:
+  django_media_volume:
+  # react_node_modules:
+  # pgadmin-data-development:

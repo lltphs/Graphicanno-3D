@@ -1,0 +1,51 @@
+###########
+# BUILDER #
+###########
+
+# pull official base image
+FROM node:14.13.1-alpine3.10 as builder
+
+# set work directory
+WORKDIR /usr/src/app
+
+# install dependencies and avoid `node-gyp rebuild` errors
+COPY ./package.json .
+# COPY ./package-lock.json .
+COPY ./yarn.lock .
+RUN apk add --no-cache --virtual .gyp \
+  python \
+  make \
+  g++
+
+# RUN npm ci --silent --no-optional
+# RUN npm install react-scripts@3.4.1 -g --silent
+RUN yarn
+
+RUN apk del .gyp
+
+# copy our react project
+COPY ./ .
+
+# perform npm build
+ARG API_SERVER
+ENV REACT_APP_API_SERVER=${API_SERVER}
+ARG WS_SERVER
+ENV REACT_APP_WS_SERVER=${WS_SERVER}
+RUN REACT_APP_API_SERVER=${API_SERVER} REACT_APP_WS_SERVER=${WS_SERVER} yarn build
+
+#########
+# FINAL #
+#########
+
+FROM nginx:1.19.0-alpine
+
+WORKDIR /usr/share/nginx/html
+
+# copy our build files from our builder stage
+COPY --from=builder /usr/src/app/build .
+
+# Remove default nginx static assets
+RUN rm /etc/nginx/conf.d/default.conf
+COPY ./nginx.conf /etc/nginx/conf.d
+
+ENTRYPOINT ["nginx", "-g", "daemon off;"]

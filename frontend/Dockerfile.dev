@@ -1,0 +1,23 @@
+# pull official base image
+FROM node:14.13.1-alpine3.10
+
+# set work directory
+WORKDIR /usr/src/app
+
+# perform npm build
+ARG API_SERVER
+ENV REACT_APP_API_SERVER=${API_SERVER}
+ARG WS_SERVER
+ENV REACT_APP_WS_SERVER=${WS_SERVER}
+
+# install app dependencies
+COPY package.json ./
+# COPY package-lock.json ./
+COPY yarn.lock ./
+RUN yarn build
+
+# add app
+COPY . ./
+
+# start app
+CMD ["yarn", "run","start"]
