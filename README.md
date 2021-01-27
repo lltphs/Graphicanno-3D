@@ -1,4 +1,4 @@
-# GVLAB Web Boilerplate
+# GVLAB Data Annotation Tool 2021
 
 ## Prerequisites
 
