@@ -45,24 +45,29 @@ const Home = (): JSX.Element => {
     <div className="home-container">
       <Helmet>
         <meta charSet="utf-8" />
-        <title>DAT 2 | Home</title>
+        <title>DAT 2 | Homepage</title>
         <link rel="canonical" href="http://mysite.com/example" />
       </Helmet>
-      <div className="home">
+      <div className="home" style={{margin: 'auto'}}>
         <div className="c-nameapp">
           <Link
             to={path}
-            style={{ color: 'inherit', textDecoration: 'inherit' }}
+            style={{ color: 'black', textDecoration: 'inherit' }}
           >
-            <p id="i-homepage">Data Annotation Tool</p>
+            <p id="i-homepage">Data Annotation Tool 2021</p>
+            <Switch>
+              <Route exact path={path} render={() => <HomeContent url={url} />} />
+              <Route exact path={`${path}/user`} render={() => <LoginForm />} />
+              <Route exact path={`${path}/admin`} render={() => <LoginWithAdmin />} />
+            </Switch>
           </Link>
         </div>
       </div>
-      <Switch>
+      {/* <Switch>
         <Route exact path={path} render={() => <HomeContent url={url} />} />
         <Route exact path={`${path}/user`} render={() => <LoginForm />} />
         <Route exact path={`${path}/admin`} render={() => <LoginWithAdmin />} />
-      </Switch>
+      </Switch> */}
     </div>
   );
 };
