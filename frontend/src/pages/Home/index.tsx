@@ -1,12 +1,15 @@
 import React from 'react';
-import { Switch, Route, Link, useRouteMatch } from 'react-router-dom';
-
+import { Switch, Route, Link, useRouteMatch, BrowserRouter } from 'react-router-dom';
+import { Grid } from '@material-ui/core';
 import { Helmet } from 'react-helmet';
 
 import LoginWithAdmin from './components/AdminLoginForm';
 import LoginForm from './components/UserLoginForm';
+import RegistForm from './components/RegistAccount'
+// import { login } from 'store/actions/auth';
 
 import './index.scss';
+
 
 interface PropsHomeContent {
   url: string;
@@ -17,7 +20,7 @@ const HomeContent = (props: PropsHomeContent): JSX.Element => {
   return (
     <div className="content">
       <div className="c-login">
-        <Link
+        {/* <Link
           to={`${url}/user`}
           style={{ color: 'inherit', textDecoration: 'inherit' }}
         >
@@ -32,7 +35,18 @@ const HomeContent = (props: PropsHomeContent): JSX.Element => {
           <div className="c-adminlogin">
             <p>Login with Admin</p>
           </div>
-        </Link>
+        </Link> */}
+		<LoginForm />
+		<Grid container>
+			<Grid item xs>
+				<Link
+				to={`${url}/regist`}
+				style={{ color: 'inherit', textDecoration: 'none' }}
+				>Regist new account
+				</Link>
+			</Grid>			
+		</Grid>
+       
       </div>
     </div>
   );
@@ -50,24 +64,22 @@ const Home = (): JSX.Element => {
       </Helmet>
       <div className="home" style={{margin: 'auto'}}>
         <div className="c-nameapp">
-          <Link
-            to={path}
-            style={{ color: 'black', textDecoration: 'inherit' }}
-          >
-            <p id="i-homepage">Data Annotation Tool 2021</p>
-            <Switch>
-              <Route exact path={path} render={() => <HomeContent url={url} />} />
-              <Route exact path={`${path}/user`} render={() => <LoginForm />} />
-              <Route exact path={`${path}/admin`} render={() => <LoginWithAdmin />} />
-            </Switch>
-          </Link>
+			{/* <Switch> */}
+			<Link
+				to={path}
+				style={{ color: 'black', textDecoration: 'inherit' }}
+         	>
+            <p id="i-homepage">Data Annotation Tool 2021</p>			
+          	</Link>		         	
+    
+          	<Switch>
+                <Route exact path={path} render={() =>  <HomeContent url={url} />} />
+                <Route exact path={`${url}/regist`} render={() => <RegistForm />} /> 
+          	</Switch>
+          
         </div>
       </div>
-      {/* <Switch>
-        <Route exact path={path} render={() => <HomeContent url={url} />} />
-        <Route exact path={`${path}/user`} render={() => <LoginForm />} />
-        <Route exact path={`${path}/admin`} render={() => <LoginWithAdmin />} />
-      </Switch> */}
+      
     </div>
   );
 };
