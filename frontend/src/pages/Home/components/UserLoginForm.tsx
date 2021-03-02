@@ -29,7 +29,7 @@ import RegistForm from './RegistAccount';
 const useStyles = makeStyles((theme: Theme) =>
 	createStyles({
 		paper: {
-			marginTop: theme.spacing(8),
+			marginTop: theme.spacing(0),
 			display: 'flex',
 			flexDirection: 'column',
 			alignItems: 'center',
@@ -130,8 +130,9 @@ const LoginForm = (): JSX.Element => {
 						
 						{/* <Link to="/home"></Link>
 						<Route path="/home"> </Route> */}
-						<div className={classes.paper}>
-							<Avatar className={classes.avatar} src="../assets/login.svg" />
+						<div className={classes.paper} style={{ textDecoration: 'inherit', marginTop: '0px'}}>
+							<Avatar className={classes.avatar} src="../assets/login.svg" 
+							style={{ textDecoration: 'inherit', marginTop: '30px' }}/>
 							<Typography component="h1" variant="h5">
 								Sign in
 							</Typography>

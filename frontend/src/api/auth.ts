@@ -10,12 +10,15 @@ export const register: (
   username: string,
   email: string,
   password: string
-) => Promise<AxiosResponse> = (username, email, password) =>
+) => Promise<AxiosResponse> = (username, email, password) =>{
   axiosInstance.post(`${API_URL}user/create/`, {
     username,
     email,
     password,
   });
+  window.location.href = '/login';
+  return Promise.reject();
+}
 
 export const login: (
   username: string,
@@ -25,7 +28,7 @@ export const login: (
     username,
     password,
   });
-
+  
 const removeItemInLocalStorage: (item: string) => void = (item) => {
   const userJson = localStorage.getItem(item);
   if (userJson) {
@@ -56,19 +59,19 @@ export const logout: () => void = () => {
     });
 };
 
-export const changePassword: (
+export const changePassword : (
   oldPassword: string,
   newPassword: string
-) => Promise<AxiosResponse> = (oldPassword, newPassword) =>
-  axiosInstance.put(
-    `${API_URL}user/changepassword/`,
-    {
-      oldPassword,
-      newPassword,
-    },
-    {
-      headers: authHeader(),
-    }
+) => Promise<AxiosResponse> = (oldPassword, newPassword ) => 
+    axiosInstance.put(
+      `${API_URL}user/changepassword/`,
+      {
+        old_password: oldPassword,
+        new_password: newPassword,
+      },
+      {
+        headers: authHeader(),
+      }
   );
 
 export const interceptorJWT = (store: Store): void => {
