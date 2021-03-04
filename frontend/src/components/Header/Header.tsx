@@ -15,8 +15,11 @@ import {
   MenuItem,
   Menu,
   MenuProps,
+  Button
 } from '@material-ui/core';
 import { Home } from '@material-ui/icons';
+import AccountCircleIcon from '@material-ui/icons/AccountCircle'
+import '../../index.scss'
 
 const StyledMenu = withStyles({
   paper: {
@@ -102,7 +105,7 @@ function Header({
     <div className={classes.root}>
       <CssBaseline />
       <AppBar position="static" className={classes.root_appbar}>
-        <Toolbar disableGutters={!open} className={classes.toolbar}>
+        <Toolbar disableGutters={!open} className={classes.toolbar} id="toolbar">
           <IconButton
             aria-haspopup="true"
             color="inherit"
@@ -116,14 +119,19 @@ function Header({
             Data Annotation Tool - GVLab
           </Typography>
           <div>
-            <Chip
-              label={username}
-              clickable={false}
-              className={classes.chip}
-              onClick={(event) => {
-                setAnchorEl(event.currentTarget);
-              }}
-            />
+            <Button id="right">
+              <AccountCircleIcon id="account-circle"/>
+              <Chip              
+                label={username}
+                clickable={false}
+                className={classes.chip}
+                id="username"
+                onClick={(event) => {
+                  setAnchorEl(event.currentTarget);
+                }}
+              />
+            </Button>
+           
             <StyledMenu
               id="menu-appbar"
               anchorEl={anchorEl}

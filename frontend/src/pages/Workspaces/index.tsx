@@ -11,6 +11,7 @@ import Footer from 'components/Footer/Footer';
 import { logout } from 'store/actions/auth';
 import * as UserServices from 'api/user';
 import { RootDispatchType } from 'store';
+import '../../index.scss'
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -112,8 +113,8 @@ const WorkspacesLayout = (): JSX.Element => {
         flexDirection="column"
         justifyItems="space-between"
       >
-        <Box p={0}>
-          <Header
+        <Box p={0} borderRadius="none" color="black">
+          <Header 
             username={userDetailState.username}
             logout={() => {
               dispatch(logout());

@@ -2,3 +2,35 @@ body {
   margin: 0;
   padding: 0;
 }
+
+#toolbar{
+  padding-right: 0px;
+  // border-bottom: 1px solid white;
+  // border-top: 1px solid white;
+  
+}
+
+#right{
+  border-radius: 0px !important;
+  background-color: white;
+  height: 70px ;
+  width: 220px;
+  margin: 0px;
+  padding-left: 20px;
+  // margin-left: 1px;
+  border-bottom: 0.1px white;
+  border-top: 1px solid;
+  #account-circle{
+    color: #3f51b5;
+  }
+}
+
+#username{
+  padding-left: 0px;
+}
+
+#menu-appbar{
+  // // boder-radius: 
+  // margin-left: 20px;
+  // padding-left: 0px;
+}
