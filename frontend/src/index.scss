@@ -29,8 +29,18 @@ body {
   padding-left: 0px;
 }
 
-#menu-appbar{
-  // // boder-radius: 
-  // margin-left: 20px;
-  // padding-left: 0px;
+.workspace-landing{
+  width: 70%;
+  margin: auto;
+  // margin-top: 50px;
+  // margin-left: 15%;
+  // margin-right: 15%;
+}
+
+.dataset-item{
+  width: 300px;
+  height: 500px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 7px 7px rgba(0, 0, 0, 0.1), 0 3px 3px rgba(0, 0, 0, 0.2);
 }

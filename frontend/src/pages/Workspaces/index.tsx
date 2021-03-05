@@ -128,12 +128,17 @@ const WorkspacesLayout = (): JSX.Element => {
           />
         </Box>
 
-        <Box flexGrow={1} />
+        <Box flexGrow={0}/>
+            <Box className="workspace-landing">
+				<Box className="dataset-item"/>
 
-        <Box p={0}>
-          <Footer />
-        </Box>
-      </Box>
+			</Box>
+          	
+            {/* </Box> */}
+			<Box p={0}>
+				<Footer />
+			</Box>
+		</Box>
     </div>
   );
 };
