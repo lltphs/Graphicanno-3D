@@ -43,4 +43,40 @@ body {
   border: 1px solid #ccc;
   border-radius: 4px;
   box-shadow: 0 7px 7px rgba(0, 0, 0, 0.1), 0 3px 3px rgba(0, 0, 0, 0.2);
+  .data-item{
+    height: 200px;
+    width: 100%;
+    padding: 10%;
+    margin: auto;
+    border-bottom: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  .item-bottom{
+    margin-left: 30px;
+    font-size: 18px;
+    .overview-btn{
+      // width: 110px;
+      // border: 1px solid #ccc;
+      margin-right: 18px;
+    }
+    .label-btn{
+      background-color: #3f51b5;
+      color: white;
+    }
+    .btn{
+      width: 110px;
+      border: 1px solid #ccc;
+    }
+    .btn:hover{
+      color: #3f51b5;
+      background-color: beige;
+    }
+  }
+}
+MenuItem{
+  margin-top: 15px;
+}
+#menu-icon{
+  width: 30px;
+  margin-right: 5px;
 }

@@ -24,6 +24,7 @@
     color: #000000;
     
     .c-nameapp {
+      position: fixed;
       background: #a8d7f7;
       box-shadow: 0 7px 7px rgba(0, 0, 0, 0.1), 0 3px 3px rgba(0, 0, 0, 0.2);
       font-size: 40px;
@@ -105,3 +106,4 @@
 .r-signin:hover, .resetPwd:hover, .signup:hover{
   font-weight: bolder;
 }
+

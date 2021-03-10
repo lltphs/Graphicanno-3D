@@ -24,7 +24,7 @@ import AspectRatioIcon from '@material-ui/icons/AspectRatio';
 import VpnKeyIcon from '@material-ui/icons/VpnKey';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
-import '../../index.scss'
+import '../index.scss';
 
 const StyledMenu = withStyles({
   paper: {
@@ -60,19 +60,30 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     appbar: {
       paddingLeft: 0,
+      borderLeft: 'none',
     },
     grow: {
       flexGrow: 1,
     },
     chip: {
-      margin: theme.spacing(1),
-      backgroundColor: '#FFFFFF',
-      color: '#0844a7',
-      fontSize: '1rem',
+      // margin: theme.spacing(1),
+      marginRight: 0,
+      backgroundColor: 'transparent',
+      // color: '#0844a7',
+      color: '#ffffff',
+      fontSize: '1.2rem',
+      float: 'right',
+      textDecoration: 'none',
+    },
+    accountcircleicon: {
+      color: '#fff',
     },
     toolbar: {
-      padding: '0 24px',
+      padding: '0',
+      margin: 0,
+      width: '100%',
     },
+    
   })
 );
 
@@ -83,7 +94,7 @@ interface HeaderProps {
   workspacesHandle: () => void;
 }
 
-function Header({
+function HeaderWorkspaces({
   username,
   logout,
   changePasswordHandle,
@@ -111,10 +122,11 @@ function Header({
 
   return (
     <div className={classes.root}>
-      <CssBaseline />
-      <AppBar position="static" className={classes.root_appbar}>
+      {/* <CssBaseline /> */}
+      {/* <AppBar position="static" className={classes.root_appbar}> */}
         <Toolbar disableGutters={!open} className={classes.toolbar} id="toolbar">
-          <IconButton
+          <IconButton 
+            id="home"
             aria-haspopup="true"
             color="inherit"
             onClick={() => {
@@ -126,11 +138,11 @@ function Header({
           <Typography variant="h6" color="inherit" className={classes.grow}>
             Data Annotation Tool - GVLab
           </Typography>
-          <div>
+          <div id="right-btn">
             <Button id="right" onClick={(event) => {
                   setAnchorEl(event.currentTarget);
                 }}>
-              <AccountCircleIcon id="account-circle"/>
+              <AccountCircleIcon style={{color: '#fff'}}/>
               <Chip              
                 label={username}
                 clickable={false}
@@ -165,9 +177,9 @@ function Header({
             </StyledMenu>
           </div>
         </Toolbar>
-      </AppBar>
+      {/* </AppBar> */}
     </div>
   );
 }
 
-export default React.memo(Header);
+export default React.memo(HeaderWorkspaces);

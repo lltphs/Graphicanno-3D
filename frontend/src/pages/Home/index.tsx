@@ -94,7 +94,7 @@ const Home = (): JSX.Element => {
 				<link rel="canonical" href="http://mysite.com/example" />
 			</Helmet>
 			<div className="home" style={{margin: 'auto'}}>
-				<div className="c-nameapp">
+				<div className="c-nameapp" >
 			{/* <Switch> */}
 					<Link
 						to={path}

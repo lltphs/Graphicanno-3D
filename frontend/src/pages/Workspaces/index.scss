@@ -1,0 +1,38 @@
+
+// *{
+//     padding: 0;
+// }
+#app-bar{
+    height: 70px;        
+    // background-color: #4285f4;       
+    border-bottom: 1px solid #ccc;
+
+    box-shadow: 0 17px 17px rgba(0, 0, 0, 0.05),
+    0 13px 13px rgba(0, 0, 0, 0.01);
+    transition: all 0.5s cubic-bezier(0.5, 2.5, 0.5, 1);
+    // width: 100%;
+    
+    #tool-bar{
+        border-right:  0.5px solid #ccc;
+        // width: 100%;
+        #home {
+            width: 72px;
+            margin-right: 12px;
+        }
+
+    }
+    
+    #right{
+        background-color: transparent;
+        border-left: 1px solid #ccc;
+        border-top: none;
+    }
+
+    #accont-circle{
+        color: white;
+    }
+}
+
+#home{
+    margin-right: 10px;
+}
