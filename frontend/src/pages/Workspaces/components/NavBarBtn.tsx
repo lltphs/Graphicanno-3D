@@ -8,24 +8,33 @@ import { createStyles, makeStyles, Theme, useTheme } from '@material-ui/core/sty
 import {
   AppBar,
   Toolbar,
-  Typography,
   IconButton,
   Drawer,
-  MenuList,
-  MenuItem,
-  List,
-  ListItemText
+  ListItemText,
+  Box,
+  Button
  } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import Divider from '@material-ui/core/Divider';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { Home } from '@material-ui/icons';
+import Tooltip from '@material-ui/core/Tooltip';
+import LanguageIcon from '@material-ui/icons/Language';
+import { ArrowBack, ArrowForward, BorderOuter, RemoveCircle, RemoveRedEye } from '@material-ui/icons';
+import FontDownloadIcon from '@material-ui/icons/FontDownload';
+import PublishIcon from '@material-ui/icons/Publish';
+import GetAppIcon from '@material-ui/icons/GetApp';
+import ZoomInIcon from '@material-ui/icons/ZoomIn';
+import ZoomOutIcon from '@material-ui/icons/ZoomOut';
+import AdjustIcon from '@material-ui/icons/Adjust';
+import GestureIcon from '@material-ui/icons/Gesture';
+import Brightness5Icon from '@material-ui/icons/Brightness5';
+import WbSunnyIcon from '@material-ui/icons/WbSunny';
+import HistoryIcon from '@material-ui/icons/History';
+import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 
 import { RootDispatchType } from 'store';
 import { logout } from 'store/actions/auth';
@@ -58,6 +67,20 @@ const useStyles = makeStyles((theme) => ({
 		  easing: theme.transitions.easing.sharp,
 		  duration: theme.transitions.duration.enteringScreen,
 		}),
+	  },
+	  secondAppBar: {
+		width: `calc(100% - 72px)`,
+		marginTop: 64, 
+		marginLeft: 72,
+		height: 100,
+		maxWidth: '100%',
+		backgroundColor: 'white', 
+		borderBottom: 'solid 1px #ccc',
+		boxShadow: 'none',
+		display: 'flex',
+	  },
+	  secondAppBarShift: {
+		width: `calc(100% - ${drawerWidth}px)`,
 	  },
 	  menuIcon: {
 
@@ -99,10 +122,17 @@ const useStyles = makeStyles((theme) => ({
 		// necessary for content to be below app bar
 		...theme.mixins.toolbar,
 	  },
-	  content: {
-		flexGrow: 1,
-		padding: theme.spacing(3),
+	  listitem: {
+		  height: 50,
 	  },
+	  zoominicon: {
+		  width: 40,
+		  height: 40,
+		  color: 'black',
+		  margin: 'auto',
+		  alignItems: 'center',
+	  },
+	 
 }));
 
 interface NavBarProps {
@@ -199,7 +229,7 @@ const NavigationBar: React.FC = () => {
 	}, []);
     
     return (
-      <div className={classes.root} style={{marginTop: '70px'}}>
+      <div className={classes.root}>
 		<CssBaseline />
 		<AppBar
 			id="app-bar"
@@ -221,8 +251,7 @@ const NavigationBar: React.FC = () => {
 					<MenuIcon />
 				</IconButton>
 				
-				<HeaderWorkspaces
-					
+				<HeaderWorkspaces					
 					username={userDetailState.username}
 					logout={() => {
 					dispatch(logout());
@@ -234,13 +263,62 @@ const NavigationBar: React.FC = () => {
 					history.push('/workspaces');
 					}}
 				/>
-				{/* <Typography variant="h6" noWrap>
-					Data Annotation Tool - GVLab
-				</Typography> */}
-			</Toolbar>
+				</Toolbar>
+		</AppBar>
+		<AppBar style={{
+			display: 'flex'
+					}}
+				className={clsx(classes.secondAppBar, {
+					[classes.secondAppBarShift]: open,
+					})}
+				id="2nd-app-bar">
+			<Toolbar id="2nd-toolbar">
+				<Button className="item-btn">
+					<ZoomInIcon id="zoom-in" className="item-icon"/>
+					<br/>
+					Zoom In
+				</Button>
+				<Button className="item-btn">
+					<ZoomOutIcon id="zoom-in" className="item-icon"/>
+					<br/>
+					Zoom Out
+				</Button>
+				<Button className="item-btn">
+					<AdjustIcon id="zoom-in" className="item-icon"/>
+					<br/>
+					Magnify
+				</Button>
+				<Button className="item-btn">
+					<GestureIcon id="zoom-in" className="item-icon"/>
+					<br/>
+					Draw
+				</Button>
+				<Button className="item-btn">
+					<Brightness5Icon id="zoom-in" className="item-icon"/>
+					<br/>
+					Brightness
+				</Button>
+				<Button className="item-btn">
+					<WbSunnyIcon id="zoom-in" className="item-icon"/>
+					<br/>
+					Constrast
+				</Button>
+				<Button className="item-btn">
+					<HistoryIcon id="zoom-in" className="item-icon"/>
+					<br/>
+					Under
+				</Button>
+				<Button className="item-btn">
+					<VisibilityOffIcon id="zoom-in" className="item-icon"/>
+					<br/>
+					Hide all
+				</Button>
+				
+			</Toolbar>			
 		</AppBar>
 		<Drawer 
 			variant="permanent"
+			id="drawer"
 			className={clsx(classes.drawer, {
 			[classes.drawerOpen]: open,
 			[classes.drawerClose]: !open,
@@ -251,32 +329,220 @@ const NavigationBar: React.FC = () => {
 				[classes.drawerClose]: !open,
 			}),
 			}}
-		>
-		
+		>		
 			<div className={classes.toolbar}>
 			<IconButton onClick={handleDrawerClose}>
 				{theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
 			</IconButton>
 			</div>
+
 			<Divider />
-			<List>
-			{['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-				<ListItem button key={text}>
-				<ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-				<ListItemText primary={text} />
-				</ListItem>
-			))}
-			</List>
-			<Divider />
-			<List>
-			{['All mail', 'Trash', 'Spam'].map((text, index) => (
-				<ListItem button key={text}>
-				<ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-				<ListItemText primary={text} />
-				</ListItem>
-			))}
-			</List>
+			
+			<div id="toggle_language" className="item"		
+			// 	onClick={function(e){
+            //     medical_label_state.notify_toggle_language();
+            // }}
+			>
+                <ListItem button id='toggle_language_fake_tag' className="item">
+                    <Tooltip title='Vietnamese' 
+					// TransitionComponent={Zoom} 
+					placement="right" 
+					// classes={{tooltip: classes.lightTooltip}}
+					>
+                        <ListItemIcon 
+						// className={classes.icon}
+						>
+                            <LanguageIcon />
+                        </ListItemIcon>
+                    </Tooltip>
+                    {/* <ListItemText primary={medical_label_state.state._language}/> */}
+                </ListItem>
+            </div>
+
+			<div id="next_slice" 
+			// onClick={function(e){
+            //     medical_label_state.notify_next_slice();
+            // }}
+			>
+                <ListItem button id='next_slice_fake_tag' className="item">
+                    <Tooltip title='Next Slice' 
+					// TransitionComponent={Zoom} placement="right" classes={{tooltip: classes.lightTooltip}}
+					>
+                        <ListItemIcon 
+						// className={classes.icon}
+						>
+                            <ArrowForward />
+                        </ListItemIcon>
+                    </Tooltip>
+                    <ListItemText 
+					// primary={medical_label_state.state._forward}
+					/>
+                </ListItem>
+            </div>
+
+            <div id="prev_slice" 
+			// onClick={function(e){
+                // medical_label_state.notify_prev_slice();
+            // }}
+			>
+                <ListItem button id='prev_slice_fake_tag' className="item">
+                    <Tooltip title='Previous Slice' 
+					// TransitionComponent={Zoom} placement="right" 
+					// classes={{tooltip: classes.lightTooltip}}
+					>
+                        <ListItemIcon 
+						// className={classes.icon}
+						>
+                            <ArrowBack />
+                        </ListItemIcon>
+                    </Tooltip>
+                    <ListItemText 
+					// primary={medical_label_state.state._backward}
+					/>
+                </ListItem>
+            </div>
+
+            <div id="show_all_labels" 
+			// onClick={function(e){
+                // medical_label_state.setLabelId(1);
+                // medical_label_state.notify_label_selected();
+            // }}
+			>
+                <ListItem button id='show_all_labels_fake_tag' className="item">
+                    <Tooltip title='Show all labels' 
+					// TransitionComponent={Zoom} 
+					// placement="right" 
+					// classes={{tooltip: classes.lightTooltip}}
+					>
+                        <ListItemIcon 
+						// className={classes.icon}
+						>
+                            <RemoveRedEye />
+                        </ListItemIcon>
+                    </Tooltip>
+                    <ListItemText 
+					// primary={medical_label_state.state._show_all_labels}
+					/>
+                </ListItem>
+            </div>
+
+            <div id="hide_all_labels" 
+			// onClick={function(e){
+                // medical_label_state.setLabelId(0);
+                // medical_label_state.notify_label_selected();
+            // }}
+			>
+                <ListItem button id='hide_all_labels_fake_tag' className="item">
+                    <Tooltip title= "Hide all labels" 
+					// TransitionComponent={Zoom} 
+					// placement="right" 
+					// classes={{tooltip: classes.lightTooltip}}
+					>
+                        <ListItemIcon 
+						// className={classes.icon}
+						>
+                            <RemoveCircle />
+                        </ListItemIcon>
+                    </Tooltip>
+                    <ListItemText 
+					// primary={medical_label_state.state._hide_all_labels}
+					/>
+                </ListItem>
+            </div>
+
+            <div id="boundary_mode" 
+			// onClick={function(e){
+                // medical_label_state.switch_boundary_mode();
+            // }}
+			>
+                <ListItem button id='boundary_mode_fake_tag' className="item">
+                    <Tooltip title="Boundary Mode" 
+					// TransitionComponent={Zoom} 
+					// placement="right" 
+					// classes={{tooltip: classes.lightTooltip}}
+					>
+                        <ListItemIcon 
+						// className={classes.icon}
+						>
+                            <BorderOuter />
+                        </ListItemIcon>
+                    </Tooltip>
+                    <ListItemText 
+					// primary={medical_label_state.state._boundary_mode}
+					/>
+                </ListItem>
+            </div>
+            
+            <div id="load_saved_mask" 
+			// onClick={function(e){
+                // medical_label_state.load_saved_mask();
+            // }}
+			>
+                <ListItem button id='load_saved_mask_fake_tag' className="item">
+                    <Tooltip title="Load saved mask" 
+					// TransitionComponent={Zoom} 
+					// placement="right" 
+					// classes={{tooltip: classes.lightTooltip}}
+					>
+                        <ListItemIcon 
+						// className={classes.icon}
+						>
+                            <PublishIcon />
+                        </ListItemIcon>
+                    </Tooltip>
+                    <ListItemText 
+					// primary={medical_label_state.state._load_saved_mask} 
+					/>
+                </ListItem>
+            </div>
+
+            <div id="save_your_mask" 
+			// onClick={function(e){
+                // medical_label_state.save_your_mask();
+            // }}
+			>
+                <ListItem button id='save_your_mask_fake_tag' className="item">
+                    <Tooltip title="Save your mask" 
+					// TransitionComponent={Zoom} placement="right" 
+					// classes={{tooltip: classes.lightTooltip}}
+					>
+                        <ListItemIcon 
+						// className={classes.icon}
+						>
+                            <GetAppIcon />
+                        </ListItemIcon>
+                    </Tooltip>
+                    <ListItemText 
+					// primary={medical_label_state.state._save_your_mask} 
+					/>
+                </ListItem>
+            </div>
+            
+            <div id="load_ai_prediction" 
+			// onClick={function(e){
+                // medical_label_state.load_ai_prediction();
+            // }}
+			>
+                <ListItem button id='load_ai_prediction_fake_tag' className="item">
+                    <Tooltip title="AI prediction" 
+					// TransitionComponent={Zoom} placement="right" 
+					// classes={{tooltip: classes.lightTooltip}}
+					>
+                        <ListItemIcon 
+						// className={classes.icon}
+						>
+                            <FontDownloadIcon />
+                        </ListItemIcon>
+                    </Tooltip>
+                    <ListItemText 
+					// primary={medical_label_state.state._AI_prediction}
+					/>
+                </ListItem>
+
+            </div>
+			
 		</Drawer>
+		
     </div>
     );
 };

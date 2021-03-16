@@ -10,8 +10,11 @@ const useStyles = makeStyles((theme: Theme) =>
       padding: theme.spacing(6),
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
+      justifyContent: 'center',      
       marginTop: '5rem',
+      position: 'absolute',
+      bottom: 0,
+      width: '100%',
     },
   })
 );
