@@ -165,45 +165,6 @@ const WorkspacesLayout = (): JSX.Element => {
 	const { path, url } = useRouteMatch();
 
 	const classes = useStyles();
-
-	// const history = useHistory();
-
-	// const dispatch: RootDispatchType = useDispatch();
-
-	// const [userDetailState, userDetailDispatch] = useReducer(
-	// 	userDetailReducer,
-	// 	initialUserDetail
-	// );
-
-	// useEffect(() => {
-	// 	const loadUserDetail = async () => {
-	// 	try {
-	// 		const response = await UserServices.getUserDetail();
-	// 		userDetailDispatch({
-	// 		type: 'SET_USERNAME',
-	// 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-	// 		payload: response.data.username,
-	// 		});
-	// 		userDetailDispatch({
-	// 		type: 'SET_EMAIL',
-	// 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-	// 		payload: response.data.email,
-	// 		});
-	// 	} catch (error) {
-	// 		toast.error("Can't load User data!", {
-	// 		position: 'bottom-left',
-	// 		autoClose: 2500,
-	// 		hideProgressBar: false,
-	// 		closeOnClick: false,
-	// 		pauseOnHover: true,
-	// 		draggable: false,
-	// 		progress: undefined,
-	// 		});
-	// 		throw error;
-	// 	}
-	// 	};
-	// 	loadUserDetail();
-	// }, []);
   
 	return (
 		<div className={classes.root}>
@@ -219,20 +180,7 @@ const WorkspacesLayout = (): JSX.Element => {
 			flexDirection="column"
 			justifyItems="space-between"
 		>
-			{/* <Box p={0} borderRadius="none" color="black">
-				<Header 
-					username={userDetailState.username}
-					logout={() => {
-					dispatch(logout());
-					}}
-					changePasswordHandle={() => {
-					history.push('/change_password');
-					}}
-					workspacesHandle={() => {
-					history.push('/workspaces');
-					}}
-				/>
-			</Box> */}
+		
 
 			<Box flexGrow={0}/>
 				<Switch>

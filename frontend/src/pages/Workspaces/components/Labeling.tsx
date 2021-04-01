@@ -25,13 +25,16 @@ import 'pages/Home/index.scss';
 import { boolean } from 'yup/lib/locale';
 // import LoginForm from './UserLoginForm';
 import NavigationBar from './NavBarBtn';
+import DicomImage from './DicomImage';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    // root: {
-    //   width: '100vw',
-    //   height: '100vh',
-    // },
+    container: {
+      maxWidth: '100%',
+      width: '100%',
+      height: '100%',
+      padding: 0
+    },
     paper: {
       marginTop: theme.spacing(2),
       display: 'flex',
@@ -135,11 +138,11 @@ const LabelingWorkspace = (): JSX.Element => {
           isSubmitting,
         } = props;
         return (
-          	<Container component="main" maxWidth="xs" >
+          	<Container  
+            className={classes.container}
+            style={{backgroundColor: 'yellow'}} >
               <NavigationBar/>
-              <Box style={{
-                height: '75vh'
-              }}/>
+              <DicomImage/>
             </Container>
         );
       }}
