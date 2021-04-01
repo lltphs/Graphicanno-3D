@@ -3678,7 +3678,7 @@ clone-deep@^4.0.1:
     kind-of "^6.0.2"
     shallow-clone "^3.0.0"
 
-clsx@^1.0.4, clsx@^1.1.1:
+clsx@^1.0.4, clsx@^1.1.1, clsx@latest:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/clsx/-/clsx-1.1.1.tgz#98b3134f9abbdf23b2663491ace13c5c03a73188"
   integrity sha512-6/bPho624p3S2pMyvP5kKBPXnI3ufHLObBFCfgx+LkeR5lg2XYy2hqZqUf45ypD8COn2bhgGJSUE+l5dhNBieA==
@@ -3952,6 +3952,11 @@ core-util-is@1.0.2, core-util-is@~1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
   integrity sha1-tf1UIgqivFq1eqtxQMlAdUUDwac=
+
+cornerstone-core@^2.1.1-rc1:
+  version "2.1.1-rc1"
+  resolved "https://registry.yarnpkg.com/cornerstone-core/-/cornerstone-core-2.1.1-rc1.tgz#cf7d36df6c64455b1016bea4a2df37375c9da0cf"
+  integrity sha512-/fLi9F6l8bu3A6A+Rk7B6SApqIY9/GVwM1EnGEF6XSdwaZ86+xCK/1paLR5VdF7NLl91bK5INxImoTCvgnBNDg==
 
 cosmiconfig@^5.0.0:
   version "5.2.1"

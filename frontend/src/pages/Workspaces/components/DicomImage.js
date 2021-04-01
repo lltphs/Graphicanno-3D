@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
-
+import * as cornerstone from 'cornerstone-core';
 // const useStyles = makeStyles( theme => ({
 // 	createStyles({
 // 		canvas: {
@@ -22,7 +22,7 @@ function DicomImage() {
                 height: `calc(100% - 100px)`
 
             }}>
-            <p>HELOOOOOOOOOOOOOOOOOOOOOO</p>
+            <p style={{color: 'white'}}>HELOOOOOOOOOOOOOOOOOOOOOO</p>
         </canvas>
 	);
 }
