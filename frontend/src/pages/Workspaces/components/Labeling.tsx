@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Component } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link, Redirect, Route } from 'react-router-dom';
 import { Formik, FormikProps } from 'formik';
@@ -25,7 +25,7 @@ import 'pages/Home/index.scss';
 import { boolean } from 'yup/lib/locale';
 // import LoginForm from './UserLoginForm';
 import NavigationBar from './NavBarBtn';
-import DicomImage from './DicomImage';
+import LoadImage from './DicomImage';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -142,7 +142,10 @@ const LabelingWorkspace = (): JSX.Element => {
             className={classes.container}
             style={{backgroundColor: 'yellow'}} >
               <NavigationBar/>
-              <DicomImage/>
+              
+              <LoadImage/>
+              {/* <LoadDicomImage/> */}
+              <div id="root">aaaa</div>
             </Container>
         );
       }}
