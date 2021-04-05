@@ -7,12 +7,12 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     footer: {
       backgroundColor: '#c1c1c1',
-      padding: theme.spacing(6),
+      padding: theme.spacing(2),
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',      
       marginTop: '5rem',
-      position: 'absolute',
+      position: 'fixed',
       bottom: 0,
       width: '100%',
     },

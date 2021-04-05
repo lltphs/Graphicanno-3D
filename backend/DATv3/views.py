@@ -60,3 +60,6 @@ def media_access(request, path):
         return response
     else:
         return HttpResponseForbidden('Not authorized to access this media.')
+
+def decode_dicom_view(request, path):
+    pass
