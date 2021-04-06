@@ -3960,10 +3960,17 @@ core-util-is@1.0.2, core-util-is@~1.0.0:
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
   integrity sha1-tf1UIgqivFq1eqtxQMlAdUUDwac=
 
-cornerstone-core@^2.1.1-rc1:
-  version "2.1.1-rc1"
-  resolved "https://registry.yarnpkg.com/cornerstone-core/-/cornerstone-core-2.1.1-rc1.tgz#cf7d36df6c64455b1016bea4a2df37375c9da0cf"
-  integrity sha512-/fLi9F6l8bu3A6A+Rk7B6SApqIY9/GVwM1EnGEF6XSdwaZ86+xCK/1paLR5VdF7NLl91bK5INxImoTCvgnBNDg==
+cornerstone-core@2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/cornerstone-core/-/cornerstone-core-2.3.0.tgz#b16430b0dc3883c795fbbd5f64d0f6357f91c889"
+  integrity sha512-1LiCfRIlQvR1j8OhF7/3pvvQvvnTYZUywEkuoEo5K5mMrlKdrQMS75uW1uXb/nXShQDJyyjtTCQSVGgv2yHA+w==
+
+cornerstone-file-image-loader@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/cornerstone-file-image-loader/-/cornerstone-file-image-loader-0.3.0.tgz#de61c40b70529cd72bb58dbb3c8ad80cc5a87fc4"
+  integrity sha512-q6Qd1TvXT3JiXQaU9Yy0LsfKZFBlrHCLdzqC82yn+qfrwws/OYXSeTZDUfhpmb4B3T9QSq8YQGDHM1IlgJ14jg==
+  dependencies:
+    serialize-javascript "^2.1.2"
 
 cornerstone-math@0.1.7:
   version "0.1.7"
@@ -3975,10 +3982,10 @@ cornerstone-math@^0.1.9:
   resolved "https://registry.yarnpkg.com/cornerstone-math/-/cornerstone-math-0.1.9.tgz#7ce5509e8b9f465b01f7c548470725e7569859fc"
   integrity sha512-NxdooV73asEQgav1S+0e+a4K+W3CXJdLXyFkVN24qqCtmIpzZzwtw3F9KWPCekzSAJmbhtQ3HicOQj3d4vRtuw==
 
-cornerstone-tools@^5.1.4:
-  version "5.1.4"
-  resolved "https://registry.yarnpkg.com/cornerstone-tools/-/cornerstone-tools-5.1.4.tgz#9b5b65eff622fa143f2d4814099f1a384383c0a7"
-  integrity sha512-kpINjdt/gQmizP2C3olA8VGgiCtHYo7kT7JWcnTZLgD85HtoUMavtv2LaDEOfmBdBcB5q+KUEESy6FJQwTJxdg==
+cornerstone-tools@4.18.1:
+  version "4.18.1"
+  resolved "https://registry.yarnpkg.com/cornerstone-tools/-/cornerstone-tools-4.18.1.tgz#8e37770656a1dbd80e043f365baf697b9414e39f"
+  integrity sha512-PHuThDgJAc0I+hI/uu1CJ8rqcyUamE8fXP04NpuDd4gdsQlzy9V7oZxG3Wf7AsupzZoINGUNCCDGQnrCE10r4w==
   dependencies:
     "@babel/runtime" "7.1.2"
     cornerstone-math "0.1.7"
@@ -3990,6 +3997,11 @@ cornerstone-wado-image-loader@^3.3.1:
   dependencies:
     dicom-parser "^1.8.3"
     pako "^1.0.10"
+
+cornerstone-web-image-loader@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/cornerstone-web-image-loader/-/cornerstone-web-image-loader-2.1.1.tgz#531262668d3b44fb461161c67d58ebcaefbae73d"
+  integrity sha512-EYT7nLyXMFDeCCQhDkf6czFUm58EgqiTX+tOOLt79gPvbNRdEvPgQoXJgXOd5/3Xuc5QNqzTyOzYtf1v/KH0aA==
 
 cosmiconfig@^5.0.0:
   version "5.2.1"
@@ -4452,6 +4464,11 @@ data-urls@^2.0.0:
     abab "^2.0.3"
     whatwg-mimetype "^2.3.0"
     whatwg-url "^8.0.0"
+
+date-fns@^2.2.1:
+  version "2.19.0"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.19.0.tgz#65193348635a28d5d916c43ec7ce6fbd145059e1"
+  integrity sha512-X3bf2iTPgCAQp9wvjOQytnf5vO5rESYRXlPIVcgSbtT5OTScPcsf9eZU+B/YIkKAtYr5WeCii58BgATrNitlWg==
 
 dateformat@^4.0.0:
   version "4.4.1"
@@ -7950,10 +7967,20 @@ lodash-es@^4.17.11, lodash-es@^4.17.14:
   resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.20.tgz#29f6332eefc60e849f869c264bc71126ad61e8f7"
   integrity sha512-JD1COMZsq8maT6mnuz1UMV0jvYD0E0aUsSOdrr1/nAG3dhqQXwRRgeW0cSqH1U43INKcqxaiVIQNOUDld7gRDA==
 
+lodash-es@^4.17.15:
+  version "4.17.21"
+  resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.21.tgz#43e626c46e6591b7750beb2b50117390c609e3ee"
+  integrity sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==
+
 lodash._reinterpolate@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/lodash._reinterpolate/-/lodash._reinterpolate-3.0.0.tgz#0ccf2d89166af03b3663c796538b75ac6e114d9d"
   integrity sha1-DM8tiRZq8Ds2Y8eWU4t1rG4RTZ0=
+
+lodash.debounce@^4.0.8:
+  version "4.0.8"
+  resolved "https://registry.yarnpkg.com/lodash.debounce/-/lodash.debounce-4.0.8.tgz#82d79bff30a67c4005ffd5e2515300ad9ca4d7af"
+  integrity sha1-gteb/zCmfEAF/9XiUVMArZyk168=
 
 lodash.memoize@^4.1.2:
   version "4.1.2"
@@ -10215,6 +10242,17 @@ react-app-polyfill@^2.0.0:
     regenerator-runtime "^0.13.7"
     whatwg-fetch "^3.4.1"
 
+react-cornerstone-viewport@^4.0.5:
+  version "4.0.5"
+  resolved "https://registry.yarnpkg.com/react-cornerstone-viewport/-/react-cornerstone-viewport-4.0.5.tgz#3de83cdd3643980e0330f3743f631dbbb24d98a7"
+  integrity sha512-uamDtFljWWEHe26kOBJJ1Bu//6hAgEra7BDVykOvtMC/W7kW34Q2fFX3ZwkL6TDdCQ94O6K98IXPS9HbrEJWYg==
+  dependencies:
+    classnames "^2.2.6"
+    date-fns "^2.2.1"
+    lodash.debounce "^4.0.8"
+    prop-types "^15.7.2"
+    react-resize-detector "^4.2.1"
+
 react-dev-utils@^11.0.1:
   version "11.0.1"
   resolved "https://registry.yarnpkg.com/react-dev-utils/-/react-dev-utils-11.0.1.tgz#30106c2055acfd6b047d2dc478a85c356e66fe45"
@@ -10324,6 +10362,17 @@ react-refresh@^0.8.3:
   version "0.8.3"
   resolved "https://registry.yarnpkg.com/react-refresh/-/react-refresh-0.8.3.tgz#721d4657672d400c5e3c75d063c4a85fb2d5d68f"
   integrity sha512-X8jZHc7nCMjaCqoU+V2I0cOhNW+QMBwSUkeXnTi8IPe6zaRWfn60ZzvFDZqWPfmSJfjub7dDW1SP0jaHWLu/hg==
+
+react-resize-detector@^4.2.1:
+  version "4.2.3"
+  resolved "https://registry.yarnpkg.com/react-resize-detector/-/react-resize-detector-4.2.3.tgz#7df258668a30bdfd88e655bbdb27db7fd7b23127"
+  integrity sha512-4AeS6lxdz2KOgDZaOVt1duoDHrbYwSrUX32KeM9j6t9ISyRphoJbTRCMS1aPFxZHFqcCGLT1gMl3lEcSWZNW0A==
+  dependencies:
+    lodash "^4.17.15"
+    lodash-es "^4.17.15"
+    prop-types "^15.7.2"
+    raf-schd "^4.0.2"
+    resize-observer-polyfill "^1.5.1"
 
 react-resize-detector@^5.2.0:
   version "5.2.0"
@@ -11236,6 +11285,11 @@ send@0.17.1:
     on-finished "~2.3.0"
     range-parser "~1.2.1"
     statuses "~1.5.0"
+
+serialize-javascript@^2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/serialize-javascript/-/serialize-javascript-2.1.2.tgz#ecec53b0e0317bdc95ef76ab7074b7384785fa61"
+  integrity sha512-rs9OggEUF0V4jUSecXazOYsLfu7OGK2qIn3c7IPBiffz32XniEp/TX9Xmc9LQfK2nQ2QKHvZ2oygKUGU0lG4jQ==
 
 serialize-javascript@^4.0.0:
   version "4.0.0"

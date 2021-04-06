@@ -143,7 +143,10 @@ const LabelingWorkspace = (): JSX.Element => {
             style={{backgroundColor: 'yellow'}} >
               <NavigationBar/>
               
-              <LoadImage/>
+              <div id="canvasa" style={{width: '100%'}}>
+                <LoadImage/>
+              </div>
+             
               {/* <LoadDicomImage/> */}
               <div id="root">aaaa</div>
             </Container>
