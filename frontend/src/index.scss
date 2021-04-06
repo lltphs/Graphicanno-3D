@@ -1,6 +1,7 @@
 body {
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 #toolbar{
@@ -30,9 +31,14 @@ body {
 }
 
 .workspace-landing{
-  padding-top: 70px;
-  width: 70%;
+  width: 100%;
   margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  padding-top: 70px;
+  padding-bottom: 70px;
+  padding-left: 30px;
+  padding-right: 30px;
   // margin-top: 50px;
   // margin-left: 15%;
   // margin-right: 15%;
@@ -44,6 +50,8 @@ body {
   border: 1px solid #ccc;
   border-radius: 4px;
   box-shadow: 0 7px 7px rgba(0, 0, 0, 0.1), 0 3px 3px rgba(0, 0, 0, 0.2);
+  margin-left: 20px;
+  margin-bottom: 20px;
   .data-item{
     height: 200px;
     width: 100%;

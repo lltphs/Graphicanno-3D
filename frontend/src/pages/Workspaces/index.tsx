@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect } from 'react';
+import React, { useReducer, useEffect, useCallback, useState } from 'react';
 import { useHistory, Link, Route, BrowserRouter, Switch , useRouteMatch} from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Helmet } from 'react-helmet';
@@ -17,8 +17,14 @@ import * as UserServices from 'api/user';
 import { RootDispatchType } from 'store';
 
 import '../../index.scss'
-import { render } from '@testing-library/react';
 import LabelingWorkspace from './components/Labeling';
+import {useDropzone} from 'react-dropzone';
+import dicomParser from 'dicom-parser';
+import * as cornerstone from 'cornerstone-core';
+import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
+
+cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
+cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -62,6 +68,40 @@ function userDetailReducer(
       throw new Error(`Unhandled action type: ${type}`);
     }
   }
+}
+
+const DICOMDropZone = (): JSX.Element => {
+	//This part is for dropzone
+	const onDrop = useCallback( async (acceptedFiles: Array<File>) => {
+		const imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(acceptedFiles[0]);
+		cornerstone.loadImage(imageId).then((image) => {
+			cornerstone.displayImage(element, image);
+		})
+	}, []);
+
+	const {getRootProps, getInputProps, isDragActive} = useDropzone({onDrop});
+
+	let element: HTMLDivElement;
+	
+
+
+	return (
+	<div {...getRootProps()} style={{ width: "100%", height: "100%" }}>
+		<input {...getInputProps()}/>
+		{
+			isDragActive ?
+			<p>Drop here babe</p> :
+			<p>Drag 'n' drop here babe</p>
+		}
+
+		<div id="dicom" style={{width: "100%", height: "100%"}} ref={input=>{
+				if (input !== null) {
+					element=input; 
+					cornerstone.enable(element);
+				}
+			}}></div>
+	</div>
+	)
 }
 
 interface PropsLabelContent {
@@ -112,20 +152,23 @@ const LabelContent = (props: PropsLabelContent): JSX.Element => {
 	return (
 		<div>
 		<Box p={0} borderRadius="none" color="black">
-				<Header 
-					username={userDetailState.username}
-					logout={() => {
-					dispatch(logout());
-					}}
-					changePasswordHandle={() => {
-					history.push('/change_password');
-					}}
-					workspacesHandle={() => {
-					history.push('/workspaces');
-					}}
-				/>
-			</Box>
+			<Header 
+				username={userDetailState.username}
+				logout={() => {
+				dispatch(logout());
+				}}
+				changePasswordHandle={() => {
+				history.push('/change_password');
+				}}
+				workspacesHandle={() => {
+				history.push('/workspaces');
+				}}
+			/>
+		</Box>
 		<Box className="workspace-landing">
+			<Box className="dataset-item">
+				<DICOMDropZone/>
+			</Box>
 			<Box className="dataset-item">
 				<BurstModeIcon className="data-item"/>
 				<div className="item-bottom">
@@ -134,15 +177,113 @@ const LabelContent = (props: PropsLabelContent): JSX.Element => {
 					<p className="data-detail id">Dataset ID: 01</p>
 					<p className="data-detail total">Total Data: 100</p> 
 					<p className="data-detail annotated">Annotated Data: 0</p> 
-					<Button 
-						className="overview btn overview-btn"
-						type="submit" 
-						color="primary"
-						
-					>
-						<BarChartIcon />
-						Overview
-					</Button>
+					<Link to={`${url}`}>
+						<Button 
+							className="overview btn overview-btn"
+							type="submit" 
+							color="primary"
+							
+						>
+							<BarChartIcon />
+							Overview
+						</Button>
+					</Link>
+					<Link to={`${url}/labeling`}>
+						<Button 
+							className="overview btn labeling-btn"
+							type="submit" 
+							color="primary"									
+						>
+							<OpenInNewIcon />
+							Label
+						</Button>
+					</Link>
+			
+				</div>
+			</Box>	
+			<Box className="dataset-item">
+				<BurstModeIcon className="data-item"/>
+				<div className="item-bottom">
+					<p className="data-detail title">Liver_01 patient_01</p>
+					<p className="data-detail string">22T043133</p>
+					<p className="data-detail id">Dataset ID: 01</p>
+					<p className="data-detail total">Total Data: 100</p> 
+					<p className="data-detail annotated">Annotated Data: 0</p> 
+					<Link to={`${url}`}>
+						<Button 
+							className="overview btn overview-btn"
+							type="submit" 
+							color="primary"
+							
+						>
+							<BarChartIcon />
+							Overview
+						</Button>
+					</Link>
+					<Link to={`${url}/labeling`}>
+						<Button 
+							className="overview btn labeling-btn"
+							type="submit" 
+							color="primary"									
+						>
+							<OpenInNewIcon />
+							Label
+						</Button>
+					</Link>
+			
+				</div>
+			</Box>	
+			<Box className="dataset-item">
+				<BurstModeIcon className="data-item"/>
+				<div className="item-bottom">
+					<p className="data-detail title">Liver_01 patient_01</p>
+					<p className="data-detail string">22T043133</p>
+					<p className="data-detail id">Dataset ID: 01</p>
+					<p className="data-detail total">Total Data: 100</p> 
+					<p className="data-detail annotated">Annotated Data: 0</p> 
+					<Link to={`${url}`}>
+						<Button 
+							className="overview btn overview-btn"
+							type="submit" 
+							color="primary"
+							
+						>
+							<BarChartIcon />
+							Overview
+						</Button>
+					</Link>
+					<Link to={`${url}/labeling`}>
+						<Button 
+							className="overview btn labeling-btn"
+							type="submit" 
+							color="primary"									
+						>
+							<OpenInNewIcon />
+							Label
+						</Button>
+					</Link>
+			
+				</div>
+			</Box>	
+			<Box className="dataset-item">
+				<BurstModeIcon className="data-item"/>
+				<div className="item-bottom">
+					<p className="data-detail title">Liver_01 patient_01</p>
+					<p className="data-detail string">22T043133</p>
+					<p className="data-detail id">Dataset ID: 01</p>
+					<p className="data-detail total">Total Data: 100</p> 
+					<p className="data-detail annotated">Annotated Data: 0</p> 
+					<Link to={`${url}`}>
+						<Button 
+							className="overview btn overview-btn"
+							type="submit" 
+							color="primary"
+							
+						>
+							<BarChartIcon />
+							Overview
+						</Button>
+					</Link>
 					<Link to={`${url}/labeling`}>
 						<Button 
 							className="overview btn labeling-btn"
