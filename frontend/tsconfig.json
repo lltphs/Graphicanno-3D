@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "noImplicitAny": false,
+    "noImplicitAny": false, //to import js libraries
     "target": "es5",
     "lib": [
       "dom",

@@ -56,6 +56,13 @@ const useStyles = makeStyles((theme: Theme) =>
     textfiled: {
       color: 'black',
     },
+    dicom: {
+      width: '100%',
+      height: `calc(100% - 260px)`,
+      marginTop: 164,
+      marginLeft: 72,
+      margin: 'auto'
+    },
   })
 );
 
@@ -140,15 +147,12 @@ const LabelingWorkspace = (): JSX.Element => {
         return (
           	<Container  
             className={classes.container}
-            style={{backgroundColor: 'yellow'}} >
+            style={{backgroundColor: 'black'}} >
               <NavigationBar/>
               
-              <div id="canvasa" style={{width: '100%'}}>
+              <div className={classes.dicom} id="canvasa">
                 <LoadImage/>
               </div>
-             
-              {/* <LoadDicomImage/> */}
-              <div id="root">aaaa</div>
             </Container>
         );
       }}
