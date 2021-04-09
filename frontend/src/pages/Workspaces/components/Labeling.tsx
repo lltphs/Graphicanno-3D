@@ -77,23 +77,6 @@ const LabelingWorkspace = (): JSX.Element => {
     setPassChangeSuccess(false);
   };
 
-  const renderModal = () => {
-    const onClick = () => {
-      setPassChangeSuccess(false);
-    };
-    return (
-      <Alert
-        isOpen={passChangeSuccess}
-        handleClose={handleModalClose}
-        handleSubmit={onClick}
-        title="Regist failed!"
-        text="Please check your informations"
-        submitButtonText="OK"
-        hasTwoButtons={false}
-      />
-    );
-  };
-
   const handleRegist = (
     username: string,
 	  email: string,
@@ -130,7 +113,7 @@ const LabelingWorkspace = (): JSX.Element => {
       {(
         props: FormikProps<{			
           	username: string;
-			email: string;
+			      email: string;
           	password: string;			
         }>
       ) => {
