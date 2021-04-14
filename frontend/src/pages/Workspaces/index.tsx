@@ -22,6 +22,7 @@ import {useDropzone} from 'react-dropzone';
 import dicomParser from 'dicom-parser';
 import * as cornerstone from 'cornerstone-core';
 import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
+import classes from '*.module.css';
 
 cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
 cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
@@ -32,6 +33,10 @@ const useStyles = makeStyles(() =>
       width: '100vw',
       height: '100vh',
     },
+	dropzone: {
+		width: '100%',
+		height: 250,
+	}
   })
 );
 
@@ -70,12 +75,31 @@ function userDetailReducer(
   }
 }
 
-const DICOMDropZone = (): JSX.Element => {
+interface PropsDicomDropZone {
+	imgId: string;
+}
+
+const DICOMDropZone = ({setImageName, setPatientName}, props: PropsDicomDropZone): JSX.Element => {
+
 	//This part is for dropzone
 	const onDrop = useCallback( async (acceptedFiles: Array<File>) => {
+		// setFile(acceptedFiles)
+		// const { imageId } = props.a;
+		// props.a = 'aaaa';
+		
 		const imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(acceptedFiles[0]);
+		// const { imgId } = imageId;
+	    // props = {imgId}
+		// const { props.imgId } = imageId
+		console.log(imageId + '  '+ props)
+
+ 		const imageName = acceptedFiles[0].name	
+		// console.log(imageName)
+		setImageName(imageName)	
 		cornerstone.loadImage(imageId).then((image) => {
 			cornerstone.displayImage(element, image);
+			const patientName = image.data.string('x00100010');
+			setPatientName(patientName);
 		})
 	}, []);
 
@@ -91,12 +115,13 @@ const DICOMDropZone = (): JSX.Element => {
 		{
 			isDragActive ?
 			<p>Drop here babe</p> :
-			<p>Drag 'n' drop here babe</p>
+			<p>Drag file here</p>
 		}
 
 		<div id="dicom" style={{width: "100%", height: "100%"}} ref={input=>{
 				if (input !== null) {
 					element=input; 
+
 					cornerstone.enable(element);
 				}
 			}}></div>
@@ -110,7 +135,9 @@ interface PropsLabelContent {
 
 const LabelContent = (props: PropsLabelContent): JSX.Element => {
 	const { url } = props;
+	// console.log(props);
 	const history = useHistory();
+	const classes = useStyles();
 
 	const dispatch: RootDispatchType = useDispatch();
 
@@ -148,7 +175,10 @@ const LabelContent = (props: PropsLabelContent): JSX.Element => {
 		};
 		loadUserDetail();
 	}, []);
-  
+	const [imageName, setImageName] = useState('')
+	const [patientName, setPatiename] = useState('')
+	
+
 	return (
 		<div>
 		<Box p={0} borderRadius="none" color="black">
@@ -167,7 +197,24 @@ const LabelContent = (props: PropsLabelContent): JSX.Element => {
 		</Box>
 		<Box className="workspace-landing">
 			<Box className="dataset-item">
-				<DICOMDropZone/>
+				<BurstModeIcon className="data-item"/>
+				<div className="item-bottom" style={{marginRight: 30}}>
+					<p>{imageName}___{patientName} </p>
+					<DICOMDropZone setImageName={setImageName} 
+								setPatientName={setPatiename}
+								/><br/>
+					<Link to={`${url}/labeling`}>
+						<Button 
+							className="overview btn labeling-btn"
+							type="submit" 
+							color="primary"									
+						>
+							<OpenInNewIcon />
+							Label
+						</Button>
+					</Link>
+				</div>
+				
 			</Box>
 			<Box className="dataset-item">
 				<BurstModeIcon className="data-item"/>

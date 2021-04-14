@@ -115,7 +115,7 @@ const RegistForm = (): JSX.Element => {
       {(
         props: FormikProps<{			
           	username: string;
-			email: string;
+			      email: string;
           	password: string;			
         }>
       ) => {

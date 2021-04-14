@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, DragEvent} from 'react';
 import { makeStyles, Theme, createStyles, useTheme } from '@material-ui/core/styles';
 import Hammer from 'hammerjs';
 import dicomParser from 'dicom-parser';
@@ -6,8 +6,9 @@ import * as cornerstone from 'cornerstone-core';
 import * as cornerstoneMath from'cornerstone-math';
 import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
 import * as cornerstoneTools from 'cornerstone-tools';
-import {useDropzone} from 'react-dropzone';
+import Dropzone, {useDropzone} from 'react-dropzone';
 import { Button, Toolbar } from '@material-ui/core';import ZoomInIcon from '@material-ui/icons/ZoomIn';
+import AddPhotoAlternateIcon from '@material-ui/icons/AddPhotoAlternate';
 import ZoomOutIcon from '@material-ui/icons/ZoomOut';
 import AdjustIcon from '@material-ui/icons/Adjust';
 import GestureIcon from '@material-ui/icons/Gesture';
@@ -19,6 +20,7 @@ import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
 
 import '../index.scss'
 import clsx from 'clsx';
+import { AddToPhotosTwoTone } from '@material-ui/icons';
 
 // cornerstoneTools.init({
 // 	globalToolSyncEnabled: true,
@@ -50,8 +52,20 @@ const useStyles = makeStyles((theme) =>
 			padding: 10,
 			marginLeft: 10,
 		}, 
+		uploadBtn: {
+			backgroundColor: 'white',
+			padding: 10,
+			marginLeft: 10,
+			'&:hover': {
+				backgroundColor: 'white',
+			}
+		},
     })
 )
+
+interface PropsDicomDropZone {
+	imageId: string;
+}
 
 const DICOMDropZone = ({setImageName, setPatientName}) => {
 
@@ -118,38 +132,35 @@ const DICOMDropZone = ({setImageName, setPatientName}) => {
 	)
 }
 
-// const FileUpload = () => {
-// 	const[file, setFile] = useState('');
-	
-// 	const handleUpload = () =>{
-// 		setFile
-// 	}
-// }
+const FileUpload = () => {
+	// const classes = useStyles()
+	// const theme = useTheme()
+	// console.log('CLICKKKKKKKKKKKED'); 
+	// const file:File = event.files[0]
+	// // const file = event.target.file[0];
 
-const enableTools = (element) => {
-	return 
-		// cornerstoneTools.StackScrollMouseWheelTool;
-		cornerstoneTools.mouseInput.enable(element);
-		cornerstoneTools.mouseWheelInput.enable(element);
-		// // Enable all tools we want to use with this element
-		cornerstoneTools.wwwc.activate(element, 1); // ww/wc is the default tool for left mouse button
-		cornerstoneTools.pan.activate(element, 2); // pan is the default tool for middle mouse button
-		cornerstoneTools.zoom.activate(element, 4); // zoom is the default tool for right mouse button
-		cornerstoneTools.zoomWheel.activate(element); // zoom is the default tool for middle mouse wheel
-		cornerstoneTools.probe.enable(element);
-		cornerstoneTools.length.enable(element);
-		cornerstoneTools.ellipticalRoi.enable(element);
-		cornerstoneTools.rectangleRoi.enable(element);
-		cornerstoneTools.angle.enable(element);
-		cornerstoneTools.highlight.enable(element);
-	
-
+	// const reader = new FileReader();
+	// reader.onloadend = (e) => {
+	// 	const selectedFile = reader.result
+	// 	console.log(selectedFile)
+	// }
+	// // console.log(file)
+	// let element: HTMLDivElement;
+	// const onFileUpload = (e: DragEvent<HTMLDivElement>) => {
+	// 	e.preventDefault();
+	// }
+	// const[file, setFile] = useState('');
+	const [imageName, setImageName] = useState('')
+	const [patientName, setPatiename] = useState('')
+	return <DICOMDropZone setImageName={setImageName} 
+						setPatientName={setPatiename}
+			/> 
 }
 
 const LoadImage = (): JSX.Element => {
 
-    const classes = useStyles();
-
+    const classes = useStyles()
+	
 	const [imageName, setImageName] = useState('')
 	const [patientName, setPatiename] = useState('')
 	// console.log('AAAAAAAAAAAAAA' + imageName)
@@ -164,9 +175,19 @@ const LoadImage = (): JSX.Element => {
             <DICOMDropZone setImageName={setImageName} 
 						setPatientName={setPatiename}
 						/>
-			{/* {DICOMDropZone(setImageName={setImageName} 
-			setPatientName={setPatiename})} */}
-			
+			{/* <Button className={classes.uploadBtn}
+			 	// onClick={(event) => FileUpload(event)}
+				// setImageName={setImageName} 
+				// setPatientName={setPatiename}
+				onClick={() => <DICOMDropZone setImageName={setImageName} 
+				setPatientName={setPatiename}
+				/>}
+				>
+				<AddPhotoAlternateIcon/>
+				Upload File Here
+			</Button> */}
+			{/* <input type="file" onClick={FileUpload(this)}/>
+			 */}
         </div>
 	);
 }
