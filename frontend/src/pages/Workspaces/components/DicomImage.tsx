@@ -63,8 +63,8 @@ const useStyles = makeStyles((theme) =>
     })
 )
 
-interface PropsDicomDropZone {
-	imageId: string;
+interface PropsDicom {
+	// imageId: PropsDicomDropZone;
 }
 
 const DICOMDropZone = ({setImageName, setPatientName}) => {
@@ -108,7 +108,7 @@ const DICOMDropZone = ({setImageName, setPatientName}) => {
 			ref={input=>{
 				if (input !== null) {
 					element=input; 
-					console.log(element)
+					// console.log(element)
 					cornerstone.enable(element);
 					// cornerstoneTools.StackScrollMouseWheelTool
 					cornerstoneTools.mouseInput.enable(element);
@@ -132,31 +132,6 @@ const DICOMDropZone = ({setImageName, setPatientName}) => {
 	)
 }
 
-const FileUpload = () => {
-	// const classes = useStyles()
-	// const theme = useTheme()
-	// console.log('CLICKKKKKKKKKKKED'); 
-	// const file:File = event.files[0]
-	// // const file = event.target.file[0];
-
-	// const reader = new FileReader();
-	// reader.onloadend = (e) => {
-	// 	const selectedFile = reader.result
-	// 	console.log(selectedFile)
-	// }
-	// // console.log(file)
-	// let element: HTMLDivElement;
-	// const onFileUpload = (e: DragEvent<HTMLDivElement>) => {
-	// 	e.preventDefault();
-	// }
-	// const[file, setFile] = useState('');
-	const [imageName, setImageName] = useState('')
-	const [patientName, setPatiename] = useState('')
-	return <DICOMDropZone setImageName={setImageName} 
-						setPatientName={setPatiename}
-			/> 
-}
-
 const LoadImage = (): JSX.Element => {
 
     const classes = useStyles()
@@ -168,26 +143,15 @@ const LoadImage = (): JSX.Element => {
 		
 		<div className={classes.dicomDrop}>
 			
-			<p style={{color: 'white'}}>
+			{/* <p style={{color: 'white'}}>
 				{imageName} &emsp; {patientName}
-			</p>
+			</p> */}
 			
-            <DICOMDropZone setImageName={setImageName} 
+            {/* <DICOMDropZone setImageName={setImageName} 
 						setPatientName={setPatiename}
-						/>
-			{/* <Button className={classes.uploadBtn}
-			 	// onClick={(event) => FileUpload(event)}
-				// setImageName={setImageName} 
-				// setPatientName={setPatiename}
-				onClick={() => <DICOMDropZone setImageName={setImageName} 
-				setPatientName={setPatiename}
-				/>}
-				>
-				<AddPhotoAlternateIcon/>
-				Upload File Here
-			</Button> */}
-			{/* <input type="file" onClick={FileUpload(this)}/>
-			 */}
+						/> */}
+			
+
         </div>
 	);
 }

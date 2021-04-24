@@ -1,5 +1,5 @@
 import React, { useReducer, useEffect, useCallback, useState } from 'react';
-import { useHistory, Link, Route, BrowserRouter, Switch , useRouteMatch} from 'react-router-dom';
+import { useHistory, Link, Route, BrowserRouter, Switch , useRouteMatch, useParams} from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import { toast } from 'react-toastify';
@@ -76,30 +76,25 @@ function userDetailReducer(
 }
 
 interface PropsDicomDropZone {
-	imgId: string;
+	// imgId: string;
+	getImageId: Function;
+
 }
 
-const DICOMDropZone = ({setImageName, setPatientName}, props: PropsDicomDropZone): JSX.Element => {
+const DICOMDropZone = (props: PropsDicomDropZone): JSX.Element => {
 
 	//This part is for dropzone
 	const onDrop = useCallback( async (acceptedFiles: Array<File>) => {
 		// setFile(acceptedFiles)
-		// const { imageId } = props.a;
-		// props.a = 'aaaa';
-		
+				
 		const imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(acceptedFiles[0]);
-		// const { imgId } = imageId;
-	    // props = {imgId}
-		// const { props.imgId } = imageId
-		console.log(imageId + '  '+ props)
+		props.getImageId(imageId)		
 
  		const imageName = acceptedFiles[0].name	
-		// console.log(imageName)
-		setImageName(imageName)	
 		cornerstone.loadImage(imageId).then((image) => {
 			cornerstone.displayImage(element, image);
 			const patientName = image.data.string('x00100010');
-			setPatientName(patientName);
+			// setPatientName(patientName);
 		})
 	}, []);
 
@@ -128,6 +123,7 @@ const DICOMDropZone = ({setImageName, setPatientName}, props: PropsDicomDropZone
 	</div>
 	)
 }
+
 
 interface PropsLabelContent {
 	url: string;
@@ -177,8 +173,8 @@ const LabelContent = (props: PropsLabelContent): JSX.Element => {
 	}, []);
 	const [imageName, setImageName] = useState('')
 	const [patientName, setPatiename] = useState('')
-	
-
+	const [imageId, setImageId] = useState('')
+	// let { id } = useParams();
 	return (
 		<div>
 		<Box p={0} borderRadius="none" color="black">
@@ -199,17 +195,15 @@ const LabelContent = (props: PropsLabelContent): JSX.Element => {
 			<Box className="dataset-item">
 				<BurstModeIcon className="data-item"/>
 				<div className="item-bottom" style={{marginRight: 30}}>
-					<p>{imageName}___{patientName} </p>
-					<DICOMDropZone setImageName={setImageName} 
-								setPatientName={setPatiename}
-								/><br/>
-					<Link to={`${url}/labeling`}>
+				
+					<DICOMDropZone getImageId={value=> setImageId(value)} /><br/>
+					<Link to={`${url}/labeling/${imageId}`}>
 						<Button 
 							className="overview btn labeling-btn"
 							type="submit" 
-							color="primary"									
+							color="primary"		
 						>
-							<OpenInNewIcon />
+							<OpenInNewIcon/>
 							Label
 						</Button>
 					</Link>
@@ -376,7 +370,7 @@ const WorkspacesLayout = (): JSX.Element => {
 					<Route path="/overview">
 						<LabelingWorkspace/>
 					</Route>
-					<Route exact path={`${url}/labeling`} render={() => <LabelingWorkspace/>} />
+					<Route exact path={`${url}/labeling/:imageId`} render={() => <LabelingWorkspace/>} />
 						{/* <LabelingWorkspace/> */}
 					
 				</Switch>

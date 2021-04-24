@@ -265,7 +265,7 @@ const NavigationBar: React.FC = () => {
 				/>
 				</Toolbar>
 		</AppBar>
-		<AppBar style={{
+		{/* <AppBar style={{
 			display: 'flex'
 					}}
 				className={clsx(classes.secondAppBar, {
@@ -315,7 +315,7 @@ const NavigationBar: React.FC = () => {
 				</Button>
 				
 			</Toolbar>			
-		</AppBar>
+		</AppBar> */}
 		<Drawer 
 			variant="permanent"
 			id="drawer"
