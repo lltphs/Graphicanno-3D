@@ -10,6 +10,8 @@ import {
   AppBar,
   Toolbar
 } from '@material-ui/core';
+import { mdiCheckboxIntermediate, mdiRuler } from '@mdi/js'
+import { Icon } from '@mdi/react'
 
 // import authenticate from django.contrib.auth ;
 import Alert from 'components/common/Alert';
@@ -126,6 +128,7 @@ const Dicom = (): JSX.Element => {
 		cornerstoneTools.zoomWheel.activate(element); // zoom is the default tool for middle mouse wheel
 		cornerstoneTools.probe.enable(element);
 		cornerstoneTools.length.enable(element);
+		cornerstoneTools.magnify.enable(element);
 		cornerstoneTools.ellipticalRoi.enable(element);
 		cornerstoneTools.rectangleRoi.enable(element);
 		cornerstoneTools.angle.enable(element);
@@ -144,12 +147,13 @@ const Dicom = (): JSX.Element => {
 		cornerstoneTools.pan.deactivate(element, 2); // pan is the default tool for middle mouse button
 		cornerstoneTools.zoom.deactivate(element, 4); // zoom is the default tool for right mouse button
 		cornerstoneTools.zoomWheel.deactivate(element); // zoom is the default tool for middle mouse wheel
-		cornerstoneTools.probe.disable(element);
-		cornerstoneTools.length.disable(element);
+		// cornerstoneTools.probe.disable(element);
+		// cornerstoneTools.length.disable(element);
 		cornerstoneTools.ellipticalRoi.disable(element);
 		cornerstoneTools.rectangleRoi.disable(element);
 		cornerstoneTools.angle.disable(element);
 		cornerstoneTools.highlight.disable(element);
+		cornerstoneTools.magnify.disable(element);
 	}
 
 	const handleZoomIn = (): any => {
@@ -173,14 +177,15 @@ const Dicom = (): JSX.Element => {
 		// cornerstoneTools.zoom.activate(element, 4); // zoom is the default tool for right mouse button
 		// cornerstoneTools.zoomWheel.activate(element); // zoom is the default tool for middle mouse wheel
 		let currentViewport = cornerstone.getViewport(element)
-		// let scale = currentViewport.scale 
-		// console.log(scale)	
-		// let currentScale = scale - 0.1
 		currentViewport.scale -= 0.1
 		cornerstone.setViewport(element, currentViewport)
 	}
 
 	const handleMagnify = () => {
+		disableAllTools()
+		setToolname('MAGNIFY')
+		cornerstoneTools.magnify.activate(element, 1)
+		console.log('MAGNIFY CONFIG: ', cornerstoneTools.magnify.getSize)
 		
 	}
 	
@@ -198,6 +203,12 @@ const Dicom = (): JSX.Element => {
 
 	}
 
+	const handleLength = () => {
+		disableAllTools()
+		setToolname('LENGTH')
+		cornerstoneTools.length.activate(element, 1)		
+	}
+
 	const handleDraw = () => {
 		disableAllTools()
 		setToolname('DRAW')
@@ -213,7 +224,7 @@ const Dicom = (): JSX.Element => {
 	}
 	
 	const handleContrast = () => {
-		// disableAllTools()
+		disableAllTools()
 		setToolname('CONTRAST');
 		let newviewport = cornerstone.getViewport(element)
 		console.log(newviewport)
@@ -237,23 +248,18 @@ const Dicom = (): JSX.Element => {
 		cornerstone.setViewport(element, initViewport)
 	}
 
+	const handleHideAll = () => {
+		disableAllTools()
+		cornerstoneTools.length.disable(element)
+		cornerstoneTools.probe.disable(element)
+		cornerstoneTools.highlight.disable(element)
+	}
+
 	console.log('CURRENT TOOLNAME: ' + toolname)
 
 	useEffect(() => {
 		readImage()
 	}, []);
-
-	// switch (toolname){
-	// 	case 'ZOOM': {
-	// 		console.log('zoomneeeee');
-	// 		break;
-	// 	}
-	// 	case 'CONTRAST': {
-	// 		console.log('contrastneeeeeee');
-	// 		break
-	// 	}
-			
-	// }
 
 	return(
 		<div className={classes.ele}>
@@ -273,11 +279,20 @@ const Dicom = (): JSX.Element => {
 						<br/>
 						Zoom Out
 					</Button>
-					<Button className="item-btn">
-						<AdjustIcon id="zoom-in" className="item-icon"/>
+					<Button className="item-btn"
+					 	onClick={handleMagnify}
+					>
+						<Icon path={mdiCheckboxIntermediate} id="zoom-in" className="item-icon"/>
 						<br/>
 						Magnify
 					</Button>
+					{/* <Button className="item-btn"
+						onClick={handleMagnify}
+					>
+						<AdjustIcon id="zoom-in" className="item-icon"/>
+						<br/>
+						Magnify
+					</Button> */}
 					<Button className="item-btn"
 					onClick={handleProbe}
 					>
@@ -291,6 +306,13 @@ const Dicom = (): JSX.Element => {
 						<FeaturedVideoIcon id="zoom-in" className="item-icon"/>
 						<br/>
 						Highlight
+					</Button>
+					<Button className="item-btn"
+					 	onClick={handleLength}
+					>
+						<Icon path={mdiRuler} id="zoom-in" className="item-icon"/>
+						<br/>
+						Length
 					</Button>
 					<Button className="item-btn">
 						<GestureIcon id="zoom-in" className="item-icon"/>
@@ -315,7 +337,9 @@ const Dicom = (): JSX.Element => {
 						<br/>
 						Reset
 					</Button>
-					<Button className="item-btn">
+					<Button className="item-btn"
+						onClick={handleHideAll}
+					>
 						<VisibilityOffIcon id="zoom-in" className="item-icon"/>
 						<br/>
 						Hide all
