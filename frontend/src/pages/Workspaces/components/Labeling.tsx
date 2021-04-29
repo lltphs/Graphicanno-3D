@@ -10,7 +10,16 @@ import {
   AppBar,
   Toolbar
 } from '@material-ui/core';
-import { mdiCheckboxIntermediate, mdiRuler } from '@mdi/js'
+import { 
+	mdiCheckboxIntermediate,
+	mdiRuler,
+	mdiAngleAcute,
+	mdiEllipse,
+	mdiRectangle,
+	mdiCursorPointer,
+	mdiEraser, 
+	mdiBrush
+} from '@mdi/js'
 import { Icon } from '@mdi/react'
 
 // import authenticate from django.contrib.auth ;
@@ -47,6 +56,7 @@ cornerstoneWADOImageLoader.external.dicomParser = dicomParser
 cornerstoneTools.external.cornerstone = cornerstone
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath
 cornerstoneTools.external.Hammer = Hammer
+cornerstoneTools.init()
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -107,32 +117,43 @@ const Dicom = (): JSX.Element => {
 	const id: any = useParams();
 	let element: any
 
-	const [img, setImg] = useState([])
+	// const [img, setImg] = useState([])
 	const [initViewport, setInitViewport] = useState('')
-	const [wwwc, setWwwc] = useState('')
+	// const [wwwc, setWwwc] = useState('')
 	
 	const readImage = async () => {
 		const image = await cornerstone.loadImage(id.imageId)
-		// setImg(image)
 		// console.log(typeof(image))
 		cornerstone.enable(element)
 		cornerstone.displayImage(element, image)
 		const patientName = image.data.string('x00100010')
 		
-		//init all tool
-		cornerstoneTools.mouseInput.enable(element)
-		cornerstoneTools.mouseWheelInput.enable(element)
-		cornerstoneTools.wwwc.activate(element, 1); // ww/wc is the default tool for left mouse button
-		cornerstoneTools.pan.activate(element, 2); // pan is the default tool for middle mouse button
-		cornerstoneTools.zoom.activate(element, 4); // zoom is the default tool for right mouse button
-		cornerstoneTools.zoomWheel.activate(element); // zoom is the default tool for middle mouse wheel
-		cornerstoneTools.probe.enable(element);
-		cornerstoneTools.length.enable(element);
-		cornerstoneTools.magnify.enable(element);
-		cornerstoneTools.ellipticalRoi.enable(element);
-		cornerstoneTools.rectangleRoi.enable(element);
-		cornerstoneTools.angle.enable(element);
-		cornerstoneTools.highlight.enable(element);
+		// Add all needed tools
+		cornerstoneTools.addTool(cornerstoneTools.ZoomTool)
+		cornerstoneTools.addTool(cornerstoneTools.WwwcTool)
+		cornerstoneTools.addTool(cornerstoneTools.MagnifyTool)
+		cornerstoneTools.addTool(cornerstoneTools.AngleTool)   
+		cornerstoneTools.addTool(cornerstoneTools.LengthTool)
+		cornerstoneTools.addTool(cornerstoneTools.PanTool)
+		cornerstoneTools.addTool(cornerstoneTools.ProbeTool)
+		cornerstoneTools.addTool(cornerstoneTools.EllipticalRoiTool)
+		cornerstoneTools.addTool(cornerstoneTools.RectangleRoiTool)
+		cornerstoneTools.addTool(cornerstoneTools.FreehandRoiTool)
+		cornerstoneTools.addTool(cornerstoneTools.EraserTool)
+		
+		// cornerstoneTools.mouseInput.enable(element)
+		// cornerstoneTools.mouseWheelInput.enable(element)
+		// cornerstoneTools.wwwc.activate(element, 1); // ww/wc is the default tool for left mouse button
+		// cornerstoneTools.pan.activate(element, 2); // pan is the default tool for middle mouse button
+		// cornerstoneTools.zoom.activate(element, 4); // zoom is the default tool for right mouse button
+		// cornerstoneTools.zoomWheel.activate(element); // zoom is the default tool for middle mouse wheel
+		// cornerstoneTools.probe.enable(element);
+		// cornerstoneTools.length.enable(element);
+		// cornerstoneTools.magnify.enable(element);
+		// cornerstoneTools.ellipticalRoi.enable(element);
+		// cornerstoneTools.rectangleRoi.enable(element);
+		// cornerstoneTools.angle.enable(element);
+		// cornerstoneTools.highlight.enable(element);
 
 		//get the viewport
 		let viewport = cornerstone.getViewport(element)		
@@ -159,60 +180,97 @@ const Dicom = (): JSX.Element => {
 	const handleZoomIn = (): any => {
 		// disableAllTools();
 		setToolname('ZOOM IN');
-		
-		// cornerstoneTools.zoom.activate(element, 4); // zoom is the default tool for right mouse button
-		// cornerstoneTools.zoomWheel.activate(element); // zoom is the default tool for middle mouse wheel
+		// let currentViewport = cornerstone.getViewport(element)
+		// currentViewport.scale += 0.1
+		// cornerstone.setViewport(element, currentViewport)
+
+		///////////////////
+		cornerstoneTools.setToolActive('Zoom', {mouseButtonMask: 1})
 		let currentViewport = cornerstone.getViewport(element)
-		// let scale = currentViewport.scale 
-		// console.log(scale)	
-		// let currentScale = scale + 0.1
 		currentViewport.scale += 0.1
 		cornerstone.setViewport(element, currentViewport)
 	}
 
 	const handleZoomOut = () => {
-		disableAllTools();
+		// disableAllTools();
 		setToolname('ZOOM OUT');
-		
-		// cornerstoneTools.zoom.activate(element, 4); // zoom is the default tool for right mouse button
-		// cornerstoneTools.zoomWheel.activate(element); // zoom is the default tool for middle mouse wheel
+		// let currentViewport = cornerstone.getViewport(element)
+		// currentViewport.scale -= 0.1
+		// cornerstone.setViewport(element, currentViewport)
+
+		cornerstoneTools.setToolActive('Zoom', {mouseButtonMask: 1})
 		let currentViewport = cornerstone.getViewport(element)
 		currentViewport.scale -= 0.1
 		cornerstone.setViewport(element, currentViewport)
 	}
 
 	const handleMagnify = () => {
-		disableAllTools()
+		// disableAllTools()
 		setToolname('MAGNIFY')
-		cornerstoneTools.magnify.activate(element, 1)
-		console.log('MAGNIFY CONFIG: ', cornerstoneTools.magnify.getSize)
+		// cornerstoneTools.magnify.activate(element, 1)
+		// console.log('MAGNIFY CONFIG: ', cornerstoneTools.magnify.getSize)
 		
+		cornerstoneTools.setToolActive('Magnify', { mouseButtonMask: 1 })
+	
+	}
+
+	const handlePan = () => {
+		setToolname('PAN')
+		cornerstoneTools.setToolActive('Pan', {mouseButtonMask: 1})
 	}
 	
 	const handleProbe = () => {
-		disableAllTools()
+		// disableAllTools()
 		setToolname('PROBE')
-		// cornerstoneTools.probe.enable(element);
-		cornerstoneTools.probe.activate(element, 1)
+		// cornerstoneTools.probe.activate(element, 1)
+
+		cornerstoneTools.setToolActive('Probe', { mouseButtonMask: 1 })
+         
 	}
 
-	const handleHighlight = () => {
-		disableAllTools()
-		setToolname('HIGHLIGHT')
-		cornerstoneTools.highlight.activate(element, 1)
+	const handleAngle = () => {
+		setToolname('ANGLE')
+		cornerstoneTools.setToolActive('Angle', { mouseButtonMask: 1 })
 
 	}
 
 	const handleLength = () => {
-		disableAllTools()
+		// disableAllTools()
 		setToolname('LENGTH')
-		cornerstoneTools.length.activate(element, 1)		
+		// cornerstoneTools.length.activate(element, 1)	
+		
+		cornerstoneTools.setToolActive('Length', { mouseButtonMask: 1 })
+	}
+	
+	const handleContrast = () => {
+		// disableAllTools()
+		// setToolname('CONTRAST');
+		// let newviewport = cornerstone.getViewport(element)
+		// console.log(newviewport)
+		// cornerstoneTools.wwwc.activate(element, 1);
+		cornerstoneTools.setToolActive('Wwwc', {mouseButtonMask: 1})
 	}
 
-	const handleDraw = () => {
-		disableAllTools()
+	const handleFreeHand = () => {
+		// disableAllTools()
 		setToolname('DRAW')
-		
+		// cornerstoneTools.brush.enable(element)
+		// cornerstoneTools.brush.activate(element, 1)
+		// console.log('brush: ', cornerstoneTools.getToolState)
+
+		cornerstoneTools.setToolActive('FreehandRoi', { mouseButtonMask: 1 })
+		console.log('region: ', cornerstoneTools.freehandroi)
+	}
+
+	const handleBrush = () => {
+		setToolname('BRUSH')
+		// cornerstoneTools.setToolActive('Brush', {mouseButtonMask: 1})
+		// console.log(cornerstoneTools.brush.getConfiguration)
+	}
+
+	const handleEraser = () => {
+		setToolname('ERASER')
+		cornerstoneTools.setToolActive('Eraser', {mouseButtonMask: 1})
 	}
 
 	const handleInvert = () => {
@@ -222,37 +280,21 @@ const Dicom = (): JSX.Element => {
 		viewport.invert = !viewport.invert
 		cornerstone.setViewport(element, viewport)
 	}
-	
-	const handleContrast = () => {
-		disableAllTools()
-		setToolname('CONTRAST');
-		let newviewport = cornerstone.getViewport(element)
-		console.log(newviewport)
-		cornerstoneTools.wwwc.activate(element, 1);
-		// console.log('/////////////', viewport)
-	}
 
 	const handleReset = () => {
-		disableAllTools()
+		// disableAllTools()
 		setToolname('RESET')
 		let currentViewport = cornerstone.getViewport(element)
-		// console.log(img)
-		// const defaultViewport = cornerstone.getDefaultViewportForImage(element, img)
-		// console.log(viewport)
-		// viewport.invert = false
-		// viewport.scale = 1
-		// console.log('edited viewport', viewport)
-		//reset to the initial viewport
 		currentViewport.voi.windowWidth = 0
      	currentViewport.voi.windowCenter = 0
 		cornerstone.setViewport(element, initViewport)
 	}
 
 	const handleHideAll = () => {
-		disableAllTools()
-		cornerstoneTools.length.disable(element)
-		cornerstoneTools.probe.disable(element)
-		cornerstoneTools.highlight.disable(element)
+		// disableAllTools()
+		// cornerstoneTools.length.disable(element)
+		// cornerstoneTools.probe.disable(element)
+		// cornerstoneTools.highlight.disable(element)
 	}
 
 	console.log('CURRENT TOOLNAME: ' + toolname)
@@ -286,13 +328,19 @@ const Dicom = (): JSX.Element => {
 						<br/>
 						Magnify
 					</Button>
-					{/* <Button className="item-btn"
-						onClick={handleMagnify}
+					<Button className="item-btn"
+					 	onClick={handlePan}
 					>
-						<AdjustIcon id="zoom-in" className="item-icon"/>
+						<Icon path={mdiCursorPointer} id="zoom-in" className="item-icon"/>
 						<br/>
-						Magnify
-					</Button> */}
+						Pan
+					</Button>
+					<Button className="item-btn"
+						onClick={handleContrast}>
+						<WbSunnyIcon id="zoom-in" className="item-icon"/>
+						<br/>
+						Contrast
+					</Button>
 					<Button className="item-btn"
 					onClick={handleProbe}
 					>
@@ -301,11 +349,11 @@ const Dicom = (): JSX.Element => {
 						Probe
 					</Button>
 					<Button className="item-btn"
-						onClick={handleHighlight}
+						onClick={handleAngle}
 					>
-						<FeaturedVideoIcon id="zoom-in" className="item-icon"/>
+						<Icon path={mdiAngleAcute} id="zoom-in" className="item-icon"/>
 						<br/>
-						Highlight
+						Angle
 					</Button>
 					<Button className="item-btn"
 					 	onClick={handleLength}
@@ -313,23 +361,47 @@ const Dicom = (): JSX.Element => {
 						<Icon path={mdiRuler} id="zoom-in" className="item-icon"/>
 						<br/>
 						Length
+					</Button>				
+					<Button className="item-btn"
+					 	onClick={handleLength}
+					>
+						<Icon path={mdiEllipse} id="zoom-in" className="item-icon"/>
+						<br/>
+						Ellipse
 					</Button>
-					<Button className="item-btn">
+					<Button className="item-btn"
+					 	onClick={handleLength}
+					>
+						<Icon path={mdiRectangle} id="zoom-in" className="item-icon"/>
+						<br/>
+						Rectangle
+					</Button>
+					<Button className="item-btn"
+						onClick={handleFreeHand}
+					>
 						<GestureIcon id="zoom-in" className="item-icon"/>
 						<br/>
-						Draw
+						FreeHand
+					</Button>	
+					<Button className="item-btn"
+					 	onClick={handleBrush}
+					>
+						<Icon path={mdiBrush} id="zoom-in" className="item-icon"/>
+						<br/>
+						Brush
+					</Button>
+					<Button className="item-btn"
+					 	onClick={handleEraser}
+					>
+						<Icon path={mdiEraser} id="zoom-in" className="item-icon"/>
+						<br/>
+						Eraser
 					</Button>
 					<Button className="item-btn"
 						onClick={handleInvert}>
 						<Brightness5Icon id="zoom-in" className="item-icon"/>
 						<br/>
 						Invert
-					</Button>
-					<Button className="item-btn"
-						onClick={handleContrast}>
-						<WbSunnyIcon id="zoom-in" className="item-icon"/>
-						<br/>
-						Contrast
 					</Button>
 					<Button className="item-btn"
 						onClick={handleReset}>
