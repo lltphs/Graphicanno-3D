@@ -24,7 +24,7 @@ import AspectRatioIcon from '@material-ui/icons/AspectRatio';
 import VpnKeyIcon from '@material-ui/icons/VpnKey';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 
-import '../index.scss';
+// import '../index.scss';
 
 const StyledMenu = withStyles({
   paper: {
@@ -53,17 +53,22 @@ const useStyles = makeStyles((theme: Theme) =>
       display: 'flex',
       width: '100%',
       height: '100%',
+      padding: 0
     },
     root_appbar: {
-      backgroundColor: '#4285F4',
+      backgroundColor: '#1f2b6d',
       minHeight: '45px',
+      padding: 0,
     },
     appbar: {
       paddingLeft: 0,
-      borderLeft: 'none',
     },
     grow: {
       flexGrow: 1,
+    },
+    homeBtn:{ 
+      margin: 10,
+      padding: 20
     },
     chip: {
       // margin: theme.spacing(1),
@@ -79,9 +84,11 @@ const useStyles = makeStyles((theme: Theme) =>
       color: '#fff',
     },
     toolbar: {
-      padding: '0',
+      padding: '0 !important' ,
+    
       margin: 0,
       width: '100%',
+      backgroundColor: '#1f2b6d',
     },
     
   })
@@ -123,10 +130,10 @@ function HeaderWorkspaces({
   return (
     <div className={classes.root}>
       {/* <CssBaseline /> */}
-      {/* <AppBar position="static" className={classes.root_appbar}> */}
+      <AppBar position="static" className={classes.root_appbar}>
         <Toolbar disableGutters={!open} className={classes.toolbar} id="toolbar">
           <IconButton 
-            id="home"
+            className={classes.homeBtn}
             aria-haspopup="true"
             color="inherit"
             onClick={() => {
@@ -177,7 +184,7 @@ function HeaderWorkspaces({
             </StyledMenu>
           </div>
         </Toolbar>
-      {/* </AppBar> */}
+      </AppBar>
     </div>
   );
 }

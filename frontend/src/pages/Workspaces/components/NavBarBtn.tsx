@@ -51,8 +51,8 @@ const useStyles = makeStyles((theme) => ({
 		display: 'flex',
 	  },
 	  appBar: {
-		backgroundColor: '#4285F4',
-		paddingRight: 0,
+		backgroundColor: '#1f2b6d',
+		padding: 0,
 		marginRight: 0,
 		zIndex: theme.zIndex.drawer + 1,
 		transition: theme.transitions.create(['width', 'margin'], {
@@ -91,6 +91,9 @@ const useStyles = makeStyles((theme) => ({
 	  hide: {
 		display: 'none',
 	  },
+	  header: {
+		paddingLeft: 10
+	  },
 	  drawer: {
 		width: drawerWidth,
 		flexShrink: 0,
@@ -118,7 +121,8 @@ const useStyles = makeStyles((theme) => ({
 		display: 'flex',
 		alignItems: 'center',
 		justifyContent: 'flex-end',
-		padding: theme.spacing(0, 1),
+		paddingRight: 0,
+		borderLeft: 'none',
 		// necessary for content to be below app bar
 		...theme.mixins.toolbar,
 	  },
@@ -238,7 +242,7 @@ const NavigationBar: React.FC = () => {
 			[classes.appBarShift]: open,
 			})}
 		>
-			<Toolbar >
+			<Toolbar className={classes.toolbar}>
 				<IconButton
 					color="inherit"
 					aria-label="open drawer"
@@ -251,7 +255,7 @@ const NavigationBar: React.FC = () => {
 					<MenuIcon />
 				</IconButton>
 				
-				<HeaderWorkspaces					
+				<HeaderWorkspaces	
 					username={userDetailState.username}
 					logout={() => {
 					dispatch(logout());

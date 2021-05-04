@@ -55,11 +55,13 @@ const useStyles = makeStyles((theme: Theme) =>
       height: '100%',
     },
     root_appbar: {
-      backgroundColor: '#4285F4',
+      backgroundColor: '#1f2b6d',
       minHeight: '45px',
+      boxShadow: '0 7px 7px rgba(0, 0, 0, 0.1), 0 3px 3px rgba(0, 0, 0, 0.2)'
     },
     appbar: {
       paddingLeft: 0,
+      borderBottom: '1px solid black'
     },
     grow: {
       flexGrow: 1,
