@@ -140,6 +140,7 @@ const Dicom = (): JSX.Element => {
 		cornerstoneTools.addTool(cornerstoneTools.RectangleRoiTool)
 		cornerstoneTools.addTool(cornerstoneTools.FreehandRoiTool)
 		cornerstoneTools.addTool(cornerstoneTools.EraserTool)
+		cornerstoneTools.addTool(cornerstoneTools.BaseBrushTool)
 		
 		// cornerstoneTools.mouseInput.enable(element)
 		// cornerstoneTools.mouseWheelInput.enable(element)
@@ -168,6 +169,7 @@ const Dicom = (): JSX.Element => {
 		cornerstoneTools.pan.deactivate(element, 2); // pan is the default tool for middle mouse button
 		cornerstoneTools.zoom.deactivate(element, 4); // zoom is the default tool for right mouse button
 		cornerstoneTools.zoomWheel.deactivate(element); // zoom is the default tool for middle mouse wheel
+		cornerstoneTools.freeahandroi.deactive(element);
 		// cornerstoneTools.probe.disable(element);
 		// cornerstoneTools.length.disable(element);
 		cornerstoneTools.ellipticalRoi.disable(element);
@@ -264,7 +266,8 @@ const Dicom = (): JSX.Element => {
 
 	const handleBrush = () => {
 		setToolname('BRUSH')
-		// cornerstoneTools.setToolActive('Brush', {mouseButtonMask: 1})
+		disableAllTools()
+		cornerstoneTools.setToolActive('BaseBrush', {mouseButtonMask: 1})
 		// console.log(cornerstoneTools.brush.getConfiguration)
 	}
 
