@@ -56,7 +56,11 @@ cornerstoneWADOImageLoader.external.dicomParser = dicomParser
 cornerstoneTools.external.cornerstone = cornerstone
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath
 cornerstoneTools.external.Hammer = Hammer
-cornerstoneTools.init()
+cornerstoneTools.init(
+	{
+		showSVGCursors: true,
+	}
+)
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -125,10 +129,21 @@ const Dicom = (): JSX.Element => {
 		const image = await cornerstone.loadImage(id.imageId)
 		// console.log(typeof(image))
 		cornerstone.enable(element)
+
+		const stack = {
+			imageIds: [id],
+			currentImageIdIndex: 0
+		};
+		// add stack
+		cornerstoneTools.clearToolState(element, "stack");
+		cornerstoneTools.addStackStateManager(element, ["stack"]);
+		cornerstoneTools.addToolState(element, "stack", stack);
+		
+		//display image
 		cornerstone.displayImage(element, image)
 		const patientName = image.data.string('x00100010')
 		
-		// Add all needed tools
+		// Add all needed tools version 4.18.1
 		cornerstoneTools.addTool(cornerstoneTools.ZoomTool)
 		cornerstoneTools.addTool(cornerstoneTools.WwwcTool)
 		cornerstoneTools.addTool(cornerstoneTools.MagnifyTool)
@@ -140,20 +155,8 @@ const Dicom = (): JSX.Element => {
 		cornerstoneTools.addTool(cornerstoneTools.RectangleRoiTool)
 		cornerstoneTools.addTool(cornerstoneTools.FreehandRoiTool)
 		cornerstoneTools.addTool(cornerstoneTools.EraserTool)
-		cornerstoneTools.addTool(cornerstoneTools.BaseBrushTool)
+		cornerstoneTools.addTool(cornerstoneTools.BrushTool)
 		
-		// cornerstoneTools.mouseInput.enable(element)
-		// cornerstoneTools.mouseWheelInput.enable(element)
-		// cornerstoneTools.wwwc.activate(element, 1); // ww/wc is the default tool for left mouse button
-		// cornerstoneTools.pan.activate(element, 2); // pan is the default tool for middle mouse button
-		// cornerstoneTools.zoom.activate(element, 4); // zoom is the default tool for right mouse button
-		// cornerstoneTools.zoomWheel.activate(element); // zoom is the default tool for middle mouse wheel
-		// cornerstoneTools.probe.enable(element);
-		// cornerstoneTools.length.enable(element);
-		// cornerstoneTools.magnify.enable(element);
-		// cornerstoneTools.ellipticalRoi.enable(element);
-		// cornerstoneTools.rectangleRoi.enable(element);
-		// cornerstoneTools.angle.enable(element);
 		// cornerstoneTools.highlight.enable(element);
 
 		//get the viewport
@@ -246,9 +249,7 @@ const Dicom = (): JSX.Element => {
 	
 	const handleContrast = () => {
 		// disableAllTools()
-		// setToolname('CONTRAST');
-		// let newviewport = cornerstone.getViewport(element)
-		// console.log(newviewport)
+		setToolname('CONTRAST');
 		// cornerstoneTools.wwwc.activate(element, 1);
 		cornerstoneTools.setToolActive('Wwwc', {mouseButtonMask: 1})
 	}
@@ -256,19 +257,45 @@ const Dicom = (): JSX.Element => {
 	const handleFreeHand = () => {
 		// disableAllTools()
 		setToolname('DRAW')
-		// cornerstoneTools.brush.enable(element)
 		// cornerstoneTools.brush.activate(element, 1)
-		// console.log('brush: ', cornerstoneTools.getToolState)
 
 		cornerstoneTools.setToolActive('FreehandRoi', { mouseButtonMask: 1 })
-		console.log('region: ', cornerstoneTools.freehandroi)
+		console.log('region: ', cornerstoneTools.freehandArea)
 	}
 
 	const handleBrush = () => {
 		setToolname('BRUSH')
-		disableAllTools()
-		cornerstoneTools.setToolActive('BaseBrush', {mouseButtonMask: 1})
-		// console.log(cornerstoneTools.brush.getConfiguration)
+		// disableAllTools()
+		const {
+			getters,
+			setters,
+			configuration,
+			state
+		} = cornerstoneTools.getModule('segmentation')
+		
+		// const bufferInfoArray = getters.labelmapBuffers(element)
+
+		cornerstoneTools.setToolActive('Brush', {mouseButtonMask: 1})
+		const labelmap2D = getters.labelmap2D(element)
+		console.log('labelmap2d: ', labelmap2D)
+		setters.activeSegmentIndex(element, 1000)
+		
+		
+		// let pixelData = new Uint8ClampedArray(3);
+		// for (let i = 128; i < 256; i++) {
+		// 	for (let j = 256; j < 384; j++) {
+		// 		pixelData[i*255 + j] = 1;
+		// 	}
+		// }
+		// let toolState = cornerstoneTools.getToolState(element, 'brush');
+		// if (toolState) {
+		// 	toolState.data[0].pixelData = [...pixelData];
+		// } else {
+		// 	cornerstoneTools.addToolState(element, 'brush', { pixelData });
+		// 	toolState = cornerstoneTools.getToolState(element, 'brush');
+		// }
+		// toolState.data[0].invalidated = true;
+		// cornerstone.updateImage(element);
 	}
 
 	const handleEraser = () => {
@@ -426,8 +453,7 @@ const Dicom = (): JSX.Element => {
 			ref={(input) => {
 				element = input
 			}}></div>
-		</div>
-		
+		</div>		
 	)
 }
 
@@ -437,80 +463,34 @@ const LabelingWorkspace = (): JSX.Element => {
   const dispatch: RootDispatchType = useDispatch();
 
   const [passChangeSuccess, setPassChangeSuccess] = useState(false);
-
-  
-//   const id = useParams();
-//   console.log(id);
-  
-	const handleModalClose: () => void = () => {
-		setPassChangeSuccess(false);
-	};
-
-	const handleRegist = (
-		username: string,
-		email: string,
-		password: string,
-		setSubmitting: (isSubmitting: boolean) => void,
-		resetForm: () => void
-	) => {
-		dispatch(register(username, email, password));
-		// const isLogin:string = "handled";
-		setTimeout(() => {
-		setSubmitting(false);
-		setPassChangeSuccess(true);
-		resetForm();
-		}, 700);
-	};
-
 	
   return (
     <Formik
       initialValues={{		
         username: '',
-		    email: '',
+		email: '',
         password: '',
-      }}
-      validationSchema={object().shape({
-        username: string().required('Username is required'),
-		    email: string().required('Email is required'),
-        password: string().required('Password is required')
-      })}
-      onSubmit={({ username, email, password }, { setSubmitting, resetForm }) =>
-        handleRegist(username, email, password, setSubmitting, resetForm)
-      }
-      validateOnBlur
+      }}    
+      onSubmit={ () => {} }
     >
-      {(
+    {(
         props: FormikProps<{			
           	username: string;
-			      email: string;
+			email: string;
           	password: string;			
         }>
       ) => {
         const {
-          values,
-          touched,
-          errors,
-          handleChange,
-          handleBlur,
-          handleSubmit,
-          isValid,
-          isSubmitting,
         } = props;
-		// console.log(id);
-		// const [id, setId] = useState('')
 		
         return (
           	<Container  
             className={classes.container}
             style={{backgroundColor: 'black'}} >
               	<NavigationBar/>
-				
-              
 				<div className={classes.dicomWrapper} id="canvas">
 					{/* <LoadImage/> */}
 					<Dicom/>
-
 				</div>
             </Container>
         );
