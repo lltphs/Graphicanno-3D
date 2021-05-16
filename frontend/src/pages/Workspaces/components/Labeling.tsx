@@ -18,7 +18,10 @@ import {
 	mdiRectangle,
 	mdiCursorPointer,
 	mdiEraser, 
-	mdiBrush
+	mdiBrush,
+	mdiScissorsCutting,
+	mdiUndo,
+	mdiRedo
 } from '@mdi/js'
 import { Icon } from '@mdi/react'
 
@@ -42,6 +45,8 @@ import Brightness5Icon from '@material-ui/icons/Brightness5';
 import WbSunnyIcon from '@material-ui/icons/WbSunny';
 import HistoryIcon from '@material-ui/icons/History';
 import VisibilityOffIcon from '@material-ui/icons/VisibilityOff';
+import Popover from '@material-ui/core/Popover';
+import Typography from '@material-ui/core/Typography';
 
 import Hammer from 'hammerjs';
 import dicomParser from 'dicom-parser';
@@ -58,7 +63,7 @@ cornerstoneTools.external.cornerstoneMath = cornerstoneMath
 cornerstoneTools.external.Hammer = Hammer
 cornerstoneTools.init(
 	{
-		showSVGCursors: true,
+		// showSVGCursors: true,
 	}
 )
 
@@ -112,7 +117,13 @@ const useStyles = makeStyles((theme: Theme) =>
 		paddingBottom: 10,
 		marginTop: 64,
 		backgroundColor: 'white',
-	}
+	},
+	popover: {
+		pointerEvents: 'none',
+	},
+	papers: {
+		padding: theme.spacing(1),
+	},
   })
 );
 
@@ -156,6 +167,7 @@ const Dicom = (): JSX.Element => {
 		cornerstoneTools.addTool(cornerstoneTools.FreehandRoiTool)
 		cornerstoneTools.addTool(cornerstoneTools.EraserTool)
 		cornerstoneTools.addTool(cornerstoneTools.BrushTool)
+		cornerstoneTools.addTool(cornerstoneTools.CorrectionScissorsTool)
 		
 		// cornerstoneTools.highlight.enable(element);
 
@@ -189,7 +201,6 @@ const Dicom = (): JSX.Element => {
 		// currentViewport.scale += 0.1
 		// cornerstone.setViewport(element, currentViewport)
 
-		///////////////////
 		cornerstoneTools.setToolActive('Zoom', {mouseButtonMask: 1})
 		let currentViewport = cornerstone.getViewport(element)
 		currentViewport.scale += 0.1
@@ -224,48 +235,49 @@ const Dicom = (): JSX.Element => {
 		cornerstoneTools.setToolActive('Pan', {mouseButtonMask: 1})
 	}
 	
-	const handleProbe = () => {
-		// disableAllTools()
-		setToolname('PROBE')
-		// cornerstoneTools.probe.activate(element, 1)
+	const handleContrast = () => {
+		setToolname('CONTRAST');
+		cornerstoneTools.setToolActive('Wwwc', {mouseButtonMask: 1})
+	} 
 
-		cornerstoneTools.setToolActive('Probe', { mouseButtonMask: 1 })
-         
+	const handleProbe = () => {
+		setToolname('PROBE')
+		cornerstoneTools.setToolActive('Probe', { mouseButtonMask: 1 })         
 	}
 
 	const handleAngle = () => {
 		setToolname('ANGLE')
 		cornerstoneTools.setToolActive('Angle', { mouseButtonMask: 1 })
-
 	}
 
 	const handleLength = () => {
-		// disableAllTools()
-		setToolname('LENGTH')
-		// cornerstoneTools.length.activate(element, 1)	
-		
+		setToolname('LENGTH')		
 		cornerstoneTools.setToolActive('Length', { mouseButtonMask: 1 })
 	}
-	
-	const handleContrast = () => {
-		// disableAllTools()
-		setToolname('CONTRAST');
-		// cornerstoneTools.wwwc.activate(element, 1);
-		cornerstoneTools.setToolActive('Wwwc', {mouseButtonMask: 1})
+
+	const handleEllipse = () => {
+		setToolname('Ellipse')
+		cornerstoneTools.setToolActive('EllipticalRoi', {mouseButtonMask: 1})
+	}
+
+	const handleRectangle = () => {
+		setToolname('RECTANGLE')
+		cornerstoneTools.setToolActive('RectangleRoi', {mouseButtonMask: 1})
 	}
 
 	const handleFreeHand = () => {
-		// disableAllTools()
-		setToolname('DRAW')
-		// cornerstoneTools.brush.activate(element, 1)
-
+		setToolname('FREEHANDROI')
 		cornerstoneTools.setToolActive('FreehandRoi', { mouseButtonMask: 1 })
 		console.log('region: ', cornerstoneTools.freehandArea)
 	}
 
+	const handleEraser = () => {
+		setToolname('ERASER')
+		cornerstoneTools.setToolActive('Eraser', {mouseButtonMask: 1})
+	}
+
 	const handleBrush = () => {
 		setToolname('BRUSH')
-		// disableAllTools()
 		const {
 			getters,
 			setters,
@@ -273,12 +285,26 @@ const Dicom = (): JSX.Element => {
 			state
 		} = cornerstoneTools.getModule('segmentation')
 		
-		// const bufferInfoArray = getters.labelmapBuffers(element)
-
+		//pixelData2D
 		cornerstoneTools.setToolActive('Brush', {mouseButtonMask: 1})
 		const labelmap2D = getters.labelmap2D(element)
 		console.log('labelmap2d: ', labelmap2D)
 		setters.activeSegmentIndex(element, 1000)
+		
+		const arrayPixel = labelmap2D.labelmap2D.pixelData
+		console.log('arrayPixel: ', typeof arrayPixel)
+		
+		// let count = 0
+		// for (let j = 0; j < 262144; j++){
+		// 	if (arrayPixel[j] != 0){
+		// 		console.log('DIFFERENT FROM 0: ', arrayPixel[j])
+		// 	}
+		// 	else{
+		// 		count++
+		// 	}
+		// }
+		// console.log('Total num equal 0: ', count)
+		
 		
 		
 		// let pixelData = new Uint8ClampedArray(3);
@@ -298,9 +324,9 @@ const Dicom = (): JSX.Element => {
 		// cornerstone.updateImage(element);
 	}
 
-	const handleEraser = () => {
-		setToolname('ERASER')
-		cornerstoneTools.setToolActive('Eraser', {mouseButtonMask: 1})
+	const handleCorrectionScissor = () => {
+		setToolname('Correction Scissor')
+		cornerstoneTools.setToolActive('CorrectionScissors', {mouseButtonMask: 1})
 	}
 
 	const handleInvert = () => {
@@ -311,20 +337,62 @@ const Dicom = (): JSX.Element => {
 		cornerstone.setViewport(element, viewport)
 	}
 
+	const handleUndo = () => {
+		setToolname('UNDO')
+		const { setters } = cornerstoneTools.getModule('segmentation')
+		console.log('setters: ', setters)
+		setters.undo(element) // 2 is default labelmapIndex
+	}
+
+	// const handlePopoverOpen = () => {
+
+	// }
+
+	// const handlePopoverClose = () => {
+
+
+	// }
+
+	const [anchorEl, setAnchorEl] = React.useState(null);
+
+	const handlePopoverOpen = (event) => {
+		setAnchorEl(event.currentTarget);
+	};
+
+	const handlePopoverClose = () => {
+		setAnchorEl(null);
+	};
+	
+	const open = Boolean(anchorEl);
+
 	const handleReset = () => {
-		// disableAllTools()
 		setToolname('RESET')
 		let currentViewport = cornerstone.getViewport(element)
 		currentViewport.voi.windowWidth = 0
      	currentViewport.voi.windowCenter = 0
 		cornerstone.setViewport(element, initViewport)
+		cornerstoneTools.setToolPassive()
 	}
 
 	const handleHideAll = () => {
-		// disableAllTools()
-		// cornerstoneTools.length.disable(element)
-		// cornerstoneTools.probe.disable(element)
-		// cornerstoneTools.highlight.disable(element)
+		setToolname('HIDEALL')
+		
+		cornerstoneTools.setToolPassive('Magnify', { mouseButtonMask: 1 })
+		cornerstoneTools.setToolPassive('Pan', { mouseButtonMask: 1 })
+		cornerstoneTools.setToolPassive('Contrast', { mouseButtonMask: 1 })
+		cornerstoneTools.setToolPassive('Probe', { mouseButtonMask: 1 })
+		cornerstoneTools.setToolPassive('Angle', { mouseButtonMask: 1 })
+		cornerstoneTools.setToolPassive('Length', { mouseButtonMask: 1 })
+		cornerstoneTools.setToolPassive('EllipticalRoi', { mouseButtonMask: 1 })
+		cornerstoneTools.setToolPassive('RectangleRoi', { mouseButtonMask: 1 })
+		cornerstoneTools.setToolPassive('FreeHandRoi', { mouseButtonMask: 1 })
+		cornerstoneTools.setToolPassive('Brush', { mouseButtonMask: 1 })
+		
+		let currentViewport = cornerstone.getViewport(element)
+		currentViewport.voi.windowWidth = 0
+     	currentViewport.voi.windowCenter = 0
+		cornerstone.setViewport(element, initViewport)
+		cornerstoneTools.setToolPassive()
 	}
 
 	console.log('CURRENT TOOLNAME: ' + toolname)
@@ -334,6 +402,7 @@ const Dicom = (): JSX.Element => {
 	}, []);
 
 	return(
+		
 		<div className={classes.ele}>
 			<AppBar className={classes.appbar}>
 				<Toolbar>
@@ -393,14 +462,14 @@ const Dicom = (): JSX.Element => {
 						Length
 					</Button>				
 					<Button className="item-btn"
-					 	onClick={handleLength}
+					 	onClick={handleEllipse}
 					>
 						<Icon path={mdiEllipse} id="zoom-in" className="item-icon"/>
 						<br/>
 						Ellipse
 					</Button>
 					<Button className="item-btn"
-					 	onClick={handleLength}
+					 	onClick={handleRectangle}
 					>
 						<Icon path={mdiRectangle} id="zoom-in" className="item-icon"/>
 						<br/>
@@ -414,6 +483,13 @@ const Dicom = (): JSX.Element => {
 						FreeHand
 					</Button>	
 					<Button className="item-btn"
+					 	onClick={handleEraser}
+					>
+						<Icon path={mdiEraser} id="zoom-in" className="item-icon"/>
+						<br/>
+						Eraser
+					</Button>
+					<Button className="item-btn"
 					 	onClick={handleBrush}
 					>
 						<Icon path={mdiBrush} id="zoom-in" className="item-icon"/>
@@ -421,11 +497,11 @@ const Dicom = (): JSX.Element => {
 						Brush
 					</Button>
 					<Button className="item-btn"
-					 	onClick={handleEraser}
+					 	onClick={handleCorrectionScissor}
 					>
-						<Icon path={mdiEraser} id="zoom-in" className="item-icon"/>
+						<Icon path={mdiScissorsCutting} id="zoom-in" className="item-icon"/>
 						<br/>
-						Eraser
+						Scissor
 					</Button>
 					<Button className="item-btn"
 						onClick={handleInvert}>
@@ -434,10 +510,33 @@ const Dicom = (): JSX.Element => {
 						Invert
 					</Button>
 					<Button className="item-btn"
-						onClick={handleReset}>
-						<HistoryIcon id="zoom-in" className="item-icon"/>
+						onClick={handleUndo}
+						onMouseEnter={handlePopoverOpen}
+        				onMouseLeave={handlePopoverClose}>
+						<HistoryIcon path={mdiUndo} className="item-icon"/>
 						<br/>
-						Reset
+						Undo
+						<Popover
+							id="mouse-over-popover"
+							className={classes.popover}
+							classes={{
+							paper: classes.papers,
+							}}
+							open={open}
+							anchorEl={anchorEl}
+							anchorOrigin={{
+							vertical: 'bottom',
+							horizontal: 'left',
+							}}
+							transformOrigin={{
+							vertical: 'top',
+							horizontal: 'left',
+							}}
+							onClose={handlePopoverClose}
+							disableRestoreFocus
+						>
+							<Typography>Only use for Brush Tool</Typography>
+						</Popover>
 					</Button>
 					<Button className="item-btn"
 						onClick={handleHideAll}
