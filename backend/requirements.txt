@@ -20,10 +20,14 @@ gunicorn==20.0.4
 importlib-metadata==3.4.0
 kombu==5.0.2
 Markdown==3.3.3
+opencv-python==4.5.2.54
+pydicom==2.1.2
 prompt-toolkit==3.0.14
 psycopg2-binary==2.8.6
+pynrrd==0.4.2
 PyJWT==2.0.1
 pytz==2020.5
+scikit-image==0.18.1
 six==1.15.0
 sqlparse==0.4.1
 typing-extensions==3.7.4.3

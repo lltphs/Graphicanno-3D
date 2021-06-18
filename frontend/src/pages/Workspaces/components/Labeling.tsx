@@ -52,12 +52,14 @@ import Hammer from 'hammerjs';
 import dicomParser from 'dicom-parser';
 import * as cornerstone from 'cornerstone-core';
 import * as cornerstoneMath from'cornerstone-math';
-import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
+// import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
+import * as cornerstoneWebImageLoader from 'cornerstone-web-image-loader';
 import * as cornerstoneTools from 'cornerstone-tools';
 import { ContactSupportOutlined } from '@material-ui/icons';
 
-cornerstoneWADOImageLoader.external.cornerstone = cornerstone
-cornerstoneWADOImageLoader.external.dicomParser = dicomParser
+// cornerstoneWADOImageLoader.external.cornerstone = cornerstone
+// cornerstoneWADOImageLoader.external.dicomParser = dicomParser
+cornerstoneWebImageLoader.external.cornerstone = cornerstone
 cornerstoneTools.external.cornerstone = cornerstone
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath
 cornerstoneTools.external.Hammer = Hammer
@@ -135,7 +137,10 @@ const Dicom = (): JSX.Element => {
 	const [initViewport, setInitViewport] = useState('')
 	
 	const readImage = async () => {
-		const image = await cornerstone.loadImage(id.imageId)
+		console.log('hello')
+		const image = await cornerstone.loadImage('http://localhost/api/get-png/')
+		// const image = await cornerstone.loadImage(id.imageId)
+		console.log('image: ' + image)
 		cornerstone.enable(element)
 
 		// add stack
@@ -149,7 +154,7 @@ const Dicom = (): JSX.Element => {
 		
 		//display image
 		cornerstone.displayImage(element, image)
-		const patientName = image.data.string('x00100010')
+		const patientName = "image.data.string('x00100010')"
 		
 		// Add all needed tools version 4.18.1
 		cornerstoneTools.addTool(cornerstoneTools.ZoomTool)
