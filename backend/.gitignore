@@ -121,6 +121,6 @@ media/
 
 ./static
 
-./nrrd
+./backend/nrrd
 
 *.npy
