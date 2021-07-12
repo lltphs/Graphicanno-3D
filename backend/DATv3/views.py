@@ -1,3 +1,6 @@
+from DATv3.constants import NUM_CPU
+from DATv3.utils import create_sub_virtual_slice, get_volume, cache
+from numpy.lib.function_base import append, insert
 from io import BytesIO
 from django.conf import settings
 from django.http import HttpResponse
@@ -12,23 +15,17 @@ from rest_framework_simplejwt.tokens import AccessToken
 from utils.simple_jwt import authenticate_from_request, authenticate_from_raw_token
 
 import nrrd
-
 from pydicom import dcmread
 from pydicom.filebase import DicomBytesIO
-
 import numpy as np
-
 from scipy.ndimage import zoom
-
 import base64
-
 import os
-
 import cv2
+from multiprocessing import Pool
+from math import sqrt
 
 User = get_user_model()
-
-cache = {}
 
 def remove_last_slash(path):
     new_path = path
@@ -94,7 +91,7 @@ def upload_dicom(request, user_name):
     except: pass
 
     #Distance in space, order: z x y
-    voxel_spacing = [int(first.SliceThickness), *first.PixelSpacing]
+    voxel_spacing = [float(first.SliceThickness), *first.PixelSpacing]
 
     #Init the volume for later assignment, this operation is super cheaper compare to iteratively concatenate on the go
     volume = np.zeros((num_files, *first.pixel_array.shape))
@@ -141,7 +138,7 @@ def upload_dicom(request, user_name):
     #     if cv2.waitKey() == ord('q'):
     #         break
 
-    # temp = zoom(volume, [1/i for i in voxel_spacing])
+    # temp = zoom(volume, [i/1.0 for i in voxel_spacing])
     # print(temp.max())
     # print(temp.min())
     # temp[temp < -1000] = -1000
@@ -150,10 +147,9 @@ def upload_dicom(request, user_name):
     # temp = (temp - temp.min())/(temp.max() - temp.min())
     # np.save('sample', temp)
 
-
     # Normalize the spacing between voxels to be 1x1x1 mm^3 for volume_true and 0.5x0.5x0.5 for volume_for_view
-    volume_true = zoom(volume, [1/i for i in voxel_spacing])
-    volume_for_view = zoom(volume, [0.5/i for i in voxel_spacing])
+    volume_true = zoom(volume, [i/1.0 for i in voxel_spacing])
+    volume_for_view = zoom(volume, [i/2.0 for i in voxel_spacing])
 
     volume_true = volume_true.astype('float32')
     volume_for_view = volume_for_view.astype('float32')
@@ -162,11 +158,13 @@ def upload_dicom(request, user_name):
     # This step is crucial since the zoom function might create abnomal values (such as very small negative numbers like -1.0e-8)
     volume_true = (volume_true - volume_true.min())/(volume_true.max() - volume_true.min())
     volume_for_view = 0.85 * (volume_for_view - volume_for_view.min())/(volume_for_view.max() - volume_for_view.min())
+    volume_for_view_test = 0.85 * (volume_true - volume_true.min())/(volume_for_view.max() - volume_for_view.min())
     
     #Write two files, make dirs if needed
     if not os.path.exists(f'nrrd/{user_name}/{patient_name}/{phase}'): os.makedirs(f'nrrd/{user_name}/{patient_name}/{phase}')
     nrrd.write(f'nrrd/{user_name}/{patient_name}/{phase}/volume_true.nrrd', volume_true)
     nrrd.write(f'nrrd/{user_name}/{patient_name}/{phase}/volume_for_view.nrrd', volume_for_view)
+    nrrd.write(f'nrrd/{user_name}/{patient_name}/{phase}/volume_for_view_test.nrrd', volume_for_view_test)
 
     #Cache two volumes, after making sure cache does not grow too large
     if len(cache) > 10:
@@ -174,7 +172,7 @@ def upload_dicom(request, user_name):
         cache.pop()
     cache[f'nrrd/{user_name}/{patient_name}/{phase}/volume_true.nrrd'] = volume_true
     cache[f'nrrd/{user_name}/{patient_name}/{phase}/volume_for_view.nrrd'] = volume_for_view
-
+    print('done')
     return HttpResponse('OK')
 
 def get_list_volume(request, user_name):
@@ -210,14 +208,10 @@ def get_list_volume(request, user_name):
     return JsonResponse(volume_category, safe=False)
 
 def get_nrrd(request,user_name,patient_name,phase):
-    return HttpResponse(open(f'nrrd/{user_name}/{patient_name}/{phase}/volume_for_view.nrrd', 'rb'))
+    return HttpResponse(open(f'nrrd/{user_name}/{patient_name}/{phase}/volume_for_view_test.nrrd', 'rb'))
 
 def get_png_slice(request,user_name,patient_name,phase,index):
-    if f'nrrd/{user_name}/{patient_name}/{phase}/volume_true.nrrd' in cache:
-        volume = cache[f'nrrd/{user_name}/{patient_name}/{phase}/volume_true.nrrd']
-    else:
-        volume, _ = nrrd.read(f'nrrd/{user_name}/{patient_name}/{phase}/volume_true.nrrd')
-        cache[f'nrrd/{user_name}/{patient_name}/{phase}/volume_true.nrrd'] = volume
+    volume = get_volume(user_name,patient_name,phase)
     slice = volume[index]
     _, png = cv2.imencode(".png", (slice * 255).astype('uint8'))
     png_buffer = BytesIO(png)
@@ -241,3 +235,21 @@ def get_annotation(request,user_name,patient_name,phase,index):
             if slice_annotation[x,y] > 0:
                 slice_annotation_as_xy.append([x,y])
     return JsonResponse(slice_annotation_as_xy, safe=False)
+
+def get_png_virtual_slice(request,user_name,patient_name,phase,Ox,Oy,Oz,ux,uy,uz,vx,vy,vz):
+    volume = get_volume(user_name,patient_name,phase)
+    
+    side_length = int(sqrt(sum(map(lambda shape: shape*shape, volume.shape))))
+    O = np.array([Ox,Oy,Oz]).astype('float')
+    u = np.array([ux,uy,uz]).astype('float')
+    v = np.array([vx,vy,vz]).astype('float')
+    num_sub_virtual_slice = 2
+    sub_virtual_slices = Pool().map(create_sub_virtual_slice, [(O,u,v,volume,side_length,num_sub_virtual_slice,idx) for idx in range(num_sub_virtual_slice)])
+    virtual_slice = np.zeros((side_length, side_length))
+    for i in range(num_sub_virtual_slice):
+        x_offset = i * side_length // num_sub_virtual_slice
+        x_length = side_length // num_sub_virtual_slice if i < num_sub_virtual_slice - 1 else side_length % num_sub_virtual_slice
+        virtual_slice[x_offset:x_offset+x_length] = sub_virtual_slices[i]
+    
+    _, png = cv2.imencode(".png", (virtual_slice * 255).astype('uint8'))
+    return FileResponse(BytesIO(png)) 
