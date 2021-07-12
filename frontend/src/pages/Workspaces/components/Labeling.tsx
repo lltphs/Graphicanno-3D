@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, useRef, useMemo, useLayoutEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { Link, Redirect, Route, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Formik, FormikProps } from 'formik';
-import { object, string } from 'yup';
 import { makeStyles, Theme, createStyles } from '@material-ui/core/styles';
 import {
   Button,
   Container,
   AppBar,
-  Toolbar
+  Toolbar,
+  Grid
 } from '@material-ui/core';
 import { 
 	mdiCheckboxIntermediate,
@@ -52,13 +52,33 @@ import Hammer from 'hammerjs';
 import dicomParser from 'dicom-parser';
 import * as cornerstone from 'cornerstone-core';
 import * as cornerstoneMath from'cornerstone-math';
-// import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
 import * as cornerstoneWebImageLoader from 'cornerstone-web-image-loader';
 import * as cornerstoneTools from 'cornerstone-tools';
-import { ContactSupportOutlined } from '@material-ui/icons';
+import { ContactSupportOutlined, SettingsInputAntennaTwoTone } from '@material-ui/icons';
+import { TrackballControls } from '@react-three/drei';
+import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber';
+import Scene from './scene';
+import { GRAY_WITH_ANNOTATION_TEXTURE_URL } from './constants';
+import { onKeyPressed, showSlice } from './utils';
+import slice from './utils/virtualSlice';
+import _ from 'lodash';
+import Annotation from './Annotation/Annotation';
+const {
+  TextureLoader,
+  DataTexture3D,
+  RedFormat,
+  FloatType,
+  LinearFilter,
+  UniformsUtils,
+  BackSide,
+  ShaderMaterial,
+  BoxGeometry,
+} = require('three')
+const { NRRDLoader } = require('three/examples/jsm/loaders/NRRDLoader')
+const {
+  VolumeRenderShader1,
+} = require('three/examples/jsm/shaders/VolumeShader')
 
-// cornerstoneWADOImageLoader.external.cornerstone = cornerstone
-// cornerstoneWADOImageLoader.external.dicomParser = dicomParser
 cornerstoneWebImageLoader.external.cornerstone = cornerstone
 cornerstoneTools.external.cornerstone = cornerstone
 cornerstoneTools.external.cornerstoneMath = cornerstoneMath
@@ -130,32 +150,114 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 const Dicom = (): JSX.Element => {
+	const NRRD = useLoader(NRRDLoader, 'http://localhost/api/get-nrrd-volume/admin/liver_01^patient/undefined/')
+	const grayWithAnnotationTexture = useLoader(TextureLoader, GRAY_WITH_ANNOTATION_TEXTURE_URL)
+  
+	// build data texture 3D
+	// const data3D = new DataTexture3D(
+	//   NRRD.data,
+	//   NRRD.xLength,
+	//   NRRD.yLength,
+	//   NRRD.zLength
+	// )
+	// console.log('re-computed');
+	// data3D.format = RedFormat
+	// data3D.type = FloatType
+	// data3D.minFilter = data3D.magFilter = LinearFilter
+	// data3D.unpackAlignment = 1
+  	const trackballControlsRef = useRef(null)
+	const data3D = useMemo(() => {
+	  const tempObj = new DataTexture3D(
+		NRRD.data.slice(0),
+		NRRD.xLength,
+		NRRD.yLength,
+		NRRD.zLength
+	  )
+	  tempObj.format = RedFormat
+	  tempObj.type = FloatType
+	  tempObj.minFilter = tempObj.magFilter = LinearFilter
+	  tempObj.unpackAlignment = 1
+	  return tempObj
+	}, [NRRD])
+  
+	const uniforms = useMemo(() => {
+	  const tempObj = UniformsUtils.clone(VolumeRenderShader1.uniforms)
+	  tempObj['u_data'].value = data3D
+	  tempObj['u_size'].value.set(NRRD.xLength, NRRD.yLength, NRRD.zLength)
+	  tempObj['u_clim'].value.set(0, 1)
+	  tempObj['u_renderstyle'].value = 0
+	  tempObj['u_renderthreshold'].value = 0.15
+	  tempObj['u_cmdata'].value = grayWithAnnotationTexture
+	  return tempObj
+	}, [data3D, NRRD])
+  
+	const material = useMemo(() => {
+	  return new ShaderMaterial({
+		uniforms: uniforms,
+		vertexShader: VolumeRenderShader1.vertexShader,
+		fragmentShader: VolumeRenderShader1.fragmentShader,
+		side: BackSide,
+	  })
+	}, [uniforms])
+  
+	const geometry = new BoxGeometry(NRRD.xLength, NRRD.yLength, NRRD.zLength)
+	geometry.translate(
+	  NRRD.xLength / 2 - 0.5,
+	  NRRD.yLength / 2 - 0.5,
+	  NRRD.zLength / 2 - 0.5
+	)
+  
+	const sliceInfo = useMemo(
+	  () => ({
+		volume: NRRD,
+		material: material,
+	  }),
+	  [material, NRRD]
+	)
+  
+	const [a, setA] = useState(0)
+  
+	console.log({ ao: a })
+	useEffect(() => {
+	  showSlice(sliceInfo)
+	}, [])
+  
+	useEffect(() => {
+	  const onKeyDown = (e) => {
+		console.log('keydown')
+		console.log({ a })
+		setA(a + 1)
+		onKeyPressed({ sliceInfo, e })
+	  }
+  
+	  document.addEventListener('keydown', onKeyDown)
+	  return () => document.removeEventListener('keydown', onKeyDown)
+	}, [a])
 	const classes = useStyles()
 	const id: any = useParams();
-	let element: any
+	const element: any = useRef();
 
 	const [initViewport, setInitViewport] = useState('')
 	
 	const readImage = async () => {
-		console.log('hello')
-		const image = await cornerstone.loadImage('http://localhost/api/get-png/')
-		// const image = await cornerstone.loadImage(id.imageId)
-		console.log('image: ' + image)
-		cornerstone.enable(element)
+		const image = await cornerstone.loadImage(`http://localhost/api/get-png-slice/admin/liver_01^patient/undefined/0/`)
+		cornerstone.enable(element.current)
 
 		// add stack
 		const stack = {
 			imageIds: [id],
 			currentImageIdIndex: 0
 		};		
-		cornerstoneTools.clearToolState(element, "stack");
-		cornerstoneTools.addStackStateManager(element, ["stack"]);
-		cornerstoneTools.addToolState(element, "stack", stack);
+		cornerstoneTools.clearToolState(element.current, "stack");
+		cornerstoneTools.addStackStateManager(element.current, ["stack"]);
+		cornerstoneTools.addToolState(element.current, "stack", stack);
 		
 		//display image
-		cornerstone.displayImage(element, image)
-		const patientName = "image.data.string('x00100010')"
-		
+		cornerstone.displayImage(element.current, image)
+		// for (let i = 1; i < 100;i++) {
+		// 	const image = await cornerstone.loadImage(`http://localhost/api/get-png-slice/admin/liver_01^patient/undefined/${i}/`)
+		// 	cornerstone.displayImage(element.current, image)
+		// }
 		// Add all needed tools version 4.18.1
 		cornerstoneTools.addTool(cornerstoneTools.ZoomTool)
 		cornerstoneTools.addTool(cornerstoneTools.WwwcTool)
@@ -172,7 +274,7 @@ const Dicom = (): JSX.Element => {
 		cornerstoneTools.addTool(cornerstoneTools.CorrectionScissorsTool)
 		
 		//get the viewport
-		let viewport = cornerstone.getViewport(element)		
+		let viewport = cornerstone.getViewport(element.current)		
 		setInitViewport(viewport)
 
 	}
@@ -180,32 +282,32 @@ const Dicom = (): JSX.Element => {
 	// const [toolname, setToolname] = useState('')
 
 	const disableAllTools = () => {
-		cornerstoneTools.wwwc.deactivate(element, 1); // ww/wc is the default tool for left mouse button
-		cornerstoneTools.pan.deactivate(element, 2); // pan is the default tool for middle mouse button
-		cornerstoneTools.zoom.deactivate(element, 4); // zoom is the default tool for right mouse button
-		cornerstoneTools.zoomWheel.deactivate(element); // zoom is the default tool for middle mouse wheel
-		cornerstoneTools.freeahandroi.deactive(element);
-		// cornerstoneTools.probe.disable(element);
-		// cornerstoneTools.length.disable(element);
-		cornerstoneTools.ellipticalRoi.disable(element);
-		cornerstoneTools.rectangleRoi.disable(element);
-		cornerstoneTools.angle.disable(element);
-		cornerstoneTools.highlight.disable(element);
-		cornerstoneTools.magnify.disable(element);
+		cornerstoneTools.wwwc.deactivate(element.current, 1); // ww/wc is the default tool for left mouse button
+		cornerstoneTools.pan.deactivate(element.current, 2); // pan is the default tool for middle mouse button
+		cornerstoneTools.zoom.deactivate(element.current, 4); // zoom is the default tool for right mouse button
+		cornerstoneTools.zoomWheel.deactivate(element.current); // zoom is the default tool for middle mouse wheel
+		cornerstoneTools.freeahandroi.deactive(element.current);
+		// cornerstoneTools.probe.disable(element.current);
+		// cornerstoneTools.length.disable(element.current);
+		cornerstoneTools.ellipticalRoi.disable(element.current);
+		cornerstoneTools.rectangleRoi.disable(element.current);
+		cornerstoneTools.angle.disable(element.current);
+		cornerstoneTools.highlight.disable(element.current);
+		cornerstoneTools.magnify.disable(element.current);
 	}
 
 	const handleZoomIn = (): any => {
 		cornerstoneTools.setToolActive('Zoom', {mouseButtonMask: 1})
-		let currentViewport = cornerstone.getViewport(element)
+		let currentViewport = cornerstone.getViewport(element.current)
 		currentViewport.scale += 0.1
-		cornerstone.setViewport(element, currentViewport)
+		cornerstone.setViewport(element.current, currentViewport)
 	}
 
 	const handleZoomOut = () => {
 		cornerstoneTools.setToolActive('Zoom', {mouseButtonMask: 1})
-		let currentViewport = cornerstone.getViewport(element)
+		let currentViewport = cornerstone.getViewport(element.current)
 		currentViewport.scale -= 0.1
-		cornerstone.setViewport(element, currentViewport)
+		cornerstone.setViewport(element.current, currentViewport)
 	}
 
 	const handleMagnify = () => {		
@@ -259,9 +361,9 @@ const Dicom = (): JSX.Element => {
 		
 		//pixelData2D
 		cornerstoneTools.setToolActive('Brush', {mouseButtonMask: 1})
-		const labelmap2D = getters.labelmap2D(element)
+		const labelmap2D = getters.labelmap2D(element.current)
 		console.log('labelmap2d: ', labelmap2D)
-		setters.activeSegmentIndex(element, 999)
+		setters.activeSegmentIndex(element.current, 999)
 		
 		const arrayPixel = labelmap2D.labelmap2D.pixelData
 		console.log('arrayPixel: ', arrayPixel.length)
@@ -272,12 +374,20 @@ const Dicom = (): JSX.Element => {
 		
 		let count = 0
 		let border : number[] = []
-		for (let j = 0; j < 262144; j++){
-			if (arrayPixel[j] == 999){
+		const imageSize = Math.ceil(
+			2 * Math.sqrt(
+			  NRRD.xLength * NRRD.xLength +
+				NRRD.yLength * NRRD.yLength +
+				NRRD.zLength * NRRD.zLength
+			)
+		  );
+		for (let j = 0; j < imageSize * imageSize; j++){
+			if (arrayPixel[j] === 999){
 				count += 1
 				border.push(j)
 			}
 		}
+		
 		console.log('Total num equal 1000: ', count)
 		console.log('border: ', border)
 		console.log('getters', getters)
@@ -288,14 +398,30 @@ const Dicom = (): JSX.Element => {
         const ctx = canvas.getContext('2d');
 		let coordsOfBorder = []
 		let i
-		    
+		console.log('Oh yeah')
 		for (i = 0; i < border.length; i++){
-			var x = border[i] % 512
-			var y = Math.floor(border[i] / 512)
-			// calculate the pixelIndex, then set it to 1000
-			var pIndex = x + 512 * y
-			arrayPixel[pIndex + 100] = 999
+			let xv = border[i] % imageSize
+			let yv = Math.floor(border[i] / imageSize)
+			let new_vector = slice.origin.add(slice.u.scalarMultiple(xv-slice!.vOrigin.x)).add(slice.v.scalarMultiple(yv-slice!.vOrigin.y));
+			let x = Math.round(new_vector.x);
+			let y = Math.round(new_vector.y);
+			let z = Math.round(new_vector.z);
+			if (x >= 0 && x < NRRD.xLength && y >= 0 && y < NRRD.yLength && z >= 0 && z < NRRD.zLength) {
+				material.uniforms['u_data'].value.image.data[
+					x + y * NRRD.xLength + z * NRRD.xLength * NRRD.yLength
+				] = 1;
+				console.log(material.uniforms['u_data'].value.image.data[
+					x + y * NRRD.xLength + z * NRRD.xLength * NRRD.yLength
+				]);
+			} else {
+				console.log(x,y,z);
+			}
+			//calculate the pixelIndex, then set it to 1000
+			// var pIndex = x + imageSize * y
+			// arrayPixel[pIndex + 100] = 999
 		}
+		material.uniforms['u_data'].value.needsUpdate = true
+		
 
 		
 		
@@ -305,31 +431,30 @@ const Dicom = (): JSX.Element => {
 		// 		pixelData[i*255 + j] = 1;
 		// 	}
 		// }
-		// let toolState = cornerstoneTools.getToolState(element, 'brush');
+		// let toolState = cornerstoneTools.getToolState(element.current, 'brush');
 		// if (toolState) {
 		// 	toolState.data[0].pixelData = [...pixelData];
 		// } else {
-		// 	cornerstoneTools.addToolState(element, 'brush', { pixelData });
-		// 	toolState = cornerstoneTools.getToolState(element, 'brush');
+		// 	cornerstoneTools.addToolState(element.current, 'brush', { pixelData });
+		// 	toolState = cornerstoneTools.getToolState(element.current, 'brush');
 		// }
 		// toolState.data[0].invalidated = true;
-		// cornerstone.updateImage(element);
+		// cornerstone.updateImage(element.current);
 	}
-
 	const handleCorrectionScissor = () => {
 		cornerstoneTools.setToolActive('CorrectionScissors', {mouseButtonMask: 1})
 	}
 
 	const handleInvert = () => {
-		let viewport = cornerstone.getViewport(element)
+		let viewport = cornerstone.getViewport(element.current)
 		viewport.invert = !viewport.invert
-		cornerstone.setViewport(element, viewport)
+		cornerstone.setViewport(element.current, viewport)
 	}
 
 	const handleUndo = () => {
 		const { setters } = cornerstoneTools.getModule('segmentation')
 		console.log('setters: ', setters)
-		setters.undo(element) // 2 is default labelmapIndex
+		setters.undo(element.current) // 2 is default labelmapIndex
 	}
 
 	const [anchorEl, setAnchorEl] = React.useState(null);
@@ -345,10 +470,10 @@ const Dicom = (): JSX.Element => {
 	const open = Boolean(anchorEl);
 
 	const handleReset = () => {
-		let currentViewport = cornerstone.getViewport(element)
+		let currentViewport = cornerstone.getViewport(element.current)
 		currentViewport.voi.windowWidth = 0
      	currentViewport.voi.windowCenter = 0
-		cornerstone.setViewport(element, initViewport)
+		cornerstone.setViewport(element.current, initViewport)
 		cornerstoneTools.setToolPassive()
 	}
 
@@ -364,35 +489,36 @@ const Dicom = (): JSX.Element => {
 		cornerstoneTools.setToolPassive('FreeHandRoi', { mouseButtonMask: 1 })
 		cornerstoneTools.setToolPassive('Brush', { mouseButtonMask: 1 })
 		
-		let currentViewport = cornerstone.getViewport(element)
+		let currentViewport = cornerstone.getViewport(element.current)
 		currentViewport.voi.windowWidth = 0
      	currentViewport.voi.windowCenter = 0
-		cornerstone.setViewport(element, initViewport)
+		cornerstone.setViewport(element.current, initViewport)
 		cornerstoneTools.setToolPassive()
 	}
 
 	const handleManage = () => {
 		// measure = cornerstone.setToolActive('Measurement')
 		console.log('measure')
-		// const data = cornerstoneTools.getActiveColor(element, 'freehandroi');
+		// const data = cornerstoneTools.getActiveColor(element.current, 'freehandroi');
 		// console.log('data', data)
 
-		let toolState = cornerstoneTools.getToolState(element, 'freehandRoi');
+		let toolState = cornerstoneTools.getToolState(element.current, 'freehandRoi');
 		console.log('toolstate', toolState)
 		// if (toolState) {
 		// 	toolState.data[0].pixelData = [...pixelData];
 		// } else {
-		// 	cornerstoneTools.addToolState(element, 'brush', { pixelData });
-		// 	toolState = cornerstoneTools.getToolState(element, 'brush');
+		// 	cornerstoneTools.addToolState(element.current, 'brush', { pixelData });
+		// 	toolState = cornerstoneTools.getToolState(element.current, 'brush');
 		// }
 		// toolState.data[0].invalidated = true;
-		// cornerstone.updateImage(element);
+		// cornerstone.updateImage(element.current);
 	}
 
 	useEffect(() => {
-		readImage()
+		setTimeout(readImage,10000);
 	}, []);
-
+	const h = 512
+	const aspect = window.innerWidth / window.innerHeight
 	return(
 		
 		<div className={classes.ele}>
@@ -544,13 +670,31 @@ const Dicom = (): JSX.Element => {
 						<br/>
 						Manage
 					</Button>
-					
 				</Toolbar>			
 			</AppBar>
+			<Grid container></Grid>
 			<div className={classes.dicom}
-			ref={(input) => {
-				element = input
+				ref={(input) => {
+					element.current = input
 			}}></div>
+			<canvas className='canvas' id='vs'></canvas>
+			<Canvas
+				className='canvas'
+				orthographic={true}
+				camera={{
+					left: (-h * aspect) / 2,
+					right: (h * aspect) / 2,
+					top: h / 2,
+					bottom: -h / 2,
+					near: 1,
+					far: 1000,
+					position: [0, 0, 500],
+					up: [0, 0, 1],
+				}}
+				>
+				<Scene geometry={geometry} material={material} NRRD={NRRD}/>
+			</Canvas>
+			
 		</div>		
 	)
 }
@@ -587,8 +731,9 @@ const LabelingWorkspace = (): JSX.Element => {
             style={{backgroundColor: 'black'}} >
               	<NavigationBar/>
 				<div className={classes.dicomWrapper} id="canvas">
+					{/* <Dicom/> */}
 					{/* <LoadImage/> */}
-					<Dicom/>
+					<Annotation nrrdUrl='http://localhost/api/get-nrrd-volume/admin/liver_01^patient/undefined/'/>
 				</div>
             </Container>
         );
