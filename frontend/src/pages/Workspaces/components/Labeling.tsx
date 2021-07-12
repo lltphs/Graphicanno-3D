@@ -149,7 +149,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-const Dicom = (): JSX.Element => {
+export const Dicom = ({ material }): JSX.Element => {
 	const NRRD = useLoader(NRRDLoader, 'http://localhost/api/get-nrrd-volume/admin/liver_01^patient/undefined/')
 	const grayWithAnnotationTexture = useLoader(TextureLoader, GRAY_WITH_ANNOTATION_TEXTURE_URL)
   
@@ -191,14 +191,14 @@ const Dicom = (): JSX.Element => {
 	  return tempObj
 	}, [data3D, NRRD])
   
-	const material = useMemo(() => {
-	  return new ShaderMaterial({
-		uniforms: uniforms,
-		vertexShader: VolumeRenderShader1.vertexShader,
-		fragmentShader: VolumeRenderShader1.fragmentShader,
-		side: BackSide,
-	  })
-	}, [uniforms])
+	// const material = useMemo(() => {
+	//   return new ShaderMaterial({
+	// 	uniforms: uniforms,
+	// 	vertexShader: VolumeRenderShader1.vertexShader,
+	// 	fragmentShader: VolumeRenderShader1.fragmentShader,
+	// 	side: BackSide,
+	//   })
+	// }, [uniforms])
   
 	const geometry = new BoxGeometry(NRRD.xLength, NRRD.yLength, NRRD.zLength)
 	geometry.translate(
@@ -513,10 +513,7 @@ const Dicom = (): JSX.Element => {
 		// toolState.data[0].invalidated = true;
 		// cornerstone.updateImage(element.current);
 	}
-
-	useEffect(() => {
-		setTimeout(readImage,10000);
-	}, []);
+	
 	const h = 512
 	const aspect = window.innerWidth / window.innerHeight
 	return(
@@ -672,11 +669,10 @@ const Dicom = (): JSX.Element => {
 					</Button>
 				</Toolbar>			
 			</AppBar>
-			<Grid container></Grid>
-			<div className={classes.dicom}
+			{/* <div className={classes.dicom}
 				ref={(input) => {
 					element.current = input
-			}}></div>
+			}}></div> */}
 			<canvas className='canvas' id='vs'></canvas>
 			<Canvas
 				className='canvas'
