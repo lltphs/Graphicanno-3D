@@ -1,5 +1,4 @@
 import displayImageFromVirtualSliceCanvas from "../../Cornerstone/displayImageFromVirtualSliceCanvas";
-import Volume3D from "../../Volume3D/Volume3D";
 import { Vector3D } from "../VectorSystem/Vector3D";
 import VirtualSlice from "../VirtualSlice";
 import * as cornerstoneTools from 'cornerstone-tools';
@@ -113,12 +112,7 @@ export const drawSliceOnVirtualSliceCanvas  = (slice: VirtualSlice, matNVol) => 
 
   const canvas = document.getElementById('vs') as HTMLCanvasElement;
 
-  let ctx;
-  try {
-    ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-  } catch (error) {
-    console.log('here', error);
-  }
+  let ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   canvas.width = slice.sideLength;

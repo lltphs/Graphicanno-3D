@@ -4150,10 +4150,7 @@ cornerstone-wado-image-loader@^3.3.1:
     dicom-parser "^1.8.3"
     pako "^1.0.10"
 
-cornerstone-web-image-loader@/home/ubuntu/cornerstoneWebImageLoaderModification:
-  version "2.1.1"
-
-"cornerstone-web-image-loader@file:../../cornerstoneWebImageLoaderModification":
+cornerstone-web-image-loader@../cornerstoneDATImageLoader:
   version "2.1.1"
 
 cosmiconfig@^5.0.0:
