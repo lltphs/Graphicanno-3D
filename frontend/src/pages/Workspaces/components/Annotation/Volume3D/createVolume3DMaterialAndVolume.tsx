@@ -41,7 +41,7 @@ const createUniforms = (dataTexture3D) => {
   const uniforms = UniformsUtils.clone(VolumeRenderShader1.uniforms);
 
   uniforms['u_data'].value = dataTexture3D;
-  uniforms['u_size'].value.set(dataTexture3D.width, dataTexture3D.height, dataTexture3D.depth);
+  uniforms['u_size'].value.set(dataTexture3D.image.width, dataTexture3D.image.height, dataTexture3D.image.depth);
   uniforms['u_clim'].value.set(0, 1)
   uniforms['u_renderstyle'].value = 0 //mips style = 0, iso style = 1
   uniforms['u_renderthreshold'].value = 0.15 //for iso style, does not matter

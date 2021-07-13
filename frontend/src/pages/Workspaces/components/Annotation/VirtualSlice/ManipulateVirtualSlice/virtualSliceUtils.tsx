@@ -1,6 +1,8 @@
+import displayImageFromVirtualSliceCanvas from "../../Cornerstone/displayImageFromVirtualSliceCanvas";
 import Volume3D from "../../Volume3D/Volume3D";
 import { Vector3D } from "../VectorSystem/Vector3D";
 import VirtualSlice from "../VirtualSlice";
+import * as cornerstoneTools from 'cornerstone-tools';
 
 export const removeSliceOnVolume = (slice, matNVol) => {
   drawOrRemoveSliceOnVolume(slice, matNVol, false);
@@ -10,6 +12,18 @@ export const drawSliceOnVolume = (slice, matNVol) => {
   drawOrRemoveSliceOnVolume(slice, matNVol, true);
 }
 
+export const drawSliceOnCornerstoneElement = (slice, matNVol, cornerstoneElementRef) => {
+  drawSliceOnVirtualSliceCanvas(slice, matNVol);
+  displayImageFromVirtualSliceCanvas(cornerstoneElementRef);
+}
+
+export const removeOldAnnotation = (cornerstoneElementRef) => {
+  cornerstoneTools.getModule('segmentation').setters.undo(cornerstoneElementRef.current);
+}
+
+export const notifyVolume3DUpdate = (matNVol) => {
+  matNVol.mat.uniforms['u_data'].value.needsUpdate = true;
+}
 
 export const updateSliceState = (slice: VirtualSlice, event) => {
   if (event.key) {
@@ -37,18 +51,31 @@ const drawOrRemoveSliceOnVolume  = (slice: VirtualSlice, matNVol, isDraw) => {
         //Mark the corresponding point on volume as 0.6 if isDraw, else mark it as its original value
         const flatIndex3D = vec3D.x + vec3D.y * matNVol.vol.xLength + vec3D.z * matNVol.vol.xLength * matNVol.vol.yLength;
 
-        matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = isDraw ? 0.6 : matNVol.vol.data[flatIndex3D];
+        if (matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] != 1){
+          if (isDraw) {
+            matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = 0.7;
+          } else {
+          matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = matNVol.vol.data[flatIndex3D];
+          }
+        }
+
       } else if (checkPointLiesOnVolumeSurface(vec3D, matNVol.vol)) {
         //Mark the corresponding point on volume as 1 if isDraw, else mark it as its original value
         const flatIndex3D = vec3D.x + vec3D.y * matNVol.vol.xLength + vec3D.z * matNVol.vol.xLength * matNVol.vol.yLength;
-        
-        matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = isDraw ? 1 : matNVol.vol.data[flatIndex3D];
+             
+        if (matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] != 1){
+          if (isDraw) {
+            matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = 0.95;
+          } else {
+          matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = matNVol.vol.data[flatIndex3D];
+          }
+        }
       }
     }
   }
 }
 
-export const drawSliceOnCanvas  = (slice: VirtualSlice, matNVol) => {
+export const drawSliceOnVirtualSliceCanvas  = (slice: VirtualSlice, matNVol) => {
   const imageArrayData = new Uint8ClampedArray(
     slice.sideLength * slice.sideLength * 4
   ).map((x, i) => (i % 4 === 3 ? 255 : 0));
@@ -101,13 +128,14 @@ export const drawSliceOnCanvas  = (slice: VirtualSlice, matNVol) => {
 }
 
 const checkPointIsCoveredByVolume = (vec: Vector3D, vol) => {
-  return vec.x >= 0 && vec.x < vol.xLength
-      && vec.y >= 0 && vec.y < vol.yLength
-      && vec.z >= 0 && vec.z < vol.zLength;
+  return vec.x > 3 && vec.x < vol.xLength - 3
+      && vec.y > 3 && vec.y < vol.yLength - 3
+      && vec.z > 3 && vec.z < vol.zLength - 3;
 }
 
 const checkPointLiesOnVolumeSurface = (vec: Vector3D, vol) => {
-  return vec.x >= 0 && vec.x < vol.xLength
-      && vec.y >= 0 && vec.y < vol.yLength
-      && vec.z >= 0 && vec.z < vol.zLength;
+  return vec.x >= 0 && vec.x <= vol.xLength - 1
+      && vec.y >= 0 && vec.y <= vol.yLength - 1
+      && vec.z >= 0 && vec.z <= vol.zLength - 1
+      && !checkPointIsCoveredByVolume(vec, vol);
 }

@@ -3,13 +3,13 @@ import { Suspense, useLayoutEffect, useRef } from 'react';
 import { useThree, extend, ReactThreeFiber, useFrame } from '@react-three/fiber';
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
 
-const Volume3D = ({ material, xLength, yLength, zLength }) => {
+const Volume3D = ({ material, xLength, yLength, zLength, isInMoveSliceMode }) => {
 	const geometry = new BoxGeometry(xLength, yLength, zLength)
 	geometry.translate(
 	  xLength / 2 - 0.5,
 	  yLength / 2 - 0.5,
 	  zLength / 2 - 0.5
-	)
+	);
 
   return (
     <>
@@ -20,6 +20,7 @@ const Volume3D = ({ material, xLength, yLength, zLength }) => {
         xLength={xLength}
         yLength={yLength}
         zLength={zLength}
+        isInMoveSliceMode={isInMoveSliceMode}
         />
     </>
   );
@@ -35,9 +36,11 @@ declare global {
 
 extend({ TrackballControls });
 
-const Controls = ({ xLength, yLength, zLength }) => {
-  const ref = useRef(null);
+const Controls = ({ xLength, yLength, zLength, isInMoveSliceMode }) => {
   const { camera, gl: {domElement} } = useThree();
+  
+  const ref = useRef(null);
+  
   useLayoutEffect(() => {
     if (ref) {
       ref.current.target.set(
@@ -47,6 +50,8 @@ const Controls = ({ xLength, yLength, zLength }) => {
         );
       }
     }, [xLength, yLength, zLength, ref]);
+  
+    useFrame((_) => isInMoveSliceMode ? null : ref.current.update());
 
   return (<trackballControls
     args={ [camera, domElement] }

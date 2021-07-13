@@ -1,11 +1,11 @@
 import VirtualSlice from "../VirtualSlice";
-import {drawSliceOnVolume, drawSliceOnCanvas} from './virtualSliceUtils';
+import {drawSliceOnVolume, drawSliceOnCornerstoneElement, notifyVolume3DUpdate} from './virtualSliceUtils';
 
-const createSlice = (sliceRef, matNVol) => {
-  sliceRef.current = new VirtualSlice(matNVol.vol);
-  drawSliceOnCanvas(sliceRef.current, matNVol);
+const createVirtualSlice = (sliceRef, matNVol, cornerstoneElementRef) => {
+  sliceRef.current = sliceRef.current || new VirtualSlice(matNVol.vol);
   drawSliceOnVolume(sliceRef.current, matNVol);
-  matNVol.mat.uniforms['u_data'].value.needsUpdate = true;
+  drawSliceOnCornerstoneElement(sliceRef.current, matNVol, cornerstoneElementRef);
+  notifyVolume3DUpdate(matNVol);
 }
 
-export default createSlice;
+export default createVirtualSlice;

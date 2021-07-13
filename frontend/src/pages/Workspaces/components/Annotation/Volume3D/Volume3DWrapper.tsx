@@ -1,8 +1,7 @@
 import { Canvas } from '@react-three/fiber';
-import { useLayoutEffect, useRef } from 'react';
 import Volume3D from './Volume3D';
 
-const Volume3DWrapper = ({ material, xLength, yLength, zLength }) => {
+const Volume3DWrapper = ({ material, xLength, yLength, zLength, isInMoveSliceMode }) => {
   const h = 512;
   const aspect = window.innerWidth / window.innerHeight;
 
@@ -26,6 +25,7 @@ const Volume3DWrapper = ({ material, xLength, yLength, zLength }) => {
         xLength={xLength}
         yLength={yLength}
         zLength={zLength}
+        isInMoveSliceMode={isInMoveSliceMode}
       />
     </Canvas>
   );
