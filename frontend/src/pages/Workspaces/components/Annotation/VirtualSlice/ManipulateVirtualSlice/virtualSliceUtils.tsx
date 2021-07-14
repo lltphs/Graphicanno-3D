@@ -13,11 +13,21 @@ export const drawSliceOnVolume = (slice, matNVol) => {
 
 export const drawSliceOnCornerstoneElement = (slice, matNVol, cornerstoneElementRef) => {
   drawSliceOnVirtualSliceCanvas(slice, matNVol);
-  displayImageFromVirtualSliceCanvas(cornerstoneElementRef);
+  displayImageFromVirtualSliceCanvas(slice, matNVol, cornerstoneElementRef);
 }
 
 export const removeOldAnnotation = (cornerstoneElementRef) => {
-  cornerstoneTools.getModule('segmentation').setters.undo(cornerstoneElementRef.current);
+  const {
+    getters
+  } = cornerstoneTools.getModule('segmentation');
+
+  const labelmap2D = getters.labelmap2D(cornerstoneElementRef.current);
+
+  const arrayPixel = labelmap2D.labelmap2D.pixelData;
+
+  for (let i = 0; i < arrayPixel.length; i++) {
+    arrayPixel[i] = 0;
+  }
 }
 
 export const notifyVolume3DUpdate = (matNVol) => {
@@ -96,14 +106,14 @@ export const drawSliceOnVirtualSliceCanvas  = (slice: VirtualSlice, matNVol) => 
                             vec3D.y * matNVol.vol.xLength +
                             vec3D.z * matNVol.vol.xLength * matNVol.vol.yLength;
 
-        const flatIndex2D = 4 * vec2D.x +
-                            4 * vec2D.y * slice.sideLength;
+        const flatIndex2D = vec2D.x +
+                            vec2D.y * slice.sideLength;
 
         const pixelValue = 255 * matNVol.vol.data[flatIndex3D];
 
-        imageArrayData[0 + flatIndex2D] = pixelValue;
-        imageArrayData[1 + flatIndex2D] = pixelValue;
-        imageArrayData[2 + flatIndex2D] = pixelValue;
+        imageArrayData[0 + 4 * flatIndex2D] = pixelValue;
+        imageArrayData[1 + 4 * flatIndex2D] = pixelValue;
+        imageArrayData[2 + 4 * flatIndex2D] = pixelValue;
       }
     }
   }

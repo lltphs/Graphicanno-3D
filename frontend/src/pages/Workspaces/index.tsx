@@ -1,5 +1,5 @@
-import React, { useReducer, useEffect, useCallback, useState } from 'react';
-import { useHistory, Link, Route, BrowserRouter, Switch , useRouteMatch, useParams} from 'react-router-dom';
+import { useReducer, useEffect, useCallback, useState } from 'react';
+import { useHistory, Link, Route, Switch , useRouteMatch, useParams} from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Helmet } from 'react-helmet';
 import { toast } from 'react-toastify';
@@ -17,15 +17,10 @@ import * as UserServices from 'api/user';
 import { RootDispatchType } from 'store';
 
 import '../../index.scss'
-import LabelingWorkspace from './components/Labeling';
+import Annotation from './components/Annotation/Annotation';
 import {useDropzone} from 'react-dropzone';
-import dicomParser from 'dicom-parser';
 import * as cornerstone from 'cornerstone-core';
 import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
-import classes from '*.module.css';
-
-cornerstoneWADOImageLoader.external.cornerstone = cornerstone;
-cornerstoneWADOImageLoader.external.dicomParser = dicomParser;
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -368,11 +363,9 @@ const WorkspacesLayout = (): JSX.Element => {
 				<Switch>
 					<Route exact path={path} render={() =>  <LabelContent url={url} /> } />
 					<Route path="/overview">
-						<LabelingWorkspace/>
+						<Annotation nrrdUrl='http://localhost/api/get-nrrd-volume/admin/liver_01^patient/undefined/'/>
 					</Route>
-					<Route exact path={`${url}/labeling/:imageId`} render={() => <LabelingWorkspace/>} />
-						{/* <LabelingWorkspace/> */}
-					
+					<Route exact path={`${url}/labeling/:imageId`} render={() => <Annotation nrrdUrl='http://localhost/api/get-nrrd-volume/admin/liver_01^patient/undefined/'/>} />					
 				</Switch>
 				
 				

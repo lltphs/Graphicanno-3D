@@ -5,9 +5,7 @@ import * as cornerstoneWebImageLoader from 'cornerstone-web-image-loader';
 import * as cornerstoneTools from 'cornerstone-tools';
 
 const setupCornerstone = (cornerstoneElementRef) => {
-  enableCornerstoneElement(cornerstoneElementRef);
-
-  setupCornerstoneTools();
+  setupCornerstoneTools(cornerstoneElementRef);
 
   setupCornerstoneWebImageLoader();
 }
@@ -16,11 +14,21 @@ const enableCornerstoneElement = (cornerstoneElementRef) => {
   cornerstone.enable(cornerstoneElementRef.current);
 }
 
-const setupCornerstoneTools = () => {
+const setupCornerstoneTools = (cornerstoneElementRef) => {
   cornerstoneTools.external.cornerstone = cornerstone;
   cornerstoneTools.external.cornerstoneMath = cornerstoneMath;
   cornerstoneTools.external.Hammer = Hammer;
   cornerstoneTools.init();
+
+  enableCornerstoneElement(cornerstoneElementRef);
+
+  const stack = {
+    imageIds: ['_'],
+    currentImageIdIndex: 0
+  };		
+  cornerstoneTools.clearToolState(cornerstoneElementRef.current, "stack");
+  cornerstoneTools.addStackStateManager(cornerstoneElementRef.current, ["stack"]);
+  cornerstoneTools.addToolState(cornerstoneElementRef.current, "stack", stack);
   
   addToolsForCornerstoneTools();
 }

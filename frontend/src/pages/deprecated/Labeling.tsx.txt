@@ -1,0 +1,66 @@
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { Formik, FormikProps } from 'formik';
+import {
+  Container
+} from '@material-ui/core';
+import { RootDispatchType } from 'store';
+import 'pages/Home/index.scss';
+import NavigationBar from './NavBarBtn';
+import Hammer from 'hammerjs';
+import * as cornerstone from 'cornerstone-core';
+import * as cornerstoneMath from'cornerstone-math';
+import * as cornerstoneWebImageLoader from 'cornerstone-web-image-loader';
+import * as cornerstoneTools from 'cornerstone-tools';
+import _ from 'lodash';
+import Annotation from './Annotation/Annotation';
+import useStyles from './Annotation/Style/Style';
+
+cornerstoneWebImageLoader.external.cornerstone = cornerstone
+cornerstoneTools.external.cornerstone = cornerstone
+cornerstoneTools.external.cornerstoneMath = cornerstoneMath
+cornerstoneTools.external.Hammer = Hammer
+cornerstoneTools.init(
+	{
+		// showSVGCursors: true,
+	}
+);
+
+const LabelingWorkspace = (): JSX.Element => {
+  const classes = useStyles();
+	
+  return (
+    <Formik
+      initialValues={{		
+        username: '',
+		email: '',
+        password: '',
+      }}    
+      onSubmit={ () => {} }
+    >
+    {(
+        props: FormikProps<{			
+          	username: string;
+			email: string;
+          	password: string;			
+        }>
+      ) => {
+        const {
+        } = props;
+		
+        return (
+          	<Container  
+            className={classes.container}
+            style={{backgroundColor: 'black'}} >
+              	<NavigationBar/>
+				<div className={classes.dicomWrapper} id="canvas">
+					<Annotation nrrdUrl='http://localhost/api/get-nrrd-volume/admin/liver_01^patient/undefined/'/>
+				</div>
+            </Container>
+        );
+      }}
+    </Formik>
+  );
+};
+
+export default LabelingWorkspace;

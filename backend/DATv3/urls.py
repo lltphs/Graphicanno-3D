@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf import settings
 from django.contrib import admin
-from .views import get_annotation, get_list_volume, get_nrrd, get_png_slice, get_png_virtual_slice, get_textures, media_access, upload_dicom
+from .views import get_list_volume, get_nrrd, get_nrrd_annotation, get_textures, media_access, upload_dicom
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf.urls import url
@@ -30,9 +30,7 @@ urlpatterns = [
     path('api/upload-dicom/<user_name>/', upload_dicom, name='upload_dicom'),
     path('api/get-list-volume/<user_name>/', get_list_volume, name='get_list_volume'),
     path('api/get-nrrd-volume/<user_name>/<patient_name>/<phase>/', get_nrrd, name='get_nrrd'),
-    path('api/get-png-slice/<user_name>/<patient_name>/<phase>/<int:index>/', get_png_slice, name='get_png_slice'),
-    path('api/get-png-virtual-slice/<user_name>/<patient_name>/<phase>/<Ox>/<Oy>/<Oz>/<ux>/<uy>/<uz>/<vx>/<vy>/<vz>/', get_png_virtual_slice, name='get_png_slice'),
-    path('api/get-annotation/<user_name>/<patient_name>/<phase>/<int:index>/', get_annotation, name='get_annotation'),
+    path('api/get-nrrd-annotation/<user_name>/<patient_name>/<phase>/', get_nrrd_annotation, name='get_nrrd_annotation'),
     path('api/get-textures/<filename>/', get_textures, name='get_textures'),
     url(r'^media/(?P<path>.*)', media_access, name='media'),
 ]

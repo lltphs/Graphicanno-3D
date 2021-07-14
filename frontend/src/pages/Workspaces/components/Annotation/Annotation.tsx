@@ -1,5 +1,6 @@
-import { Grid } from '@material-ui/core';
+import { Container } from '@material-ui/core';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import NavigationBar from './NavigationBar/NavigationBar';
 
 import AnnotationUtilitiesAppBar from './AnnotationUtilitiesAppBar/AnnotationUtilitiesAppBar';
 import setupCornerstone from './Cornerstone/setupCornerstone';
@@ -7,13 +8,11 @@ import useStyles from './Style/Style';
 import createVirtualSlice from './VirtualSlice/ManipulateVirtualSlice/createVirtualSlice';
 import moveVirtualSlice from './VirtualSlice/ManipulateVirtualSlice/moveVirtualSlice';
 import createVolume3DMaterialAndVolume from './Volume3D/createVolume3DMaterialAndVolume';
-import Volume3DWrapper from './Volume3D/Volume3DWrapper';
+import Volume3D from './Volume3D/Volume3D';
 
 const Annotation = ({ nrrdUrl }) => {
   
   const matNVol = useMemo(() => createVolume3DMaterialAndVolume(nrrdUrl), [nrrdUrl]);
-
-  const [isInMoveSliceMode, setIsInMoveSliceMode] = useState(false);
   
   const sliceRef = useRef();
 
@@ -24,7 +23,7 @@ const Annotation = ({ nrrdUrl }) => {
   useEffect(() => createVirtualSlice(sliceRef, matNVol, cornerstoneElementRef), [sliceRef, matNVol, cornerstoneElementRef]);
   
   useEffect(() => {
-    const handleEventWrapper = (event) => handleEvent(event, isInMoveSliceMode, setIsInMoveSliceMode, sliceRef, matNVol, cornerstoneElementRef);
+    const handleEventWrapper = (event) => handleEvent(event, sliceRef, matNVol, cornerstoneElementRef);
 	  document.addEventListener('keydown', handleEventWrapper);
 	  document.addEventListener('wheel', handleEventWrapper);
 	  return () => {
@@ -36,45 +35,44 @@ const Annotation = ({ nrrdUrl }) => {
   const classes = useStyles();
 
   return (
-    <div className={classes.ele}>
-      <AnnotationUtilitiesAppBar matNVol={matNVol} sliceRef={sliceRef} cornerstoneElementRef={cornerstoneElementRef}/>
-      <Grid container spacing={3} style={{width:'100%', height:'100%'}}>
-      <Grid item xs={6}>
-        <Volume3DWrapper
-          material={matNVol.mat}
-          xLength={matNVol.vol.xLength}
-          yLength={matNVol.vol.yLength}
-          zLength={matNVol.vol.zLength}
-          isInMoveSliceMode={isInMoveSliceMode}
-        />
-      </Grid>
-      <Grid item xs={6}>
-        <div className={classes.dicom}
-          ref={(input) => {
-            cornerstoneElementRef.current = input
-        }}></div>
-      </Grid>
-      <Grid item xs={12}>
-        <h1 style={{backgroundColor: isInMoveSliceMode ? 'red' : 'blue'}}>Hi</h1>
-      </Grid>    
-    </Grid>
-    <canvas id='vs' hidden></canvas>
-    </div>
+    <Container  
+      className={classes.container}
+      style={{backgroundColor: 'black'}}>
+
+      <NavigationBar matNVol={matNVol}/>
+      
+      <div className={classes.dicomWrapper} id="canvas">
+        <div className={classes.ele}>
+          <AnnotationUtilitiesAppBar matNVol={matNVol} sliceRef={sliceRef} cornerstoneElementRef={cornerstoneElementRef}/>
+          <div className={classes.dicom} style={{display:"flex"}}>
+            <div style={{width:"50%"}}>
+              <Volume3D
+                material={matNVol.mat}
+                xLength={matNVol.vol.xLength}
+                yLength={matNVol.vol.yLength}
+                zLength={matNVol.vol.zLength}
+              />
+            </div>
+            <div className={classes.dicom}
+                ref={(input) => {
+                  cornerstoneElementRef.current = input
+            }}
+            style={{width:"50%"}}>
+            </div>
+          </div>
+        <canvas id='vs' hidden></canvas>
+        </div>
+      </div>
+    </Container>
   );
 }
 
-const handleEvent = (event, isInMoveSliceMode, setIsInMoveSliceMode, sliceRef, matNVol, cornerstoneElementRef) => {
-  // If user type Ctrl + Space: call setInMoveSliceMode, i.e, flip inModeSliceMode
-  if (event.ctrlKey && event.key == ' ') setIsInMoveSliceMode(!isInMoveSliceMode);
-
+const handleEvent = (event, sliceRef, matNVol, cornerstoneElementRef) => {
   // If isInMoveSliceMode: move slice accordingly
-  if (checkEventValid(event, isInMoveSliceMode)) moveVirtualSlice(sliceRef, matNVol, event, cornerstoneElementRef);
+  if (checkEventValid(event)) moveVirtualSlice(sliceRef, matNVol, event, cornerstoneElementRef);
 }
 
-function checkEventValid(event, isInMoveSliceMode) {  
-  //Only move slice in Move-Slice Mode
-  if (!isInMoveSliceMode) return false;
-
+function checkEventValid(event) {
   //Key event only valid if user presses correct key
   if (event.key) {
     const key = event.key;
@@ -88,7 +86,7 @@ function checkEventValid(event, isInMoveSliceMode) {
         key == 'd') return true;
   } 
   // Wheel event, if any, is valid
-  if (event.delta != 0) return true;
+  if (event.delta != 0 && event.shiftKey) return true;
 
   //Nothing else valid
   return false

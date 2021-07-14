@@ -2,7 +2,7 @@ import { useLoader } from '@react-three/fiber';
 import { TextureLoader, DataTexture3D, RedFormat, FloatType, LinearFilter, UniformsUtils, ShaderMaterial, BackSide } from 'three';
 import { NRRDLoader } from 'three/examples/jsm/loaders/NRRDLoader';
 import { VolumeRenderShader1 } from 'three/examples/jsm/shaders/VolumeShader';
-import { GRAY_WITH_ANNOTATION_TEXTURE_URL } from '../../constants';
+import { GRAY_WITH_ANNOTATION_TEXTURE_URL } from '../constants';
 
 const createVolume3DMaterialAndVolume = (nrrdUrl) => {
 	const volume = useLoader(NRRDLoader, nrrdUrl);

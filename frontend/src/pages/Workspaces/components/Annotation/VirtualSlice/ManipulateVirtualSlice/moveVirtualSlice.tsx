@@ -2,7 +2,6 @@ import { drawSliceOnCornerstoneElement, drawSliceOnVolume, notifyVolume3DUpdate,
 
 
 const moveVirtualSlice = (sliceRef, matNVol, event, cornerstoneElementRef) => {
-  event.preventDefault();
   removeSliceOnVolume(sliceRef.current, matNVol);
   updateSliceState(sliceRef.current, event);
   drawSliceOnVolume(sliceRef.current, matNVol);

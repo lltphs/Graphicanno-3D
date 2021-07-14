@@ -1,0 +1,91 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+#toolbar{
+  padding-right: 0px;
+  border-bottom: '1px solid black';
+  // border-top: 1px solid white;
+  
+}
+
+#right{
+  border-radius: 0px !important;
+  background-color: white;
+  height: 70px ;
+  width: 220px;
+  margin: 0px;
+  padding-left: 20px;
+  // margin-left: 1px;
+  border-bottom: 0.1px white;
+  border-top: 1px solid;
+  #account-circle{
+    color: #3f51b5;
+  }
+}
+
+#username{
+  padding-left: 0px;
+}
+
+.workspace-landing{
+  width: 100%;
+  margin: auto;
+  display: flex;
+  flex-wrap: wrap;
+  padding-top: 70px;
+  padding-bottom: 70px;
+  padding-left: 30px;
+  padding-right: 30px;
+  // margin-top: 50px;
+  // margin-left: 15%;
+  // margin-right: 15%;
+}
+
+.dataset-item{
+  width: 300px;
+  height: 500px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 7px 7px rgba(0, 0, 0, 0.1), 0 3px 3px rgba(0, 0, 0, 0.2);
+  margin-left: 20px;
+  margin-bottom: 20px;
+  .data-item{
+    height: 200px;
+    width: 100%;
+    padding: 10%;
+    margin: auto;
+    border-bottom: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  .item-bottom{
+    margin-left: 30px;
+    font-size: 18px;
+    .overview-btn{
+      // width: 110px;
+      // border: 1px solid #ccc;
+      margin-right: 18px;
+    }
+    .label-btn{
+      background-color: #3f51b5;
+      color: white;
+    }
+    .btn{
+      width: 110px;
+      border: 1px solid #ccc;
+    }
+    .btn:hover{
+      color: #1f2b6d;
+      background-color: beige;
+    }
+  }
+}
+MenuItem{
+  margin-top: 15px;
+}
+#menu-icon{
+  width: 30px;
+  margin-right: 5px;
+}

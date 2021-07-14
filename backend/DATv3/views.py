@@ -220,36 +220,5 @@ def get_png_slice(request,user_name,patient_name,phase,index):
 def get_textures(request, filename):
     return HttpResponse(open(f'textures/{filename}', 'rb'))
 
-def get_annotation(request,user_name,patient_name,phase,index):
-    #Only prototype
-    if f'sample_annotation.npy' in cache or False:
-        full_annotation = cache[f'sample_annotation.npy']
-    else:
-        full_annotation = np.load(f'sample_annotation.npy')
-        cache[f'sample_annotation.npy'] = full_annotation
-    slice_annotation = full_annotation[index]
-    slice_annotation_as_xy = []
-    print(full_annotation[0,0,0])
-    for x in range(slice_annotation.shape[0]):
-        for y in range(slice_annotation.shape[1]):
-            if slice_annotation[x,y] > 0:
-                slice_annotation_as_xy.append([x,y])
-    return JsonResponse(slice_annotation_as_xy, safe=False)
-
-def get_png_virtual_slice(request,user_name,patient_name,phase,Ox,Oy,Oz,ux,uy,uz,vx,vy,vz):
-    volume = get_volume(user_name,patient_name,phase)
-    
-    side_length = int(sqrt(sum(map(lambda shape: shape*shape, volume.shape))))
-    O = np.array([Ox,Oy,Oz]).astype('float')
-    u = np.array([ux,uy,uz]).astype('float')
-    v = np.array([vx,vy,vz]).astype('float')
-    num_sub_virtual_slice = 2
-    sub_virtual_slices = Pool().map(create_sub_virtual_slice, [(O,u,v,volume,side_length,num_sub_virtual_slice,idx) for idx in range(num_sub_virtual_slice)])
-    virtual_slice = np.zeros((side_length, side_length))
-    for i in range(num_sub_virtual_slice):
-        x_offset = i * side_length // num_sub_virtual_slice
-        x_length = side_length // num_sub_virtual_slice if i < num_sub_virtual_slice - 1 else side_length % num_sub_virtual_slice
-        virtual_slice[x_offset:x_offset+x_length] = sub_virtual_slices[i]
-    
-    _, png = cv2.imencode(".png", (virtual_slice * 255).astype('uint8'))
-    return FileResponse(BytesIO(png)) 
+def get_nrrd_annotation(request,user_name,patient_name,phase):
+    return HttpResponse(open(f'nrrd/{user_name}/{patient_name}/{phase}/annotation.nrrd', 'rb'))
