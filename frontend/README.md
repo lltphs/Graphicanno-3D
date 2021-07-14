@@ -1,3 +1,18 @@
+# Step 1 - Install cornerstoneDATImageLoader
+### `cd gvlab_dat_thesis2021`
+### `rm -rf cornerstoneDATImageLoader`
+### `git clone https://github.com/lltphs/cornerstoneDATImageLoader`
+### `cd frontend`
+### `yarn remove cornerstone-web-image-loader`
+### `yarn add ../cornerstoneDATImageLoader`
+
+# Step 2 - Run as normal
+### `yarn start`
+
+
+
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
