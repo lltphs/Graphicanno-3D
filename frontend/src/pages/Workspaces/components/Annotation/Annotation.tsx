@@ -39,7 +39,7 @@ const Annotation = ({ nrrdUrl }) => {
       className={classes.container}
       style={{backgroundColor: 'black'}}>
 
-      <NavigationBar matNVol={matNVol}/>
+      <NavigationBar sliceRef={sliceRef} matNVol={matNVol} cornerstoneElementRef={cornerstoneElementRef}/>
       
       <div className={classes.dicomWrapper} id="canvas">
         <div className={classes.ele}>

@@ -57,24 +57,24 @@ const drawOrRemoveSliceOnVolume  = (slice: VirtualSlice, matNVol, isDraw) => {
       let vec3D = slice.O3D.add(slice.u3D.scalarMul(i)).add(slice.v3D.scalarMul(j)).round();
 
       if (checkPointIsCoveredByVolume(vec3D, matNVol.vol)) {
-        //Mark the corresponding point on volume as 0.6 if isDraw, else mark it as its original value
+        //Mark the corresponding point on volume as slice.sliceInnerBrightness if isDraw, else mark it as its original value
         const flatIndex3D = vec3D.x + vec3D.y * matNVol.vol.xLength + vec3D.z * matNVol.vol.xLength * matNVol.vol.yLength;
 
         if (matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] != 1){
           if (isDraw) {
-            matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = 0.7;
+            matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = slice.sliceInnerBrightness;
           } else {
           matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = matNVol.vol.data[flatIndex3D];
           }
         }
 
       } else if (checkPointLiesOnVolumeSurface(vec3D, matNVol.vol)) {
-        //Mark the corresponding point on volume as 1 if isDraw, else mark it as its original value
+        //Mark the corresponding point on volume as slice.sliceBoundBrightness if isDraw, else mark it as its original value
         const flatIndex3D = vec3D.x + vec3D.y * matNVol.vol.xLength + vec3D.z * matNVol.vol.xLength * matNVol.vol.yLength;
              
         if (matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] != 1){
           if (isDraw) {
-            matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = 0.95;
+            matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = slice.sliceBoundBrightness;
           } else {
           matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = matNVol.vol.data[flatIndex3D];
           }

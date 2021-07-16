@@ -1,3 +1,4 @@
+import json
 from DATv3.constants import NUM_CPU
 from DATv3.utils import create_sub_virtual_slice, get_volume, cache
 from numpy.lib.function_base import append, insert
@@ -207,7 +208,7 @@ def get_list_volume(request, user_name):
             break
     return JsonResponse(volume_category, safe=False)
 
-def get_nrrd(request,user_name,patient_name,phase):
+def get_nrrd_volume(request,user_name,patient_name,phase):
     return HttpResponse(open(f'nrrd/{user_name}/{patient_name}/{phase}/volume_for_view_test.nrrd', 'rb'))
 
 def get_png_slice(request,user_name,patient_name,phase,index):
@@ -222,3 +223,26 @@ def get_textures(request, filename):
 
 def get_nrrd_annotation(request,user_name,patient_name,phase):
     return HttpResponse(open(f'nrrd/{user_name}/{patient_name}/{phase}/annotation.nrrd', 'rb'))
+
+def post_annotation(request,user_name,patient_name,phase):
+    annotation_info = json.loads(request.body)
+    compressed_flat_data = annotation_info['compressedAnnotationFlatArray']
+    width = annotation_info['width']
+    height = annotation_info['height']
+    depth = annotation_info['depth']
+    
+    flat_data_length = sum(compressed_flat_data[1::2])
+    flat_data = np.zeros(flat_data_length)
+
+    start_idx = 0
+    for i in range(len(compressed_flat_data) // 2):
+        end_idx = start_idx + compressed_flat_data[2 * i + 1]
+        flat_data[start_idx:end_idx] = compressed_flat_data[2 * i]
+        start_idx = end_idx
+    
+    true_form_data = flat_data.reshape((depth, height, width))
+    true_form_data = np.swapaxes(true_form_data, 0, 2)
+    
+    nrrd.write(f'nrrd/{user_name}/{patient_name}/{phase}/annotation.nrrd', true_form_data)
+
+    return HttpResponse('OK')

@@ -31,6 +31,7 @@ import * as UserServices from 'api/user';
 import '../index.scss';
 import HeaderWorkspaces from '../HeaderWorkspaces';
 import LoadAIPredictionButton from './Items/LoadAIPredictionButton';
+import SaveYourWorkButton from './Items/SaveYourWorkButton';
 
 const drawerWidth = 240;
 
@@ -167,7 +168,7 @@ function userDetailReducer(
 }
 
 
-const NavigationBar = ({ matNVol }) => {
+const NavigationBar = ({ sliceRef, matNVol, cornerstoneElementRef }) => {
     const classes = useStyles();   
     const theme = useTheme();
     const [open, setOpen] = React.useState(false);
@@ -352,18 +353,9 @@ const NavigationBar = ({ matNVol }) => {
 				</ListItem>
 			</div>
 
-			<div id="save_your_mask">
-				<ListItem button id='save_your_mask_fake_tag' className="item">
-					<Tooltip title="Save your mask">
-						<ListItemIcon>
-							<GetAppIcon/>
-						</ListItemIcon>
-					</Tooltip>
-					<ListItemText/>
-				</ListItem>
-			</div>
+			<SaveYourWorkButton matNVol={matNVol} storageUrl='http://localhost/api/post-annotation/admin/liver_01^patient/undefined/'/>
 
-			<LoadAIPredictionButton matNVol={matNVol} nrrdUrl='http://localhost/api/get-nrrd-annotation/admin/liver_01^patient/undefined/'/>
+			<LoadAIPredictionButton sliceRef={sliceRef} matNVol={matNVol} cornerstoneElementRef={cornerstoneElementRef} nrrdUrl='http://localhost/api/get-nrrd-annotation/admin/liver_01^patient/undefined/'/>
 		</Drawer>
 	</div>
 	);
