@@ -11,8 +11,8 @@ import nrrd
 from pydicom import dcmread
 from pydicom.filebase import DicomBytesIO
 import numpy as np
+import json
 from scipy.ndimage import zoom
-from ..utils import upload_volume
 
 from ..models import Dataset, Membership
 from ..serializers import DatasetSerializer
@@ -99,7 +99,7 @@ class DatasetViewSet(viewsets.ModelViewSet):
 
         # Normalize the spacing between voxels to be 1x1x1 mm^3 for volume_true and 0.5x0.5x0.5 for volume_for_view
         volume_true = zoom(volume, [i/1.0 for i in voxel_spacing])
-
+        annotation = np.zeros_like(volume)
         # Create dataset
         dataset = Dataset.objects.create(
             patient_name=patient_name,
@@ -117,6 +117,7 @@ class DatasetViewSet(viewsets.ModelViewSet):
         if not os.path.exists(f'nrrd/{id}'):
             os.makedirs(f'nrrd/{id}')
         nrrd.write(f'nrrd/{id}/volume.nrrd', volume_true)
+        nrrd.write(f'nrrd/{id}/annotation.nrrd', annotation)
 
         return Response(
             {
@@ -136,7 +137,8 @@ class DatasetViewSet(viewsets.ModelViewSet):
         if memberships:
             Dataset.objects.filter(id=pk).delete()
         else:
-            Membership.objects.filter(dataset_id=pk, user=request.user).delete()
+            Membership.objects.filter(
+                dataset_id=pk, user=request.user).delete()
 
         return Response({"data": {"message": "Successfully."}}, status=status.HTTP_200_OK)
 
@@ -156,5 +158,34 @@ class DatasetViewSet(viewsets.ModelViewSet):
             if not Membership.objects.filter(dataset__id=pk, user=user).first():
                 Membership.objects.create(
                     dataset_id=pk, user=user, role='member')
+
+        return Response({"data": {"message": "Successfully."}}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post', 'get'])
+    def annotation(self, request, pk=None):
+        if not Dataset.objects.filter(membership__user=request.user, id=pk).first():
+            return Response({"data": {"message": "Successfully."}}, status=status.HTTP_400_BAD_REQUEST)
+
+        if request.method == 'GET':
+            return HttpResponse(open(f'nrrd/{pk}/annotation.nrrd', 'rb'))
+
+        annotation_info = json.loads(request.body)
+        compressed_flat_data = annotation_info['compressedAnnotationFlatArray']
+        width = annotation_info['width']
+        height = annotation_info['height']
+        depth = annotation_info['depth']
+
+        flat_data_length = sum(compressed_flat_data[1::2])
+        flat_data = np.zeros(flat_data_length)
+
+        start_idx = 0
+        for i in range(len(compressed_flat_data) // 2):
+            end_idx = start_idx + compressed_flat_data[2 * i + 1]
+            flat_data[start_idx:end_idx] = compressed_flat_data[2 * i]
+            start_idx = end_idx
+
+        true_form_data = flat_data.reshape((depth, height, width))
+        true_form_data = np.swapaxes(true_form_data, 0, 2)
+        nrrd.write(f'nrrd/{pk}/annotation.nrrd', true_form_data)
 
         return Response({"data": {"message": "Successfully."}}, status=status.HTTP_200_OK)
