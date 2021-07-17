@@ -20,10 +20,9 @@ const LoadAIPredictionButton = ({ sliceRef, matNVol, cornerstoneElementRef, nrrd
 
 const handleLoadAIPrediction = (sliceRef, matNVol, cornerstoneElementRef, nrrdUrl) => {
   const volume = useLoader(NRRDLoader, nrrdUrl);
-  console.log(volume.xLength)
-  console.log(volume.yLength)
-  console.log(volume.zLength)
+
   applyAnnotationOnVolumeFromExternalSource(matNVol, volume.data);
+  
   drawSliceOnCornerstoneElement(sliceRef.current, matNVol, cornerstoneElementRef);
 }
 

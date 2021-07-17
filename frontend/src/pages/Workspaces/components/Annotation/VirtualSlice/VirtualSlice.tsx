@@ -53,7 +53,7 @@ export default class VirtualSlice {
     this.O3D = new Vector3D(
       Math.floor(volume.xLength / 2),
       Math.floor(volume.yLength / 2),
-      0,
+      Math.floor(volume.zLength / 2),
     );
   }
 
