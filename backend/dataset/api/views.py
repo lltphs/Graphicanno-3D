@@ -1,7 +1,10 @@
 # Create your views here.
+from django.contrib.auth import get_user_model
 from rest_framework import viewsets, status, serializers
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.http import HttpResponse
+from rest_framework.decorators import action
 
 import os
 import nrrd
@@ -13,6 +16,8 @@ from ..utils import upload_volume
 
 from ..models import Dataset, Membership
 from ..serializers import DatasetSerializer
+
+User = get_user_model()
 
 
 class DatasetViewSet(viewsets.ModelViewSet):
@@ -107,9 +112,11 @@ class DatasetViewSet(viewsets.ModelViewSet):
             user=request.user
         )
 
+        id = dataset.id
+
         if not os.path.exists(f'nrrd/{id}'):
             os.makedirs(f'nrrd/{id}')
-        nrrd.write(f'nrrd/{id}/volume_true.nrrd', volume_true)
+        nrrd.write(f'nrrd/{id}/volume.nrrd', volume_true)
 
         return Response(
             {
@@ -117,3 +124,37 @@ class DatasetViewSet(viewsets.ModelViewSet):
             },
             status=status.HTTP_200_OK
         )
+
+    def retrieve(self, request, pk=None):
+        dataset = Dataset.objects.get(membership__user=request.user, id=pk)
+        return HttpResponse(open(f'nrrd/{dataset.id}/volume.nrrd', 'rb'))
+
+    def destroy(self, request, pk=None):
+        memberships = Membership.objects.filter(
+            dataset__id=pk, user=request.user, role='owner').first()
+
+        if memberships:
+            Dataset.objects.filter(id=pk).delete()
+        else:
+            Membership.objects.filter(dataset_id=pk, user=request.user).delete()
+
+        return Response({"data": {"message": "Successfully."}}, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'])
+    def invite(self, request, pk=None):
+        membership = Membership.objects.filter(
+            dataset_id=pk, user=request.user, role='owner').first()
+
+        if not membership or not 'username_list' in request.data:
+            return Response({"data": {"message": "Invalid request."}}, status=status.HTTP_400_BAD_REQUEST)
+
+        username_list = request.data['username_list']
+
+        user_list = User.objects.filter(username__in=username_list)
+
+        for user in user_list:
+            if not Membership.objects.filter(dataset__id=pk, user=user).first():
+                Membership.objects.create(
+                    dataset_id=pk, user=user, role='member')
+
+        return Response({"data": {"message": "Successfully."}}, status=status.HTTP_200_OK)
