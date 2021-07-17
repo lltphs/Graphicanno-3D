@@ -5,20 +5,24 @@ import { VolumeRenderShader1 } from 'three/examples/jsm/shaders/VolumeShader';
 import { GRAY_WITH_ANNOTATION_TEXTURE_URL } from '../constants';
 
 const createVolume3DMaterialAndVolume = (nrrdUrl) => {
-	const volume = useLoader(NRRDLoader, nrrdUrl);
-
+	const volume = useLoader(NRRDLoader, 'http://localhost/api/dataset/10/' , (loader) => {
+    loader.setRequestHeader({'Authorization': 'JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjI2NTQ3NzE4LCJqdGkiOiIxZWIyYWY2MTdlOTc0ODU5YTVkMjNmN2FiNWUzMzM0ZSIsInVzZXJfaWQiOjJ9.N1fE0OSVquOBu1EwxVnfRCdVytZeCh4949DIwrK48g0'})
+  });
+  // const volume = useLoader(NRRDLoader, nrrdUrl)
   const dataTexture3D = createDataTexture3D(volume);
 
   const uniforms = createUniforms(dataTexture3D);
 
   const material = createMaterial(uniforms);
   
+  console.log(volume.xLength);
+  console.log(volume.yLength);
+  console.log(volume.zLength);
   return {
     mat: material,
     vol: volume
   };
 }
-
 const createDataTexture3D = (volume) => {
   const dataTexture3D = new DataTexture3D(
     volume.data.slice(0),
