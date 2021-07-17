@@ -36,3 +36,4 @@ wcwidth==0.2.5
 zipp==3.4.0
 zope.event==4.5.0
 zope.interface==5.2.0
+boto3>=1.17.112

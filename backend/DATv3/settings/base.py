@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     # application
     "accounts",
     "authentication",
+    "dataset",
 ]
 
 MIDDLEWARE = [
@@ -161,7 +162,8 @@ ADMIN_SITE_TITLE = "Data Annotation Tool - GVLab"
 ADMIN_SITE_HEADER = "Data Annotation Tool - GVLab - Adminsite"
 
 # Celery settings
-CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "amqp://admin:mypass@broker:5672")
+CELERY_BROKER_URL = os.environ.get(
+    "CELERY_BROKER", "amqp://admin:mypass@broker:5672")
 
 CELERY_IMPORTS = []
 CELERY_RESULT_SERIALIZER = "json"

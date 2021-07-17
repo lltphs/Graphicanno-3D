@@ -26,6 +26,7 @@ admin.site.site_header = settings.ADMIN_SITE_HEADER
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/user/', include('accounts.api.urls')),
+    path('api/dataset/', include('dataset.api.urls')),
     path('api/token/', include('authentication.api.urls')),
     path('api/upload-dicom/<user_name>/', upload_dicom, name='upload_dicom'),
     path('api/get-list-volume/<user_name>/', get_list_volume, name='get_list_volume'),
