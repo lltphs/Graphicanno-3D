@@ -5,7 +5,7 @@ import useStyles from '../Style/Style';
 import AngleButton from './Items/AngleButton';
 import BrushButton from './Items/BrushButton';
 import ContrastButton from './Items/ContrastButton';
-import EllipseButton from './Items/EllipseButton';
+import CircleButton from './Items/EllipseButton';
 import EraserButton from './Items/EraserButton';
 import FreeHandButton from './Items/FreeHandButton';
 import InverButton from './Items/InvertButton';
@@ -25,9 +25,9 @@ const AnnotationUtilitiesAppBar = ({ matNVol, sliceRef, cornerstoneElementRef })
   <AppBar className={classes.appbar}>
     <Toolbar>
       <AngleButton/>
-      <BrushButton matNVol={matNVol} sliceRef={sliceRef} cornerstoneElementRef={cornerstoneElementRef}/>
+      <BrushButton/>
       <ContrastButton/>
-      <EllipseButton/>
+      <CircleButton/>
       <EraserButton/>
       <FreeHandButton/>
       <InverButton cornerstoneElementRef={cornerstoneElementRef}/>
@@ -37,7 +37,7 @@ const AnnotationUtilitiesAppBar = ({ matNVol, sliceRef, cornerstoneElementRef })
       <ProbeButton/>
       <RectangleButton/>
       <CorrectionScissorButton/>
-      <UndoButton cornerstoneElementRef={cornerstoneElementRef}/>
+      <UndoButton matNVol={matNVol} sliceRef={sliceRef} cornerstoneElementRef={cornerstoneElementRef}/>
       <ZoomInButton cornerstoneElementRef={cornerstoneElementRef}/>
       <ZoomOutButton cornerstoneElementRef={cornerstoneElementRef}/>
     </Toolbar>			

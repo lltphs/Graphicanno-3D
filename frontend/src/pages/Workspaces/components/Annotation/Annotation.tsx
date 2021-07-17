@@ -18,7 +18,7 @@ const Annotation = ({ nrrdUrl }) => {
 
   const cornerstoneElementRef = useRef(null);
   
-  useEffect(() => setupCornerstone(cornerstoneElementRef), [cornerstoneElementRef]);
+  useEffect(() => setupCornerstone(sliceRef, matNVol, cornerstoneElementRef), [sliceRef, matNVol, cornerstoneElementRef]);
 
   useEffect(() => createVirtualSlice(sliceRef, matNVol, cornerstoneElementRef), [sliceRef, matNVol, cornerstoneElementRef]);
   

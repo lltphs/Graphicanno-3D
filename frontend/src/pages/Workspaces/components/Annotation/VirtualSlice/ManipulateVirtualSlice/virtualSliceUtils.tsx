@@ -59,7 +59,7 @@ const drawOrRemoveSliceOnVolume  = (slice: VirtualSlice, matNVol, isDraw) => {
       if (checkPointIsCoveredByVolume(vec3D, matNVol.vol)) {
         //Mark the corresponding point on volume as slice.sliceInnerBrightness if isDraw, else mark it as its original value
         const flatIndex3D = vec3D.x + vec3D.y * matNVol.vol.xLength + vec3D.z * matNVol.vol.xLength * matNVol.vol.yLength;
-
+        
         if (matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] != 1){
           if (isDraw) {
             matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = slice.sliceInnerBrightness;
