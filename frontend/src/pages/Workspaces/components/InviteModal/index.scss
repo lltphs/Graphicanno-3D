@@ -1,0 +1,110 @@
+.invite-modal-wrapper {
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .invite-modal {
+    width: 400px;
+    min-height: 150px;
+    background-color: #fafafa;
+    border: 2px solid #00b0ff;
+    border-radius: 3px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+    position: relative;
+    padding: 10px 5px 55px;
+
+    .title {
+      font-weight: 600;
+      font-size: 24px;
+      color: #00b0ff;
+    }
+
+    .username-list {
+      display: flex;
+      flex-direction: row;
+      width: 300px;
+      flex-wrap: wrap;
+
+      .username {
+        border: 2px solid #01579b;
+        color: #01579b;
+        padding: 2px 5px;
+        border-radius: 10px;
+        margin-right: 5px;
+        cursor: pointer;
+        margin-top: 2px;
+
+        &:hover {
+          border: 2px solid #dd2c00;
+          background-color: #dd2c00;
+          color: #ffffff;
+        }
+      }
+    }
+
+    .input {
+      margin-top: 4px;
+      width: 300px;
+      height: 26px;
+      line-height: 26px;
+    }
+
+    .button-line {
+      width: 100%;
+      display: flex;
+      width: 200px;
+      justify-content: space-between;
+      position: absolute;
+      bottom: 20px;
+
+      .button {
+        width: 70px;
+        height: 30px;
+        border-radius: 3px;
+        line-height: 24px;
+        cursor: pointer;
+
+        &:disabled {
+          border: 2px solid #bdbdbd;
+          background-color: #bdbdbd;
+          color: #ffffff;
+        }
+      }
+
+      .invite-button {
+        border: 2px solid #01579b;
+        background: #01579b;
+        color: #ffffff;
+
+        &:hover {
+          background: #ffffff;
+          color: #01579b;
+        }
+
+        &:disabled {
+          border: 2px solid #bdbdbd;
+          background-color: #bdbdbd;
+          color: #ffffff;
+        }
+      }
+
+      .cancel-button {
+        color: #616161;
+        border: 2px solid #616161;
+        background-color: #ffffff;
+
+        &:hover {
+          background: #616161;
+          color: #ffffff;
+        }
+      }
+    }
+  }
+}

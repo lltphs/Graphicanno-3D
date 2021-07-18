@@ -35,8 +35,10 @@ export const deleteDataset = (id: string): Promise<AxiosResponse> =>
 export const updateAnnotation = (id: string, annotation: object): Promise<AxiosResponse> =>
   axiosInstance.post(`${API_URL}${id}/annotation/`, annotation,{ headers: authHeader()});
 
-export const getAnnotation = (id: string): any =>
-{ 
+export const inviteMembers = (id: string, usernameInput: object): Promise<AxiosResponse> =>
+  axiosInstance.post(`${API_URL}${id}/invite/`, { username_list: usernameInput } ,{ headers: authHeader()});
+
+export const getAnnotation = (id: string): any => { 
   return useLoader(NRRDLoader, `http://localhost${API_URL}${id}/annotation/` , (loader) => {
     loader.setRequestHeader({Authorization: authHeader().Authorization})
   });
