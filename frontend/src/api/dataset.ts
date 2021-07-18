@@ -17,6 +17,18 @@ export const getDataset = (id: string): any =>
   });
 }
 
+export const uploadDataset = (file): Promise<AxiosResponse> =>{
+  const formdata = new FormData()
+  formdata.append('Content-Type', 'multipart/form-data');
+  for (let i = 0; i < file.length; i += 1) {
+    formdata.append('file', file[i])
+  }
+  const headers = {
+    Authorization: authHeader().Authorization,
+  }
+  return axiosInstance.post(`${API_URL}`, formdata, { headers });
+}
+
 export const deleteDataset = (id: string): Promise<AxiosResponse> =>
   axiosInstance.delete(`${API_URL}${id}/`, { headers: authHeader() });
 

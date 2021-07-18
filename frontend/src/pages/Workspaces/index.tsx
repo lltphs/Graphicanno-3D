@@ -22,7 +22,7 @@ import Header from 'components/Header/Header';
 import Footer from 'components/Footer/Footer';
 import { logout } from 'store/actions/auth';
 import * as UserServices from 'api/user';
-import { getDatasetList } from 'api/dataset';
+import { getDatasetList, uploadDataset } from 'api/dataset';
 import { RootDispatchType } from 'store';
 
 import '../../index.scss';
@@ -87,19 +87,7 @@ interface PropsDicomDropZone {
 const DICOMDropZone = (props: PropsDicomDropZone): JSX.Element => {
   // This part is for dropzone
   const onDrop = useCallback(async (acceptedFiles: Array<File>) => {
-    // setFile(acceptedFiles)
-
-    const imageId = cornerstoneWADOImageLoader.wadouri.fileManager.add(
-      acceptedFiles[0]
-    );
-    props.getImageId(imageId);
-
-    const imageName = acceptedFiles[0].name;
-    cornerstone.loadImage(imageId).then((image) => {
-      cornerstone.displayImage(element, image);
-      const patientName = image.data.string('x00100010');
-      // setPatientName(patientName);
-    });
+    uploadDataset(acceptedFiles);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
@@ -236,7 +224,7 @@ const LabelContent = (props: PropsLabelContent): JSX.Element => {
           <Box className="dataset-item" key={dataset.id}>
             <BurstModeIcon className="data-item" />
             <div className="item-bottom">
-              <p className="data-detail title">Patient: {dataset.patient}</p>
+              <p className="data-detail title">Patient: {dataset.patient_name}</p>
               <p className="data-detail id">ID: {dataset.id}</p>
               <p className="data-detail total">Role: {dataset.role}</p>
               <Link to={`${url}`}>

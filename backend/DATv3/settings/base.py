@@ -143,7 +143,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 STATIC_URL = "/static/"
 MEDIA_URL = "/media/"
 PROTECTED_MEDIA_URL = "/protected/media/"
-
+DATA_UPLOAD_MAX_MEMORY_SIZE = 200000000
 # Django rest framework settings
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
