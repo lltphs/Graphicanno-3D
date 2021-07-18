@@ -32,12 +32,11 @@ const useStyles = makeStyles((theme: Theme) =>
 	dicomWrapper: {
 		width: '100%',
 		height: `calc(100% - 260px)`,
+    marginTop: 164,
 	},
     dicom: {
       width: '100%',
       height: '100%',
-      marginTop: 164,
-      marginLeft: 72,
       margin: 'auto',
     },
 	ele: {

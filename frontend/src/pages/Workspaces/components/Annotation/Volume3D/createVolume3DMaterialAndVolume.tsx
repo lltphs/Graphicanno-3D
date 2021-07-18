@@ -2,13 +2,16 @@ import { useLoader } from '@react-three/fiber';
 import { TextureLoader, DataTexture3D, RedFormat, FloatType, LinearFilter, UniformsUtils, ShaderMaterial, BackSide } from 'three';
 import { NRRDLoader } from 'three/examples/jsm/loaders/NRRDLoader';
 import { VolumeRenderShader1 } from 'three/examples/jsm/shaders/VolumeShader';
+
+import { getDataset } from 'api/dataset'
 import { GRAY_WITH_ANNOTATION_TEXTURE_URL } from '../constants';
 
-const createVolume3DMaterialAndVolume = (nrrdUrl) => {
-	const volume = useLoader(NRRDLoader, 'http://localhost/api/dataset/10/' , (loader) => {
-    loader.setRequestHeader({'Authorization': 'JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjI2NTQ3NzE4LCJqdGkiOiIxZWIyYWY2MTdlOTc0ODU5YTVkMjNmN2FiNWUzMzM0ZSIsInVzZXJfaWQiOjJ9.N1fE0OSVquOBu1EwxVnfRCdVytZeCh4949DIwrK48g0'})
-  });
-  // const volume = useLoader(NRRDLoader, nrrdUrl)
+const createVolume3DMaterialAndVolume = (id) => {
+	// const volume = useLoader(NRRDLoader, 'http://localhost/api/dataset/10/' , (loader) => {
+  //   loader.setRequestHeader({'Authorization': 'JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjI2NTQ3NzE4LCJqdGkiOiIxZWIyYWY2MTdlOTc0ODU5YTVkMjNmN2FiNWUzMzM0ZSIsInVzZXJfaWQiOjJ9.N1fE0OSVquOBu1EwxVnfRCdVytZeCh4949DIwrK48g0'})
+  // });
+
+  const volume = getDataset(id)
   const dataTexture3D = createDataTexture3D(volume);
 
   const uniforms = createUniforms(dataTexture3D);

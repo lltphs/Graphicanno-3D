@@ -1,7 +1,8 @@
 import { Container } from '@material-ui/core';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import NavigationBar from './NavigationBar/NavigationBar';
+import { useLocation, useParams } from 'react-router-dom';
 
+import NavigationBar from './NavigationBar/NavigationBar';
 import AnnotationUtilitiesAppBar from './AnnotationUtilitiesAppBar/AnnotationUtilitiesAppBar';
 import setupCornerstone from './Cornerstone/setupCornerstone';
 import useStyles from './Style/Style';
@@ -11,8 +12,9 @@ import createVolume3DMaterialAndVolume from './Volume3D/createVolume3DMaterialAn
 import Volume3D from './Volume3D/Volume3D';
 
 const Annotation = ({ nrrdUrl }) => {
-  
-  const matNVol = useMemo(() => createVolume3DMaterialAndVolume(nrrdUrl), [nrrdUrl]);
+  const { datasetId } = useParams<{datasetId: string}>()
+  const matNVol = useMemo(() => createVolume3DMaterialAndVolume(datasetId), [datasetId]);
+  // const matNVol = useMemo(() => createVolume3DMaterialAndVolume(nrrdUrl), [nrrdUrl]);
   
   const sliceRef = useRef();
 
