@@ -56,7 +56,13 @@ const useStyles = makeStyles((theme: Theme) =>
 	papers: {
 		padding: theme.spacing(1),
 	},
-  })
+  slider: {
+    width: 200,
+    color: 'white',
+    marginTop: 10,
+    marginLeft: 130,
+  },
+  }),
 );
 
 export default useStyles;
