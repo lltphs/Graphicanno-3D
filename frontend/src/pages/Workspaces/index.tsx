@@ -28,7 +28,6 @@ import { RootDispatchType } from 'store';
 import '../../index.scss';
 import { useDropzone } from 'react-dropzone';
 import * as cornerstone from 'cornerstone-core';
-import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
 import Annotation from './components/Annotation/Annotation';
 
 const useStyles = makeStyles(() =>
@@ -85,9 +84,10 @@ interface PropsDicomDropZone {
 }
 
 const DICOMDropZone = (props: PropsDicomDropZone): JSX.Element => {
-  // This part is for dropzone
   const onDrop = useCallback(async (acceptedFiles: Array<File>) => {
-    uploadDataset(acceptedFiles);
+    document.getElementById('drop-zone-input').innerHTML = 'Please wait';
+
+    uploadDataset(acceptedFiles).then((response)=>response.status === 200 ? location.reload() : null);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
@@ -96,8 +96,8 @@ const DICOMDropZone = (props: PropsDicomDropZone): JSX.Element => {
 
   return (
     <div {...getRootProps()} style={{ width: '100%', height: '100%' }}>
-      <input {...getInputProps()} />
-      {isDragActive ? <p>Drop here babe</p> : <p>Drag file here</p>}
+      <input {...getInputProps()} id='drop-zone-input'/>
+      {isDragActive ? <p>Drop File Here To Upload</p> : <p>Click Here To Upload File</p>}
 
       <div
         id="dicom"
@@ -181,10 +181,7 @@ const LabelContent = (props: PropsLabelContent): JSX.Element => {
     };
     loadDataset();
   }, []);
-  const [imageName, setImageName] = useState('');
-  const [patientName, setPatiename] = useState('');
   const [imageId, setImageId] = useState('');
-  // let { id } = useParams();
   return (
     <div>
       <Box p={0} borderRadius="none" color="black">
@@ -207,16 +204,6 @@ const LabelContent = (props: PropsLabelContent): JSX.Element => {
           <div className="item-bottom" style={{ marginRight: 30 }}>
             <DICOMDropZone getImageId={(value) => setImageId(value)} />
             <br />
-            <Link to={`${url}/labeling/${imageId}`}>
-              <Button
-                className="overview btn labeling-btn"
-                type="submit"
-                color="primary"
-              >
-                <OpenInNewIcon />
-                Label
-              </Button>
-            </Link>
           </div>
         </Box>
 
@@ -227,16 +214,6 @@ const LabelContent = (props: PropsLabelContent): JSX.Element => {
               <p className="data-detail title">Patient: {dataset.patient_name}</p>
               <p className="data-detail id">ID: {dataset.id}</p>
               <p className="data-detail total">Role: {dataset.role}</p>
-              <Link to={`${url}`}>
-                <Button
-                  className="overview btn overview-btn"
-                  type="submit"
-                  color="primary"
-                >
-                  <BarChartIcon />
-                  Overview
-                </Button>
-              </Link>
               <Link to={`${url}/labeling/${dataset.id}`}>
                 <Button
                   className="overview btn labeling-btn"
@@ -245,6 +222,16 @@ const LabelContent = (props: PropsLabelContent): JSX.Element => {
                 >
                   <OpenInNewIcon />
                   Label
+                </Button>
+              </Link>
+              <Link to={`${url}`}>
+                <Button
+                  className="overview btn overview-btn"
+                  type="submit"
+                  color="primary"
+                >
+                  <BarChartIcon />
+                  Delete
                 </Button>
               </Link>
             </div>
@@ -276,9 +263,6 @@ const WorkspacesLayout = (): JSX.Element => {
       >
         <Box flexGrow={0} />
         <Switch>
-          {/* <Route path="/overview">
-            <Annotation nrrdUrl="http://localhost/api/get-nrrd-volume/admin/liver_01^patient/undefined/" />
-          </Route> */}
           <Route exact path={'/workspaces/labeling/:datasetId'}>
 						<Annotation nrrdUrl="http://localhost/api/get-nrrd-volume/admin/liver_01^patient/undefined/" />
 					</Route>

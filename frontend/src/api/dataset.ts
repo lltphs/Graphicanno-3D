@@ -36,7 +36,7 @@ export const updateAnnotation = (id: string, annotation: object): Promise<AxiosR
   axiosInstance.post(`${API_URL}${id}/annotation/`, annotation,{ headers: authHeader()});
 
 export const getAnnotation = (id: string): any =>
-{ 
+{
   return useLoader(NRRDLoader, `http://localhost${API_URL}${id}/annotation/` , (loader) => {
     loader.setRequestHeader({Authorization: authHeader().Authorization})
   });

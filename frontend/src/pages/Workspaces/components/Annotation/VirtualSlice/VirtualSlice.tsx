@@ -43,7 +43,7 @@ export default class VirtualSlice {
   }
 
   createDThetaAndNorm() {
-    this.dTheta = 0.1;
+    this.dTheta = 0.01 * Math.PI;
     this.norm = 1 / Math.sqrt(1 + Math.pow(this.dTheta, 2));
   }
 

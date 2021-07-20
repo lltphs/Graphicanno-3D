@@ -7,20 +7,16 @@ import { getDataset } from 'api/dataset'
 import { GRAY_WITH_ANNOTATION_TEXTURE_URL } from '../constants';
 
 const createVolume3DMaterialAndVolume = (id) => {
-	// const volume = useLoader(NRRDLoader, 'http://localhost/api/dataset/10/' , (loader) => {
-  //   loader.setRequestHeader({'Authorization': 'JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjI2NTQ3NzE4LCJqdGkiOiIxZWIyYWY2MTdlOTc0ODU5YTVkMjNmN2FiNWUzMzM0ZSIsInVzZXJfaWQiOjJ9.N1fE0OSVquOBu1EwxVnfRCdVytZeCh4949DIwrK48g0'})
-  // });
+  const volume = getDataset(id);
 
-  const volume = getDataset(id)
+  volume.data = volume.data.map(x => x * 0.9);
+
   const dataTexture3D = createDataTexture3D(volume);
 
   const uniforms = createUniforms(dataTexture3D);
 
   const material = createMaterial(uniforms);
   
-  console.log(volume.xLength);
-  console.log(volume.yLength);
-  console.log(volume.zLength);
   return {
     mat: material,
     vol: volume
@@ -51,7 +47,7 @@ const createUniforms = (dataTexture3D) => {
   uniforms['u_size'].value.set(dataTexture3D.image.width, dataTexture3D.image.height, dataTexture3D.image.depth);
   uniforms['u_clim'].value.set(0, 1)
   uniforms['u_renderstyle'].value = 0 //mips style = 0, iso style = 1
-  uniforms['u_renderthreshold'].value = 0.15 //for iso style, does not matter
+  uniforms['u_renderthreshold'].value = 0.99 //for iso style, does not matter
   uniforms['u_cmdata'].value = grayWithAnnotationTexture
 
   return uniforms;

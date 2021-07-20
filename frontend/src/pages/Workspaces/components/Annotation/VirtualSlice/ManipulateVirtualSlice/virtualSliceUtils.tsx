@@ -101,7 +101,7 @@ export const drawSliceOnVirtualSliceCanvas  = (slice: VirtualSlice, matNVol) => 
       //vec2D = O2D + i * u2D + j * v2D
       let vec2D = slice.O2D.add(slice.u2D.scalarMul(i)).add(slice.v2D.scalarMul(j)).round();
 
-      if (checkPointIsCoveredByVolume(vec3D, matNVol.vol) || checkPointLiesOnVolumeSurface(vec3D, matNVol.vol)) {
+      if (checkPointBelongsToVolume(vec3D, matNVol.vol)) {
         const flatIndex3D = vec3D.x +
                             vec3D.y * matNVol.vol.xLength +
                             vec3D.z * matNVol.vol.xLength * matNVol.vol.yLength;
@@ -131,15 +131,19 @@ export const drawSliceOnVirtualSliceCanvas  = (slice: VirtualSlice, matNVol) => 
   ctx.putImageData(imageData, 0, 0);
 }
 
-const checkPointIsCoveredByVolume = (vec: Vector3D, vol) => {
+export const checkPointIsCoveredByVolume = (vec: Vector3D, vol) => {
   return vec.x > 3 && vec.x < vol.xLength - 3
       && vec.y > 3 && vec.y < vol.yLength - 3
       && vec.z > 3 && vec.z < vol.zLength - 3;
 }
 
-const checkPointLiesOnVolumeSurface = (vec: Vector3D, vol) => {
+export const checkPointLiesOnVolumeSurface = (vec: Vector3D, vol) => {
   return vec.x >= 0 && vec.x <= vol.xLength - 1
       && vec.y >= 0 && vec.y <= vol.yLength - 1
       && vec.z >= 0 && vec.z <= vol.zLength - 1
       && !checkPointIsCoveredByVolume(vec, vol);
+}
+
+export const checkPointBelongsToVolume = (vec: Vector3D, vol) => {
+  return checkPointIsCoveredByVolume(vec, vol) || checkPointLiesOnVolumeSurface(vec, vol);
 }

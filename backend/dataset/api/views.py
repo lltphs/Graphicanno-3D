@@ -17,6 +17,8 @@ from scipy.ndimage import zoom
 from ..models import Dataset, Membership
 from ..serializers import DatasetSerializer
 
+import requests
+
 User = get_user_model()
 
 
@@ -74,7 +76,7 @@ class DatasetViewSet(viewsets.ModelViewSet):
             info = dcmread(DicomBytesIO(files[i].read()))
 
             # Initially, index i will be store in idx_and_location[i], we will sort it later on
-            slice_location = i
+            slice_location = -i
             try:
                 slice_location = float(info.SliceLocation)
             except:
@@ -97,34 +99,19 @@ class DatasetViewSet(viewsets.ModelViewSet):
         for i in range(len(idx_and_location)):
             volume[i] = aux_volume[idx_and_location[i][0]]
 
-        # Uncomment these lines to observe the 2D slices
-        # volume = ((volume - volume.min())/(volume.max() - volume.min())).astype('float32')
-        # for i in range(num_files):
-        #     cv2.imshow('test', volume[i])
-
-        #     #Press q to quit
-        #     if cv2.waitKey() == ord('q'):
-        #         break
-
-        # temp = zoom(volume, [i/1.0 for i in voxel_spacing])
-        # print(temp.max())
-        # print(temp.min())
-        # temp[temp < -1000] = -1000
-        # temp[temp > 400] = 400
-        # temp = temp.astype('float32')
-        # temp = (temp - temp.min())/(temp.max() - temp.min())
-        # np.save('sample', temp)
-
         # Normalize the spacing between voxels to be 1x1x1 mm^3 for volume_true and 0.5x0.5x0.5 for volume_for_view
-        volume_true = zoom(volume, [i/1.0 for i in voxel_spacing])
+        volume = zoom(volume, [i/1.0 for i in voxel_spacing])
 
-        volume_true = volume_true.astype('float32')
+        min_HU = volume.min()
+        max_HU = volume.max()
+
+        volume = volume.astype('float32')
 
         # Normalize value from uint8 0 -> 255 to float32 0.0 -> 1.0 for volume_true and 0.0 -> 0.85 for volume_for_view
         # This step is crucial since the zoom function might create abnomal values (such as very small negative numbers like -1.0e-8)
-        volume_true = 0.85*(volume_true - volume_true.min()) / \
-            (volume_true.max() - volume_true.min())
-        annotation = np.zeros_like(volume)
+        volume = (volume - volume.min()) / \
+            (volume.max() - volume.min())
+            
         # Create dataset
         dataset = Dataset.objects.create(
             patient_name=patient_name,
@@ -141,7 +128,14 @@ class DatasetViewSet(viewsets.ModelViewSet):
 
         if not os.path.exists(f'nrrd/{id}'):
             os.makedirs(f'nrrd/{id}')
-        nrrd.write(f'nrrd/{id}/volume.nrrd', volume_true)
+        nrrd.write(f'nrrd/{id}/volume.nrrd', volume, index_order='C')
+
+        url = 'https://ws.dscilab.com:20007/dragon/med20/web/predict'
+        files = {'file':open(f'nrrd/{id}/volume.nrrd', 'rb')}
+        data = {'min_HU':min_HU,'max_HU':max_HU}
+        file = open(f'nrrd/{id}/annotation.nrrd', 'wb')
+        file.write(requests.post(url, files=files, data=data, verify=False).content)
+        print(open(f'nrrd/{id}/annotation.nrrd','r'))
         # nrrd.write(f'nrrd/{id}/annotation.nrrd', annotation)
 
         return Response(

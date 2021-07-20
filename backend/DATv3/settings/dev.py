@@ -10,8 +10,8 @@ except:
     SECRET_KEY = "-t3jx&#9(03z5cw_juj)ozkc*gkded!jm@$p36gd8dva8igvo7"
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10000),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=30000),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "ALGORITHM": "HS256",

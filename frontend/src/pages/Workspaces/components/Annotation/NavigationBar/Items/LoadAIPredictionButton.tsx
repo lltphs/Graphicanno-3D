@@ -27,7 +27,7 @@ const LoadAIPredictionButton = ({ sliceRef, matNVol, cornerstoneElementRef, nrrd
 
 const handleLoadAIPrediction = (sliceRef, matNVol, cornerstoneElementRef, datasetId) => {
   const volume = getAnnotation(datasetId);
-
+  
   applyAnnotationOnVolumeFromExternalSource(matNVol, volume.data);
   
   drawSliceOnCornerstoneElement(sliceRef.current, matNVol, cornerstoneElementRef);

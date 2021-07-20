@@ -27,6 +27,7 @@ psycopg2-binary==2.8.6
 pynrrd==0.4.2
 PyJWT==2.0.1
 pytz==2020.5
+requests==2.26.0
 scikit-image==0.18.1
 six==1.15.0
 sqlparse==0.4.1
