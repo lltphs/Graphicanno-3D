@@ -66,25 +66,28 @@ const addToolsForCornerstoneTools = () => {
 }
 
 const addMouseEventListenerToCornerstoneTools = (sliceRef, matNVol, cornerstoneElementRef) => {
-  console.log(cornerstoneTools);
   const {
     getters
   } = cornerstoneTools.getModule('segmentation');
   
   cornerstoneElementRef.current.addEventListener(cornerstoneTools.EVENTS.MOUSE_DRAG,
-    (eventData) => drawAnnotationOnVolume(getters, sliceRef, matNVol, cornerstoneElementRef, eventData)
+    () => drawAnnotationOnVolume(getters, sliceRef, matNVol, cornerstoneElementRef)
   );
   
   cornerstoneElementRef.current.addEventListener(cornerstoneTools.EVENTS.MOUSE_CLICK,
-    (eventData) => drawAnnotationOnVolume(getters, sliceRef, matNVol, cornerstoneElementRef, eventData)
+    () => drawAnnotationOnVolume(getters, sliceRef, matNVol, cornerstoneElementRef)
   );
   
   cornerstoneElementRef.current.addEventListener(cornerstoneTools.EVENTS.MOUSE_UP,
-    (eventData) => drawAnnotationOnVolume(getters, sliceRef, matNVol, cornerstoneElementRef, eventData)
+    () => drawAnnotationOnVolume(getters, sliceRef, matNVol, cornerstoneElementRef)
+  );
+  
+  cornerstoneElementRef.current.addEventListener(cornerstoneTools.EVENTS.MOUSE_WHEEL,
+    (eventData) => adjustBrushSize(eventData)
   );
 }
 
-export const drawAnnotationOnVolume = (cornerstoneToolsGetters, sliceRef, matNVol, cornerstoneElementRef, eventData = undefined) => {
+export const drawAnnotationOnVolume = (cornerstoneToolsGetters, sliceRef, matNVol, cornerstoneElementRef) => {
   const labelmap2D = cornerstoneToolsGetters.labelmap2D(cornerstoneElementRef.current);
 
   const arrayPixel = labelmap2D.labelmap2D.pixelData;
@@ -112,5 +115,19 @@ export const drawAnnotationOnVolume = (cornerstoneToolsGetters, sliceRef, matNVo
   matNVol.mat.uniforms['u_data'].value.needsUpdate = true;
 };
 
+const adjustBrushSize = (eventData) => {
+  const {configuration} = cornerstoneTools.getModule('segmentation');
+
+  if (checkRadiusCanBeAdjust(configuration.radius, eventData.detail.direction)){
+    configuration.radius += eventData.detail.direction;
+    
+    cornerstoneTools.setToolActive('Brush', {mouseButtonMask: 1});
+  }
+}
+
+const checkRadiusCanBeAdjust = (radius, direction) => {
+  return (radius > 1 || direction > 0)
+        && (radius < 50 || direction < 0);
+}
 export default setupCornerstone;
 

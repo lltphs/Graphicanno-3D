@@ -2,6 +2,7 @@ import displayImageFromVirtualSliceCanvas from "../../Cornerstone/displayImageFr
 import { Vector3D } from "../VectorSystem/Vector3D";
 import VirtualSlice from "../VirtualSlice";
 import * as cornerstoneTools from 'cornerstone-tools';
+import { calculateValueAfterWindowing, checkPointIsInWindowingRange } from "../../Volume3D/windowingOnVolume3DMaterial";
 
 export const removeSliceOnVolume = (slice, matNVol) => {
   drawOrRemoveSliceOnVolume(slice, matNVol, false);
@@ -64,7 +65,13 @@ const drawOrRemoveSliceOnVolume  = (slice: VirtualSlice, matNVol, isDraw) => {
           if (isDraw) {
             matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = slice.sliceInnerBrightness;
           } else {
-          matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = matNVol.vol.data[flatIndex3D];
+            let pixelValue;
+            if (checkPointIsInWindowingRange(matNVol, flatIndex3D, slice.slicePixelValueLowerBound, slice.slicePixelValueUpperBound)) {
+              pixelValue = calculateValueAfterWindowing(matNVol.vol.data[flatIndex3D], slice.slicePixelValueLowerBound, slice.slicePixelValueUpperBound);
+            } else {
+              pixelValue = 0;
+            }
+            matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = pixelValue;
           }
         }
 
@@ -76,7 +83,13 @@ const drawOrRemoveSliceOnVolume  = (slice: VirtualSlice, matNVol, isDraw) => {
           if (isDraw) {
             matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = slice.sliceBoundBrightness;
           } else {
-          matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = matNVol.vol.data[flatIndex3D];
+            let pixelValue;
+            if (checkPointIsInWindowingRange(matNVol, flatIndex3D, slice.slicePixelValueLowerBound, slice.slicePixelValueUpperBound)) {
+              pixelValue = calculateValueAfterWindowing(matNVol.vol.data[flatIndex3D], slice.slicePixelValueLowerBound, slice.slicePixelValueUpperBound);
+            } else {
+              pixelValue = 0;
+            }
+            matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = pixelValue;
           }
         }
       }
@@ -109,8 +122,12 @@ export const drawSliceOnVirtualSliceCanvas  = (slice: VirtualSlice, matNVol) => 
         const flatIndex2D = vec2D.x +
                             vec2D.y * slice.sideLength;
 
-        const pixelValue = 255 * matNVol.vol.data[flatIndex3D];
-
+        let pixelValue;
+        if (checkPointIsInWindowingRange(matNVol, flatIndex3D, slice.slicePixelValueLowerBound, slice.slicePixelValueUpperBound)) {
+          pixelValue = 255 * calculateValueAfterWindowing(matNVol.vol.data[flatIndex3D], slice.slicePixelValueLowerBound, slice.slicePixelValueUpperBound) / 0.9;
+        } else {
+          pixelValue = 0;
+        }
         imageArrayData[0 + 4 * flatIndex2D] = pixelValue;
         imageArrayData[1 + 4 * flatIndex2D] = pixelValue;
         imageArrayData[2 + 4 * flatIndex2D] = pixelValue;

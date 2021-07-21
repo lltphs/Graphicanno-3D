@@ -353,9 +353,9 @@ const NavigationBar = ({ sliceRef, matNVol, cornerstoneElementRef }) => {
 				</ListItem>
 			</div>
 
-			<SaveYourWorkButton matNVol={matNVol} storageUrl='http://localhost/api/post-annotation/admin/liver_01^patient/undefined/'/>
+			<SaveYourWorkButton matNVol={matNVol}/>
 
-			<LoadAIPredictionButton sliceRef={sliceRef} matNVol={matNVol} cornerstoneElementRef={cornerstoneElementRef} nrrdUrl='http://localhost/api/get-nrrd-annotation/admin/liver_01^patient/undefined/'/>
+			<LoadAIPredictionButton sliceRef={sliceRef} matNVol={matNVol} cornerstoneElementRef={cornerstoneElementRef}/>
 		</Drawer>
 	</div>
 	);

@@ -1,13 +1,22 @@
-import { notifyVolume3DUpdate } from "../VirtualSlice/ManipulateVirtualSlice/virtualSliceUtils";
+import { drawSliceOnVolume, notifyVolume3DUpdate } from "../VirtualSlice/ManipulateVirtualSlice/virtualSliceUtils";
+import { calculateValueAfterWindowing, checkPointIsInWindowingRange } from "./windowingOnVolume3DMaterial";
 
-const applyAnnotationOnVolumeFromExternalSource = (matNVol, annotation) => {
+const applyAnnotationOnVolumeFromExternalSource = (slice, matNVol, annotation) => {
   for (let i = 0; i < annotation.length; i++) {
     if (annotation[i] > 0) {
       matNVol.mat.uniforms['u_data'].value.image.data[i] = annotation[i];
     } else {
-      matNVol.mat.uniforms['u_data'].value.image.data[i] = matNVol.vol.data[i];
+      let pixelValue;
+      if (checkPointIsInWindowingRange(matNVol, i, slice.slicePixelValueLowerBound, slice.slicePixelValueUpperBound)) {
+        pixelValue = calculateValueAfterWindowing(matNVol.vol.data[i], slice.slicePixelValueLowerBound, slice.slicePixelValueUpperBound);
+      } else {
+        pixelValue = 0;
+      }
+      matNVol.mat.uniforms['u_data'].value.image.data[i] = pixelValue;
     }
   }
+  drawSliceOnVolume(slice, matNVol);
+
   notifyVolume3DUpdate(matNVol);
 }
 

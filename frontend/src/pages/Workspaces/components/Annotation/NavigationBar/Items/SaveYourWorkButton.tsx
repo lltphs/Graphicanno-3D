@@ -4,7 +4,7 @@ import extractAnnotationFromVolume from "../../Volume3D/extractAnnotationFromVol
 import { updateAnnotation } from 'api/dataset'
 import { useParams } from 'react-router-dom';
 
-const SaveYourWorkButton = ({ matNVol, storageUrl }) => {
+const SaveYourWorkButton = ({ matNVol }) => {
   const { datasetId } = useParams<{datasetId: string}>()
 
   return(

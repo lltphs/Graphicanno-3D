@@ -9,7 +9,7 @@ import { GRAY_WITH_ANNOTATION_TEXTURE_URL } from '../constants';
 const createVolume3DMaterialAndVolume = (id) => {
   const volume = getDataset(id);
 
-  volume.data = volume.data.map(x => x * 0.9);
+  rescaleVolumeData(volume);
 
   const dataTexture3D = createDataTexture3D(volume);
 
@@ -22,6 +22,11 @@ const createVolume3DMaterialAndVolume = (id) => {
     vol: volume
   };
 }
+
+const rescaleVolumeData = (volume) => {
+  volume.data = volume.data.map(x => x * 0.9);
+}
+
 const createDataTexture3D = (volume) => {
   const dataTexture3D = new DataTexture3D(
     volume.data.slice(0),
@@ -47,7 +52,7 @@ const createUniforms = (dataTexture3D) => {
   uniforms['u_size'].value.set(dataTexture3D.image.width, dataTexture3D.image.height, dataTexture3D.image.depth);
   uniforms['u_clim'].value.set(0, 1)
   uniforms['u_renderstyle'].value = 0 //mips style = 0, iso style = 1
-  uniforms['u_renderthreshold'].value = 0.99 //for iso style, does not matter
+  uniforms['u_renderthreshold'].value = 0 //for iso style, does not matter
   uniforms['u_cmdata'].value = grayWithAnnotationTexture
 
   return uniforms;

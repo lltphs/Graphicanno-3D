@@ -8,7 +8,7 @@ import { useParams } from 'react-router-dom';
 
 import { getAnnotation } from 'api/dataset'
 
-const LoadAIPredictionButton = ({ sliceRef, matNVol, cornerstoneElementRef, nrrdUrl }) => {
+const LoadAIPredictionButton = ({ sliceRef, matNVol, cornerstoneElementRef }) => {
   const { datasetId } = useParams<{datasetId: string}>()
 
   return (
@@ -26,9 +26,9 @@ const LoadAIPredictionButton = ({ sliceRef, matNVol, cornerstoneElementRef, nrrd
 };
 
 const handleLoadAIPrediction = (sliceRef, matNVol, cornerstoneElementRef, datasetId) => {
-  const volume = getAnnotation(datasetId);
+  const annotation = getAnnotation(datasetId);
   
-  applyAnnotationOnVolumeFromExternalSource(matNVol, volume.data);
+  applyAnnotationOnVolumeFromExternalSource(sliceRef.current, matNVol, annotation.data);
   
   drawSliceOnCornerstoneElement(sliceRef.current, matNVol, cornerstoneElementRef);
 }
