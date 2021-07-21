@@ -135,8 +135,6 @@ class DatasetViewSet(viewsets.ModelViewSet):
         data = {'min_HU':min_HU,'max_HU':max_HU}
         file = open(f'nrrd/{id}/annotation.nrrd', 'wb')
         file.write(requests.post(url, files=files, data=data, verify=False).content)
-        print(open(f'nrrd/{id}/annotation.nrrd','r'))
-        # nrrd.write(f'nrrd/{id}/annotation.nrrd', annotation)
 
         return Response(
             {
