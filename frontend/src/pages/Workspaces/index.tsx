@@ -15,20 +15,23 @@ import get from 'lodash/get';
 import { makeStyles, createStyles } from '@material-ui/core/styles';
 import { Box, Button } from '@material-ui/core';
 import BurstModeIcon from '@material-ui/icons/BurstMode';
-import BarChartIcon from '@material-ui/icons/BarChart';
+import EmailIcon from '@material-ui/icons/Email';
 import OpenInNewIcon from '@material-ui/icons/OpenInNew';
+import DeleteForeverIcon from '@material-ui/icons/DeleteForever';
 
 import Header from 'components/Header/Header';
 import Footer from 'components/Footer/Footer';
 import { logout } from 'store/actions/auth';
 import * as UserServices from 'api/user';
-import { getDatasetList, uploadDataset } from 'api/dataset';
+import { getDatasetList, uploadDataset, deleteDataset } from 'api/dataset';
 import { RootDispatchType } from 'store';
 
 import '../../index.scss';
 import { useDropzone } from 'react-dropzone';
 import * as cornerstone from 'cornerstone-core';
-import Annotation from './components/Annotation/Annotation';
+import * as cornerstoneWADOImageLoader from 'cornerstone-wado-image-loader';
+import Annotation from './components/Annotation/Annotation'
+import InviteModal from './components/InviteModal'
 
 const useStyles = makeStyles(() =>
   createStyles({
@@ -84,10 +87,9 @@ interface PropsDicomDropZone {
 }
 
 const DICOMDropZone = (props: PropsDicomDropZone): JSX.Element => {
+  // This part is for dropzone
   const onDrop = useCallback(async (acceptedFiles: Array<File>) => {
-    document.getElementById('drop-zone-input').innerHTML = 'Please wait';
-
-    uploadDataset(acceptedFiles).then((response)=>response.status === 200 ? location.reload() : null);
+    if ((await uploadDataset(acceptedFiles)).status == 200) location.reload();
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
@@ -96,8 +98,8 @@ const DICOMDropZone = (props: PropsDicomDropZone): JSX.Element => {
 
   return (
     <div {...getRootProps()} style={{ width: '100%', height: '100%' }}>
-      <input {...getInputProps()} id='drop-zone-input'/>
-      {isDragActive ? <p>Drop File Here To Upload</p> : <p>Click Here To Upload File</p>}
+      <input {...getInputProps()} />
+      {isDragActive ? <p>Drop here babe</p> : <p>Drag file here</p>}
 
       <div
         id="dicom"
@@ -120,10 +122,10 @@ interface PropsLabelContent {
 
 const LabelContent = (props: PropsLabelContent): JSX.Element => {
   const { url } = props;
-  // console.log(props);
   const history = useHistory();
-  const classes = useStyles();
   const [datasetList, setDatasetList] = useState([]);
+  const [imageId, setImageId] = useState('');
+  const [selectedId, setSelectedId] = useState('')
 
   const dispatch: RootDispatchType = useDispatch();
 
@@ -131,6 +133,25 @@ const LabelContent = (props: PropsLabelContent): JSX.Element => {
     userDetailReducer,
     initialUserDetail
   );
+
+  const loadDataset = async () => {
+      try {
+        const response = await getDatasetList();
+        const data = get(response, 'data.data', []);
+        setDatasetList(data);
+      } catch (error) {
+        toast.error("Can't load dataset!", {
+          position: 'bottom-left',
+          autoClose: 2500,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: false,
+          progress: undefined,
+        });
+        throw error;
+      }
+    };
 
   useEffect(() => {
     const loadUserDetail = async () => {
@@ -161,29 +182,19 @@ const LabelContent = (props: PropsLabelContent): JSX.Element => {
     };
     loadUserDetail();
 
-    const loadDataset = async () => {
-      try {
-        const response = await getDatasetList();
-        const data = get(response, 'data.data', []);
-        setDatasetList(data);
-      } catch (error) {
-        toast.error("Can't load dataset!", {
-          position: 'bottom-left',
-          autoClose: 2500,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: false,
-          progress: undefined,
-        });
-        throw error;
-      }
-    };
     loadDataset();
   }, []);
-  const [imageId, setImageId] = useState('');
+  
+  const onRemoveClick = async (id) => {
+    if(confirm('Are you sure want to delete this dataset?')) {
+      await deleteDataset(id);
+      loadDataset();
+    }
+  }
+
   return (
     <div>
+      {selectedId && <InviteModal id={selectedId} onClose={() => setSelectedId('')} />}
       <Box p={0} borderRadius="none" color="black">
         <Header
           username={userDetailState.username}
@@ -204,6 +215,16 @@ const LabelContent = (props: PropsLabelContent): JSX.Element => {
           <div className="item-bottom" style={{ marginRight: 30 }}>
             <DICOMDropZone getImageId={(value) => setImageId(value)} />
             <br />
+            <Link to={`${url}/labeling/${imageId}`}>
+              <Button
+                className="overview btn labeling-btn"
+                type="submit"
+                color="primary"
+              >
+                <OpenInNewIcon />
+                Label
+              </Button>
+            </Link>
           </div>
         </Box>
 
@@ -214,26 +235,36 @@ const LabelContent = (props: PropsLabelContent): JSX.Element => {
               <p className="data-detail title">Patient: {dataset.patient_name}</p>
               <p className="data-detail id">ID: {dataset.id}</p>
               <p className="data-detail total">Role: {dataset.role}</p>
+
               <Link to={`${url}/labeling/${dataset.id}`}>
                 <Button
                   className="overview btn labeling-btn"
-                  type="submit"
                   color="primary"
                 >
                   <OpenInNewIcon />
                   Label
                 </Button>
               </Link>
-              <Link to={`${url}`}>
-                <Button
-                  className="overview btn overview-btn"
-                  type="submit"
-                  color="primary"
-                >
-                  <BarChartIcon />
-                  Delete
-                </Button>
-              </Link>
+
+                            
+              {(dataset.role === 'owner') && 
+              <Button
+                className="overview btn overview-btn"
+                color="primary"
+                onClick={() => setSelectedId(dataset.id)}
+              >
+                <EmailIcon />
+                Invite
+              </Button>}
+
+              <Button
+                className="overview btn remove-btn"
+                color="secondary"
+                onClick={() => onRemoveClick(dataset.id)}
+              >
+                <DeleteForeverIcon />
+                Remove
+              </Button>
             </div>
           </Box>
         ))}
@@ -263,6 +294,9 @@ const WorkspacesLayout = (): JSX.Element => {
       >
         <Box flexGrow={0} />
         <Switch>
+          {/* <Route path="/overview">
+            <Annotation nrrdUrl="http://localhost/api/get-nrrd-volume/admin/liver_01^patient/undefined/" />
+          </Route> */}
           <Route exact path={'/workspaces/labeling/:datasetId'}>
 						<Annotation nrrdUrl="http://localhost/api/get-nrrd-volume/admin/liver_01^patient/undefined/" />
 					</Route>
