@@ -1,9 +1,10 @@
 import Hammer from 'hammerjs';
 import * as cornerstone from 'cornerstone-core';
 import * as cornerstoneMath from'cornerstone-math';
-import * as cornerstoneWebImageLoader from 'cornerstone-web-image-loader';
+import * as cornerstoneWebImageLoader from 'cornerstoneDATImageLoader';
 import * as cornerstoneTools from 'cornerstone-tools';
 import { Vector2D } from '../VirtualSlice/VectorSystem/Vector2D';
+import { checkPointBelongsToVolume, checkPointIsCoveredByVolume, checkPointLiesOnVolumeSurface } from '../VirtualSlice/ManipulateVirtualSlice/virtualSliceUtils';
 
 const setupCornerstone = (sliceRef, matNVol, cornerstoneElementRef) => {
   setupCornerstoneTools(sliceRef, matNVol, cornerstoneElementRef);
@@ -20,7 +21,7 @@ const setupCornerstoneTools = (sliceRef, matNVol, cornerstoneElementRef) => {
   
   addToolsForCornerstoneTools();
 
-  addMouseDragEventListenerToCornerstoneTools(sliceRef, matNVol, cornerstoneElementRef);
+  addMouseEventListenerToCornerstoneTools(sliceRef, matNVol, cornerstoneElementRef);
 }
 
 const setupCornerstoneWebImageLoader = () => {
@@ -64,22 +65,26 @@ const addToolsForCornerstoneTools = () => {
   cornerstoneTools.addTool(cornerstoneTools.CorrectionScissorsTool);
 }
 
-const addMouseDragEventListenerToCornerstoneTools = (sliceRef, matNVol, cornerstoneElementRef) => {
+const addMouseEventListenerToCornerstoneTools = (sliceRef, matNVol, cornerstoneElementRef) => {
+  console.log(cornerstoneTools);
   const {
     getters
   } = cornerstoneTools.getModule('segmentation');
   
   cornerstoneElementRef.current.addEventListener(cornerstoneTools.EVENTS.MOUSE_DRAG,
-    () => drawAnnotationOnVolume(getters, sliceRef, matNVol, cornerstoneElementRef)
+    (eventData) => drawAnnotationOnVolume(getters, sliceRef, matNVol, cornerstoneElementRef, eventData)
+  );
+  
+  cornerstoneElementRef.current.addEventListener(cornerstoneTools.EVENTS.MOUSE_CLICK,
+    (eventData) => drawAnnotationOnVolume(getters, sliceRef, matNVol, cornerstoneElementRef, eventData)
   );
   
   cornerstoneElementRef.current.addEventListener(cornerstoneTools.EVENTS.MOUSE_UP,
-    () => drawAnnotationOnVolume(getters, sliceRef, matNVol, cornerstoneElementRef)
+    (eventData) => drawAnnotationOnVolume(getters, sliceRef, matNVol, cornerstoneElementRef, eventData)
   );
 }
 
-
-export const drawAnnotationOnVolume = (cornerstoneToolsGetters, sliceRef, matNVol, cornerstoneElementRef) => {
+export const drawAnnotationOnVolume = (cornerstoneToolsGetters, sliceRef, matNVol, cornerstoneElementRef, eventData = undefined) => {
   const labelmap2D = cornerstoneToolsGetters.labelmap2D(cornerstoneElementRef.current);
 
   const arrayPixel = labelmap2D.labelmap2D.pixelData;
@@ -91,24 +96,20 @@ export const drawAnnotationOnVolume = (cornerstoneToolsGetters, sliceRef, matNVo
 
     let vec3D = sliceRef.current.O3D.add(sliceRef.current.u3D.scalarMul(vec2D.x)).add(sliceRef.current.v3D.scalarMul(vec2D.y)).round();
 
-    if (checkPointIsInVolume(vec3D, matNVol.vol)) {
+    if (checkPointBelongsToVolume(vec3D, matNVol.vol)) {
       let flatIndex3D = vec3D.x + vec3D.y * matNVol.vol.xLength + vec3D.z * matNVol.vol.xLength * matNVol.vol.yLength;
 
-      if (arrayPixel[flatPosition] === 1){
+      if (arrayPixel[flatPosition] === 1) {
         matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = 1;
-      } else {
-        matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = matNVol.vol.data[flatIndex3D];
+      } else if (checkPointIsCoveredByVolume(vec3D, matNVol.vol)) {
+        matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = sliceRef.current.sliceInnerBrightness;
+      } else if (checkPointLiesOnVolumeSurface(vec3D, matNVol.vol)) {
+        matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = sliceRef.current.sliceBoundBrightness;
       }
     }
   }
   
   matNVol.mat.uniforms['u_data'].value.needsUpdate = true;
-};
-
-const checkPointIsInVolume = (vec, vol) => {
-  return vec.x >= 0 && vec.x < vol.xLength
-      && vec.y >= 0 && vec.y < vol.yLength
-      && vec.z >= 0 && vec.z < vol.zLength;
 };
 
 export default setupCornerstone;

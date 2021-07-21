@@ -11,11 +11,14 @@ export const register: (
   email: string,
   password: string
 ) => Promise<AxiosResponse> = (username, email, password) =>{
-  axiosInstance.post(`${API_URL}user/create/`, {
-    username,
-    email,
-    password,
-  });
+  try {
+    console.log('Hi');
+    axiosInstance.post(`${API_URL}user/create/`, {
+      username,
+      email,
+      password,
+    });
+  } catch (error) {alert(error);}
   window.location.href = '/login';
   return Promise.reject();
 }

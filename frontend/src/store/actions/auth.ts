@@ -29,7 +29,6 @@ export const register = (
       type: SET_MESSAGE,
       payload: response.data.message,
     });
-    
   } catch (error) {
     const message =
       (error.response && error.response.data && error.response.data.message) ||

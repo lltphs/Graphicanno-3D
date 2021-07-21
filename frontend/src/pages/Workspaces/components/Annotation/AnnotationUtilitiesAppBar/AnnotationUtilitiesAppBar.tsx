@@ -7,7 +7,7 @@ import useStyles from '../Style/Style';
 import AngleButton from './Items/AngleButton';
 import BrushButton from './Items/BrushButton';
 import ContrastButton from './Items/ContrastButton';
-import CircleButton from './Items/EllipseButton';
+import CircleButton from './Items/CircleButton';
 import EraserButton from './Items/EraserButton';
 import FreeHandButton from './Items/FreeHandButton';
 import InverButton from './Items/InvertButton';

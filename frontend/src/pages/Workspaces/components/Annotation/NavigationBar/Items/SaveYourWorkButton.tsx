@@ -24,17 +24,7 @@ const SaveYourWorkButton = ({ matNVol, storageUrl }) => {
 const handleSaveYourWork = (matNVol, datasetId) => {
   const annotation = extractAnnotationFromVolume(matNVol);
 
-  updateAnnotation(datasetId, annotation)
-  // uploadWorkToServer(annotation, storageUrl);
-}
-
-const uploadWorkToServer = (annotation, storageUrl) => {
-  const xhr = new XMLHttpRequest();
-
-  xhr.open('POST', storageUrl);
-
-  xhr.setRequestHeader('Content-Type', 'application/json');
-  xhr.send(JSON.stringify(annotation));
+  updateAnnotation(datasetId, annotation);
 }
 
 export default SaveYourWorkButton;
