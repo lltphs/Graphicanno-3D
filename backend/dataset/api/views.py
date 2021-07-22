@@ -107,7 +107,6 @@ class DatasetViewSet(viewsets.ModelViewSet):
 
         volume = volume.astype('float32')
 
-        # Normalize value from uint8 0 -> 255 to float32 0.0 -> 1.0 for volume_true and 0.0 -> 0.85 for volume_for_view
         # This step is crucial since the zoom function might create abnomal values (such as very small negative numbers like -1.0e-8)
         volume = (volume - volume.min()) / \
             (volume.max() - volume.min())

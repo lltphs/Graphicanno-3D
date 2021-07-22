@@ -3,21 +3,17 @@ import cv2
 
 texture = np.zeros((1,257,3))
 
-#From 0 to 0.85 * 255: gray scale
-for i in range(0,250):
-    texture[0,i] = [i, i, i]
-    # texture[0,i] = [int(i / 0.95), int(i / 0.95), int(i / 0.95)]
+#From 0 to 128: gray scale
+for i in range(0,128):
+    texture[0, i] = [2 * i, 2 * i, 2 * i]
 
-#From 0.85 * 255 to 0.9 * 255: lime virtual slice
-# for i in range(int(0.85*255), int(0.9*255)):
-#     texture[0,i] = [0xff, 0xff, 0xff]
+# From 128 to 255: liver
+for i in range(128, 257):
+    scale = (i - 128) * 2 / 256
+    scale = 1
+    blue = int(0x4b * scale)
+    green = int(0x52 * scale)
+    red = int(0xc1 * scale)
+    texture[0,i] = [blue, green, red]
 
-#From 0.9 * 255 to 0.95 * 255: pink virtual slice
-# for i in range(int(0.9*255), int(0.95*255)):
-#     texture[0,i] = [0xcb, 0xc0, 0xff]
-
-#From 0.95 * 255 to 1.0 * 255: cyan virtual slice
-for i in range(250, 257):
-    texture[0,i] = [255, 255, 0]
-
-cv2.imwrite('cm_gray_test.png', texture)
+cv2.imwrite('liver.png', texture)

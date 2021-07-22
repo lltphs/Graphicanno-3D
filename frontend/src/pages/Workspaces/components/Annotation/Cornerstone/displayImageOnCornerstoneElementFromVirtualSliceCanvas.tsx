@@ -1,16 +1,15 @@
 import * as cornerstone from 'cornerstone-core';
 import * as cornerstoneTools from 'cornerstone-tools';
 import { Vector3D } from '../VirtualSlice/VectorSystem/Vector3D';
+import { checkPointIsForeground } from '../Volume3D/manipulateForegroundOnVolume3D';
 
-const displayImageFromVirtualSliceCanvas = async (slice, matNVol, cornerstoneElementRef) => {
+const displayImageOnCornerstoneElementFromVirtualSliceCanvas = async (cornerstoneElementRef) => {
   const image = await cornerstone.loadImage('_');
 
   cornerstone.displayImage(cornerstoneElementRef.current, image);
-
-  applyAnnotationOnImage(slice, matNVol, cornerstoneElementRef);
 }
 
-function applyAnnotationOnImage ( slice, matNVol, cornerstoneElementRef ) {
+export const applyAnnotationOnCornerstoneElement = ( slice, matNVol, cornerstoneElementRef ) => {
   const {
     getters
   } = cornerstoneTools.getModule('segmentation');
@@ -20,16 +19,16 @@ function applyAnnotationOnImage ( slice, matNVol, cornerstoneElementRef ) {
   const arrayPixel = labelmap2D.labelmap2D.pixelData;
 
   //Origin locates in the center of slice, so both ends of 2 side are half-length away from the origin
-  let halfSideLength = Math.floor(slice.sideLength / 2);
+  const halfSideLength = Math.floor(slice.sideLength / 2);
 
   //Start and arrive at each end of each side
   for (let i = -halfSideLength; i < halfSideLength; i++){
     for (let j = -halfSideLength; j < halfSideLength; j++){
       //vec3D = O3D + i * u3D + j * v3D
-      let vec3D = slice.O3D.add(slice.u3D.scalarMul(i)).add(slice.v3D.scalarMul(j)).round();
+      const vec3D = slice.O3D.add(slice.u3D.scalarMul(i)).add(slice.v3D.scalarMul(j)).round();
 
       //vec2D = O2D + i * u2D + j * v2D
-      let vec2D = slice.O2D.add(slice.u2D.scalarMul(i)).add(slice.v2D.scalarMul(j)).round();
+      const vec2D = slice.O2D.add(slice.u2D.scalarMul(i)).add(slice.v2D.scalarMul(j)).round();
 
       if (checkPointIsInVolume(vec3D, matNVol.vol)) {
         const flatIndex3D = vec3D.x +
@@ -53,8 +52,4 @@ const checkPointIsInVolume = (vec: Vector3D, vol) => {
       && vec.z >= 0 && vec.z <= vol.zLength - 1;
 }
 
-const checkPointIsForeground = (matNVol, flatIndex3D) => {
-  return matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] == 1;
-}
-
-export default displayImageFromVirtualSliceCanvas;
+export default displayImageOnCornerstoneElementFromVirtualSliceCanvas;

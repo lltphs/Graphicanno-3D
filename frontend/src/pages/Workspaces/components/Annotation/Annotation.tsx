@@ -11,10 +11,10 @@ import moveVirtualSlice from './VirtualSlice/ManipulateVirtualSlice/moveVirtualS
 import createVolume3DMaterialAndVolume from './Volume3D/createVolume3DMaterialAndVolume';
 import Volume3D from './Volume3D/Volume3D';
 
-const Annotation = ({ nrrdUrl }) => {
+const Annotation = () => {
   const { datasetId } = useParams<{datasetId: string}>()
+  
   const matNVol = useMemo(() => createVolume3DMaterialAndVolume(datasetId), [datasetId]);
-  // const matNVol = useMemo(() => createVolume3DMaterialAndVolume(nrrdUrl), [nrrdUrl]);
   
   const sliceRef = useRef();
 
@@ -48,6 +48,12 @@ const Annotation = ({ nrrdUrl }) => {
           <AnnotationUtilitiesAppBar matNVol={matNVol} sliceRef={sliceRef} cornerstoneElementRef={cornerstoneElementRef}/>
           <div className={classes.dicom} style={{display:"flex"}}>
             <div style={{width:"50%"}}>
+              <Volume3D
+                material={matNVol.mat}
+                xLength={matNVol.vol.xLength}
+                yLength={matNVol.vol.yLength}
+                zLength={matNVol.vol.zLength}
+              />
               <Volume3D
                 material={matNVol.mat}
                 xLength={matNVol.vol.xLength}

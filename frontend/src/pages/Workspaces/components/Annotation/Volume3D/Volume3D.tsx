@@ -4,7 +4,7 @@ import { useThree, extend, ReactThreeFiber, useFrame, Canvas } from '@react-thre
 import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls';
 
 const Volume3D = ({ material, xLength, yLength, zLength }) => {
-  const h = 512;
+  const h = 256;
   const aspect = window.innerWidth / window.innerHeight;
   
 	const geometry = new BoxGeometry(xLength, yLength, zLength)

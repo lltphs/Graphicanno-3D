@@ -4,7 +4,8 @@ import * as cornerstoneMath from'cornerstone-math';
 import * as cornerstoneWebImageLoader from 'cornerstoneDATImageLoader';
 import * as cornerstoneTools from 'cornerstone-tools';
 import { Vector2D } from '../VirtualSlice/VectorSystem/Vector2D';
-import { checkPointBelongsToVolume, checkPointIsCoveredByVolume, checkPointLiesOnVolumeSurface } from '../VirtualSlice/ManipulateVirtualSlice/virtualSliceUtils';
+import { checkPointBelongsToVolume } from '../VirtualSlice/ManipulateVirtualSlice/virtualSliceUtils';
+import { annotatePointAsForeground } from '../Volume3D/manipulateForegroundOnVolume3D';
 
 const setupCornerstone = (sliceRef, matNVol, cornerstoneElementRef) => {
   setupCornerstoneTools(sliceRef, matNVol, cornerstoneElementRef);
@@ -103,11 +104,9 @@ export const drawAnnotationOnVolume = (cornerstoneToolsGetters, sliceRef, matNVo
       let flatIndex3D = vec3D.x + vec3D.y * matNVol.vol.xLength + vec3D.z * matNVol.vol.xLength * matNVol.vol.yLength;
 
       if (arrayPixel[flatPosition] === 1) {
-        matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = 1;
-      } else if (checkPointIsCoveredByVolume(vec3D, matNVol.vol)) {
-        matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = sliceRef.current.sliceInnerBrightness;
-      } else if (checkPointLiesOnVolumeSurface(vec3D, matNVol.vol)) {
-        matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = sliceRef.current.sliceBoundBrightness;
+        annotatePointAsForeground(matNVol, flatIndex3D);
+      } else {
+        matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = sliceRef.current.sliceBrightness;
       }
     }
   }

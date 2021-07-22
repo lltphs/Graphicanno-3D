@@ -1,38 +1,44 @@
 import { drawSliceOnCornerstoneElement, drawSliceOnVolume, notifyVolume3DUpdate } from "../VirtualSlice/ManipulateVirtualSlice/virtualSliceUtils";
+import { checkPointIsForeground } from "./manipulateForegroundOnVolume3D";
 
-const windowingOnVolume3DMaterial = (matNVol, sliceRef, cornerstoneElementRef, lower, upper) => {
-  updateSlicePixelValueBound(sliceRef, lower, upper);
+const applyWindowingOnVolume3DMaterial = (matNVol, sliceRef, cornerstoneElementRef, lower, upper) => {
+  updateMatNVolWindowingBound(matNVol, lower, upper);
 
   for (let i = 0; i < matNVol.vol.data.length; i++) {
-    if (!checkPointIsAnnotated(matNVol, i)) {
-      if (checkPointIsInWindowingRange(matNVol, i, lower, upper)) {
-        matNVol.mat.uniforms['u_data'].value.image.data[i] = calculateValueAfterWindowing(matNVol.vol.data[i], lower, upper);
-      } else {
-        matNVol.mat.uniforms['u_data'].value.image.data[i] = 0;
-      }
+    if (!checkPointIsForeground(matNVol, i)) {
+      assignWindowingedValueToPointOnVolume3DMaterial(matNVol, i);
     }
   }
+
   notifyVolume3DUpdate(matNVol);
 
   drawSliceOnVolume(sliceRef.current, matNVol);
 
   drawSliceOnCornerstoneElement(sliceRef.current, matNVol, cornerstoneElementRef);
 }
-const updateSlicePixelValueBound = (sliceRef, lower, upper) => {
-  sliceRef.current.slicePixelValueLowerBound = lower;
-  sliceRef.current.slicePixelValueUpperBound = upper;
+const updateMatNVolWindowingBound = (matNVol, lower, upper) => {
+  matNVol.windowingBound.low = lower;
+  matNVol.windowingBound.high = upper;
 }
 
-const checkPointIsAnnotated = (matNVol, position) => {
-  return matNVol.mat.uniforms['u_data'].value.image.data[position] == 1;
+export const assignWindowingedValueToPointOnVolume3DMaterial = (matNVol, position) => {
+  let pixelValue = calculatePixelValueAfterWindowing(matNVol, position);
+
+  matNVol.mat.uniforms['u_data'].value.image.data[position] = pixelValue;
 }
 
-export const checkPointIsInWindowingRange = (matNVol, position, lower, upper) => {
-  return matNVol.vol.data[position] >= lower
-      && matNVol.vol.data[position] <= upper;
+export const calculatePixelValueAfterWindowing = (matNVol, position) => {
+  if (checkPointIsInWindowingRange(matNVol, position)) {
+    let actualValue = matNVol.vol.data[position];
+    return 0.5 * (actualValue - matNVol.windowingBound.low) / (matNVol.windowingBound.high - matNVol.windowingBound.low);
+  } else {
+    return 0;
+  }
 }
 
-export const calculateValueAfterWindowing = (valueBeforeWindowing, lower, upper) => {
-  return 0.9 * (valueBeforeWindowing - lower) / (upper - lower);
+const checkPointIsInWindowingRange = (matNVol, position) => {
+  return matNVol.vol.data[position] >= matNVol.windowingBound.low
+      && matNVol.vol.data[position] <= matNVol.windowingBound.high;
 }
-export default windowingOnVolume3DMaterial;
+
+export default applyWindowingOnVolume3DMaterial;

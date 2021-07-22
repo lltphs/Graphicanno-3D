@@ -11,10 +11,7 @@ export default class VirtualSlice {
   O2D!: Vector2D
   u2D!: Vector2D
   v2D!: Vector2D
-  sliceInnerBrightness: number = 0.91
-  sliceBoundBrightness: number = 0.95
-  slicePixelValueLowerBound: number = 0
-  slicePixelValueUpperBound: number = 0.9
+  sliceBrightness: number = 0.2
 
   constructor(volume) {
     this.createOriginAndBasisVectorsIn3D(volume);

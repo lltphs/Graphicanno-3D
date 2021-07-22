@@ -4,7 +4,7 @@ import { NRRDLoader } from 'three/examples/jsm/loaders/NRRDLoader';
 import { VolumeRenderShader1 } from 'three/examples/jsm/shaders/VolumeShader';
 
 import { getDataset } from 'api/dataset'
-import { GRAY_WITH_ANNOTATION_TEXTURE_URL } from '../constants';
+import { ANNOTATION_LOWEST_VALUE, GRAY_WITH_ANNOTATION_TEXTURE_URL } from '../constants';
 
 const createVolume3DMaterialAndVolume = (id) => {
   const volume = getDataset(id);
@@ -19,12 +19,16 @@ const createVolume3DMaterialAndVolume = (id) => {
   
   return {
     mat: material,
-    vol: volume
+    vol: volume,
+    windowingBound: {
+      low: 0,
+      high: 0.5
+    }
   };
 }
 
 const rescaleVolumeData = (volume) => {
-  volume.data = volume.data.map(x => x * 0.9);
+  volume.data = volume.data.map(x => x < 1 ? x * ANNOTATION_LOWEST_VALUE : 0.9999 * ANNOTATION_LOWEST_VALUE);
 }
 
 const createDataTexture3D = (volume) => {
@@ -51,8 +55,8 @@ const createUniforms = (dataTexture3D) => {
   uniforms['u_data'].value = dataTexture3D;
   uniforms['u_size'].value.set(dataTexture3D.image.width, dataTexture3D.image.height, dataTexture3D.image.depth);
   uniforms['u_clim'].value.set(0, 1)
-  uniforms['u_renderstyle'].value = 0 //mips style = 0, iso style = 1
-  uniforms['u_renderthreshold'].value = 0 //for iso style, does not matter
+  uniforms['u_renderstyle'].value = 1 //mips style = 0, iso style = 1
+  uniforms['u_renderthreshold'].value = 0.1 //for iso style, does not matter
   uniforms['u_cmdata'].value = grayWithAnnotationTexture
 
   return uniforms;

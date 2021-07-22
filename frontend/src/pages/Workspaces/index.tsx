@@ -298,7 +298,7 @@ const WorkspacesLayout = (): JSX.Element => {
             <Annotation nrrdUrl="http://localhost/api/get-nrrd-volume/admin/liver_01^patient/undefined/" />
           </Route> */}
           <Route exact path={'/workspaces/labeling/:datasetId'}>
-						<Annotation nrrdUrl="http://localhost/api/get-nrrd-volume/admin/liver_01^patient/undefined/" />
+						<Annotation />
 					</Route>
 					<Route path="*">
 						<LabelContent url={url} />

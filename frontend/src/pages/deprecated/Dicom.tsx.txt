@@ -484,7 +484,7 @@ const Dicom = ({ material }): JSX.Element => {
 						onClick={handleContrast}>
 						<WbSunnyIcon id="zoom-in" className="item-icon"/>
 						<br/>
-						Contrast
+						Houndfield
 					</Button>
 					<Button className="item-btn"
 					onClick={handleProbe}

@@ -1,5 +1,5 @@
-const extractAnnotationFromVolume = (matNVol) => {
-  const annotationFlatArray = matNVol.mat.uniforms['u_data'].value.image.data.map((pixel) => pixel == 1 ? 1 : 0);
+const extractAnnotationFromVolume3D = (matNVol) => {
+  const annotationFlatArray = matNVol.mat.uniforms['u_data'].value.image.data.map((pixel) => pixel >= 0.5 ? 1 : 0);
   console.log(matNVol.vol.xLength)
   console.log(matNVol.vol.yLength)
   console.log(matNVol.vol.zLength)
@@ -38,4 +38,4 @@ const compressFlatArray = (flatArray) => {
 
   return Array.from(compressedFlatArray);
 }
-export default extractAnnotationFromVolume;
+export default extractAnnotationFromVolume3D;

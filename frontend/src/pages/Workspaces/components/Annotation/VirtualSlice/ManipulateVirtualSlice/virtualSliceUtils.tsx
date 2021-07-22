@@ -1,8 +1,10 @@
-import displayImageFromVirtualSliceCanvas from "../../Cornerstone/displayImageFromVirtualSliceCanvas";
+import displayImageOnCornerstoneElementFromVirtualSliceCanvas, { applyAnnotationOnCornerstoneElement } from "../../Cornerstone/displayImageOnCornerstoneElementFromVirtualSliceCanvas";
 import { Vector3D } from "../VectorSystem/Vector3D";
 import VirtualSlice from "../VirtualSlice";
 import * as cornerstoneTools from 'cornerstone-tools';
-import { calculateValueAfterWindowing, checkPointIsInWindowingRange } from "../../Volume3D/windowingOnVolume3DMaterial";
+import { assignWindowingedValueToPointOnVolume3DMaterial, calculatePixelValueAfterWindowing } from "../../Volume3D/windowingOnVolume3DMaterial";
+import { checkPointIsForeground } from "../../Volume3D/manipulateForegroundOnVolume3D";
+import { ANNOTATION_LOWEST_VALUE } from "../../constants";
 
 export const removeSliceOnVolume = (slice, matNVol) => {
   drawOrRemoveSliceOnVolume(slice, matNVol, false);
@@ -14,10 +16,13 @@ export const drawSliceOnVolume = (slice, matNVol) => {
 
 export const drawSliceOnCornerstoneElement = (slice, matNVol, cornerstoneElementRef) => {
   drawSliceOnVirtualSliceCanvas(slice, matNVol);
-  displayImageFromVirtualSliceCanvas(slice, matNVol, cornerstoneElementRef);
+
+  displayImageOnCornerstoneElementFromVirtualSliceCanvas(cornerstoneElementRef).then(
+    () => applyAnnotationOnCornerstoneElement(slice, matNVol, cornerstoneElementRef)
+  );
 }
 
-export const removeOldAnnotation = (cornerstoneElementRef) => {
+export const removeAnnotationOnCornerstoneElement = (cornerstoneElementRef) => {
   const {
     getters
   } = cornerstoneTools.getModule('segmentation');
@@ -57,39 +62,15 @@ const drawOrRemoveSliceOnVolume  = (slice: VirtualSlice, matNVol, isDraw) => {
       //vec3D = O3D + i * u3D + j * v3D
       let vec3D = slice.O3D.add(slice.u3D.scalarMul(i)).add(slice.v3D.scalarMul(j)).round();
 
-      if (checkPointIsCoveredByVolume(vec3D, matNVol.vol)) {
+      if (checkPointBelongsToVolume(vec3D, matNVol.vol)) {
         //Mark the corresponding point on volume as slice.sliceInnerBrightness if isDraw, else mark it as its original value
         const flatIndex3D = vec3D.x + vec3D.y * matNVol.vol.xLength + vec3D.z * matNVol.vol.xLength * matNVol.vol.yLength;
         
-        if (matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] != 1){
+        if (!checkPointIsForeground(matNVol, flatIndex3D)){
           if (isDraw) {
-            matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = slice.sliceInnerBrightness;
+            matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = slice.sliceBrightness;
           } else {
-            let pixelValue;
-            if (checkPointIsInWindowingRange(matNVol, flatIndex3D, slice.slicePixelValueLowerBound, slice.slicePixelValueUpperBound)) {
-              pixelValue = calculateValueAfterWindowing(matNVol.vol.data[flatIndex3D], slice.slicePixelValueLowerBound, slice.slicePixelValueUpperBound);
-            } else {
-              pixelValue = 0;
-            }
-            matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = pixelValue;
-          }
-        }
-
-      } else if (checkPointLiesOnVolumeSurface(vec3D, matNVol.vol)) {
-        //Mark the corresponding point on volume as slice.sliceBoundBrightness if isDraw, else mark it as its original value
-        const flatIndex3D = vec3D.x + vec3D.y * matNVol.vol.xLength + vec3D.z * matNVol.vol.xLength * matNVol.vol.yLength;
-             
-        if (matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] != 1){
-          if (isDraw) {
-            matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = slice.sliceBoundBrightness;
-          } else {
-            let pixelValue;
-            if (checkPointIsInWindowingRange(matNVol, flatIndex3D, slice.slicePixelValueLowerBound, slice.slicePixelValueUpperBound)) {
-              pixelValue = calculateValueAfterWindowing(matNVol.vol.data[flatIndex3D], slice.slicePixelValueLowerBound, slice.slicePixelValueUpperBound);
-            } else {
-              pixelValue = 0;
-            }
-            matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = pixelValue;
+            assignWindowingedValueToPointOnVolume3DMaterial(matNVol, flatIndex3D);
           }
         }
       }
@@ -122,19 +103,29 @@ export const drawSliceOnVirtualSliceCanvas  = (slice: VirtualSlice, matNVol) => 
         const flatIndex2D = vec2D.x +
                             vec2D.y * slice.sideLength;
 
-        let pixelValue;
-        if (checkPointIsInWindowingRange(matNVol, flatIndex3D, slice.slicePixelValueLowerBound, slice.slicePixelValueUpperBound)) {
-          pixelValue = 255 * calculateValueAfterWindowing(matNVol.vol.data[flatIndex3D], slice.slicePixelValueLowerBound, slice.slicePixelValueUpperBound) / 0.9;
-        } else {
-          pixelValue = 0;
-        }
-        imageArrayData[0 + 4 * flatIndex2D] = pixelValue;
-        imageArrayData[1 + 4 * flatIndex2D] = pixelValue;
-        imageArrayData[2 + 4 * flatIndex2D] = pixelValue;
+        const valueOnVolume3DMaterial = calculatePixelValueAfterWindowing(matNVol, flatIndex3D);
+
+        const normalizedValue = valueOnVolume3DMaterial / ANNOTATION_LOWEST_VALUE;
+
+        const intValue = Math.round(255 * normalizedValue);
+
+        imageArrayData[0 + 4 * flatIndex2D] = intValue;
+        imageArrayData[1 + 4 * flatIndex2D] = intValue;
+        imageArrayData[2 + 4 * flatIndex2D] = intValue;
       }
     }
   }
+  
+  putImageArrayDataOnVirtualSliceCanvas(slice, imageArrayData);
+}
 
+export const checkPointBelongsToVolume = (vec: Vector3D, vol) => {
+  return vec.x >= 0 && vec.x <= vol.xLength - 1
+      && vec.y >= 0 && vec.y <= vol.yLength - 1
+      && vec.z >= 0 && vec.z <= vol.zLength - 1;
+}
+
+const putImageArrayDataOnVirtualSliceCanvas = (slice, imageArrayData) => {
   const imageData = new ImageData(imageArrayData, slice.sideLength, slice.sideLength)
 
   const canvas = document.getElementById('vs') as HTMLCanvasElement;
@@ -146,21 +137,4 @@ export const drawSliceOnVirtualSliceCanvas  = (slice: VirtualSlice, matNVol) => 
   canvas.height = slice.sideLength;
   
   ctx.putImageData(imageData, 0, 0);
-}
-
-export const checkPointIsCoveredByVolume = (vec: Vector3D, vol) => {
-  return vec.x > 3 && vec.x < vol.xLength - 3
-      && vec.y > 3 && vec.y < vol.yLength - 3
-      && vec.z > 3 && vec.z < vol.zLength - 3;
-}
-
-export const checkPointLiesOnVolumeSurface = (vec: Vector3D, vol) => {
-  return vec.x >= 0 && vec.x <= vol.xLength - 1
-      && vec.y >= 0 && vec.y <= vol.yLength - 1
-      && vec.z >= 0 && vec.z <= vol.zLength - 1
-      && !checkPointIsCoveredByVolume(vec, vol);
-}
-
-export const checkPointBelongsToVolume = (vec: Vector3D, vol) => {
-  return checkPointIsCoveredByVolume(vec, vol) || checkPointLiesOnVolumeSurface(vec, vol);
 }

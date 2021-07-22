@@ -1,11 +1,11 @@
-import { drawSliceOnCornerstoneElement, drawSliceOnVolume, notifyVolume3DUpdate, removeOldAnnotation, removeSliceOnVolume, updateSliceState } from "./virtualSliceUtils";
+import { drawSliceOnCornerstoneElement, drawSliceOnVolume, notifyVolume3DUpdate, removeAnnotationOnCornerstoneElement, removeSliceOnVolume, updateSliceState } from "./virtualSliceUtils";
 
 
 const moveVirtualSlice = (sliceRef, matNVol, event, cornerstoneElementRef) => {
   removeSliceOnVolume(sliceRef.current, matNVol);
   updateSliceState(sliceRef.current, event);
   drawSliceOnVolume(sliceRef.current, matNVol);
-  removeOldAnnotation(cornerstoneElementRef);
+  removeAnnotationOnCornerstoneElement(cornerstoneElementRef);
   drawSliceOnCornerstoneElement(sliceRef.current, matNVol, cornerstoneElementRef);
   notifyVolume3DUpdate(matNVol);
 }

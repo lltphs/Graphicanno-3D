@@ -1,6 +1,6 @@
 import { ListItem, ListItemIcon, ListItemText, Tooltip } from "@material-ui/core";
 import GetAppIcon from '@material-ui/icons/GetApp';
-import extractAnnotationFromVolume from "../../Volume3D/extractAnnotationFromVolume";
+import extractAnnotationFromVolume3D from "../../Volume3D/extractAnnotationFromVolume3D";
 import { updateAnnotation } from 'api/dataset'
 import { useParams } from 'react-router-dom';
 
@@ -22,7 +22,7 @@ const SaveYourWorkButton = ({ matNVol }) => {
 };
 
 const handleSaveYourWork = (matNVol, datasetId) => {
-  const annotation = extractAnnotationFromVolume(matNVol);
+  const annotation = extractAnnotationFromVolume3D(matNVol);
 
   updateAnnotation(datasetId, annotation);
 }

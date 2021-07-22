@@ -1,17 +1,17 @@
 import Slider from '@material-ui/core/Slider';
 import Grid from '@material-ui/core/Grid';
 import { useState } from 'react';
-import windowingOnVolume3DMaterial from '../../Volume3D/windowingOnVolume3DMaterial';
+import applyWindowingOnVolume3DMaterial from '../../Volume3D/windowingOnVolume3DMaterial';
 import { Typography } from '@material-ui/core';
 
 const WindowingSlider = ({ matNVol, sliceRef, cornerstoneElementRef }) => {
 
-  const [value, setValue] = useState<number[]>([0, 0.9]);
+  const [value, setValue] = useState<number[]>([0, 0.5]);
 
-  const valueText = (value) => `${value / 0.9}`;
+  const valueText = (value) => `${value / 0.5}`;
 
   const handleSlider = (_, value) => {
-    windowingOnVolume3DMaterial(matNVol, sliceRef, cornerstoneElementRef, value[0], value[1]);
+    applyWindowingOnVolume3DMaterial(matNVol, sliceRef, cornerstoneElementRef, value[0], value[1]);
     
     setValue(value);
   }
@@ -21,7 +21,7 @@ const WindowingSlider = ({ matNVol, sliceRef, cornerstoneElementRef }) => {
       <Slider
         value={value}
         min={0}
-        max={0.9}
+        max={0.5}
         step={0.01}
         onChange={handleSlider}
         valueLabelDisplay="auto"
