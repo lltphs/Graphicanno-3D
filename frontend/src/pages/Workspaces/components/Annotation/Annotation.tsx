@@ -55,7 +55,7 @@ const Annotation = () => {
                 zLength={matNVol.vol.zLength}
               />
               <Volume3D
-                material={matNVol.mat}
+                material={matNVol.annotation}
                 xLength={matNVol.vol.xLength}
                 yLength={matNVol.vol.yLength}
                 zLength={matNVol.vol.zLength}

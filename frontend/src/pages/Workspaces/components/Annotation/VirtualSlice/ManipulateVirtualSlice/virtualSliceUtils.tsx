@@ -3,8 +3,7 @@ import { Vector3D } from "../VectorSystem/Vector3D";
 import VirtualSlice from "../VirtualSlice";
 import * as cornerstoneTools from 'cornerstone-tools';
 import { assignWindowingedValueToPointOnVolume3DMaterial, calculatePixelValueAfterWindowing } from "../../Volume3D/windowingOnVolume3DMaterial";
-import { checkPointIsForeground } from "../../Volume3D/manipulateForegroundOnVolume3D";
-import { ANNOTATION_LOWEST_VALUE } from "../../constants";
+import { checkPointIsForeground } from "../../Volume3D/manipulateGroundTruthOnVolume3D";
 
 export const removeSliceOnVolume = (slice, matNVol) => {
   drawOrRemoveSliceOnVolume(slice, matNVol, false);
@@ -38,6 +37,7 @@ export const removeAnnotationOnCornerstoneElement = (cornerstoneElementRef) => {
 
 export const notifyVolume3DUpdate = (matNVol) => {
   matNVol.mat.uniforms['u_data'].value.needsUpdate = true;
+  matNVol.annotation.uniforms['u_data'].value.needsUpdate = true;
 }
 
 export const updateSliceState = (slice: VirtualSlice, event) => {
@@ -68,7 +68,7 @@ const drawOrRemoveSliceOnVolume  = (slice: VirtualSlice, matNVol, isDraw) => {
         
         if (!checkPointIsForeground(matNVol, flatIndex3D)){
           if (isDraw) {
-            matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = slice.sliceBrightness;
+            annotatePointAsOnVirtualSlice(matNVol, flatIndex3D, slice);
           } else {
             assignWindowingedValueToPointOnVolume3DMaterial(matNVol, flatIndex3D);
           }
@@ -76,6 +76,15 @@ const drawOrRemoveSliceOnVolume  = (slice: VirtualSlice, matNVol, isDraw) => {
       }
     }
   }
+}
+
+export const annotatePointAsOnVirtualSlice = (matNVol, position, slice) => {
+  const sliceBrightnessUnclipped = calculatePixelValueAfterWindowing(matNVol, position) + slice.sliceOffset;
+
+  const sliceBrightnessClipped = sliceBrightnessUnclipped > 1 ? 1 : sliceBrightnessUnclipped;
+  
+  matNVol.mat.uniforms['u_data'].value.image.data[position] = sliceBrightnessClipped;
+  matNVol.annotation.uniforms['u_data'].value.image.data[position] = slice.sliceOffset;
 }
 
 export const drawSliceOnVirtualSliceCanvas  = (slice: VirtualSlice, matNVol) => {
@@ -105,9 +114,7 @@ export const drawSliceOnVirtualSliceCanvas  = (slice: VirtualSlice, matNVol) => 
 
         const valueOnVolume3DMaterial = calculatePixelValueAfterWindowing(matNVol, flatIndex3D);
 
-        const normalizedValue = valueOnVolume3DMaterial / ANNOTATION_LOWEST_VALUE;
-
-        const intValue = Math.round(255 * normalizedValue);
+        const intValue = Math.round(255 * valueOnVolume3DMaterial);
 
         imageArrayData[0 + 4 * flatIndex2D] = intValue;
         imageArrayData[1 + 4 * flatIndex2D] = intValue;

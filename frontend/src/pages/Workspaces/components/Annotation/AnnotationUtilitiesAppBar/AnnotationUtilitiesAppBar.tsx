@@ -7,12 +7,12 @@ import BrushButton from './Items/BrushButton';
 import CircleButton from './Items/CircleButton';
 import EraserButton from './Items/EraserButton';
 import FreeHandButton from './Items/FreeHandButton';
-import InverButton from './Items/InvertButton';
 import LengthButton from './Items/LengthButton';
 import MagnifyButton from './Items/MagnifyButton';
 import PanButton from './Items/PanButton';
 import ProbeButton from './Items/ProbeButton';
 import RectangleButton from './Items/RectangleButton';
+import SmoothButton from './Items/SmoothButton';
 import SwitchStyleButton from './Items/SwitchStyleButton';
 import CorrectionScissorButton from './Items/CorrectionScissorButton';
 import UndoButton from './Items/UndoButton';
@@ -32,12 +32,12 @@ const AnnotationUtilitiesAppBar = ({ matNVol, sliceRef, cornerstoneElementRef })
         <CircleButton/>
         <EraserButton/>
         <FreeHandButton/>
-        <InverButton cornerstoneElementRef={cornerstoneElementRef}/>
         <LengthButton/>
         <MagnifyButton/>
         <PanButton/>
         <ProbeButton/>
         <RectangleButton/>
+        <SmoothButton matNVol={matNVol}/>
         <SwitchStyleButton matNVol={matNVol}/>
         <CorrectionScissorButton/>
         <UndoButton matNVol={matNVol} sliceRef={sliceRef} cornerstoneElementRef={cornerstoneElementRef}/>

@@ -4,8 +4,8 @@ import * as cornerstoneMath from'cornerstone-math';
 import * as cornerstoneWebImageLoader from 'cornerstoneDATImageLoader';
 import * as cornerstoneTools from 'cornerstone-tools';
 import { Vector2D } from '../VirtualSlice/VectorSystem/Vector2D';
-import { checkPointBelongsToVolume } from '../VirtualSlice/ManipulateVirtualSlice/virtualSliceUtils';
-import { annotatePointAsForeground } from '../Volume3D/manipulateForegroundOnVolume3D';
+import { annotatePointAsOnVirtualSlice, checkPointBelongsToVolume, notifyVolume3DUpdate } from '../VirtualSlice/ManipulateVirtualSlice/virtualSliceUtils';
+import { annotatePointAsBackground, annotatePointAsForeground } from '../Volume3D/manipulateGroundTruthOnVolume3D';
 
 const setupCornerstone = (sliceRef, matNVol, cornerstoneElementRef) => {
   setupCornerstoneTools(sliceRef, matNVol, cornerstoneElementRef);
@@ -72,7 +72,7 @@ const addMouseEventListenerToCornerstoneTools = (sliceRef, matNVol, cornerstoneE
   } = cornerstoneTools.getModule('segmentation');
   
   cornerstoneElementRef.current.addEventListener(cornerstoneTools.EVENTS.MOUSE_DRAG,
-    () => drawAnnotationOnVolume(getters, sliceRef, matNVol, cornerstoneElementRef)
+    (eventData) => drawAnnotationOnVolume(getters, sliceRef, matNVol, cornerstoneElementRef, eventData)
   );
   
   cornerstoneElementRef.current.addEventListener(cornerstoneTools.EVENTS.MOUSE_CLICK,
@@ -88,7 +88,7 @@ const addMouseEventListenerToCornerstoneTools = (sliceRef, matNVol, cornerstoneE
   );
 }
 
-export const drawAnnotationOnVolume = (cornerstoneToolsGetters, sliceRef, matNVol, cornerstoneElementRef) => {
+export const drawAnnotationOnVolume = (cornerstoneToolsGetters, sliceRef, matNVol, cornerstoneElementRef, eventData = null) => {
   const labelmap2D = cornerstoneToolsGetters.labelmap2D(cornerstoneElementRef.current);
 
   const arrayPixel = labelmap2D.labelmap2D.pixelData;
@@ -106,19 +106,19 @@ export const drawAnnotationOnVolume = (cornerstoneToolsGetters, sliceRef, matNVo
       if (arrayPixel[flatPosition] === 1) {
         annotatePointAsForeground(matNVol, flatIndex3D);
       } else {
-        matNVol.mat.uniforms['u_data'].value.image.data[flatIndex3D] = sliceRef.current.sliceBrightness;
+        annotatePointAsOnVirtualSlice(matNVol, flatIndex3D, sliceRef.current);
       }
     }
   }
   
-  matNVol.mat.uniforms['u_data'].value.needsUpdate = true;
+  notifyVolume3DUpdate(matNVol);
 };
 
 const adjustBrushSize = (eventData) => {
   const {configuration} = cornerstoneTools.getModule('segmentation');
 
   if (checkRadiusCanBeAdjust(configuration.radius, eventData.detail.direction)){
-    configuration.radius += eventData.detail.direction;
+    configuration.radius -= eventData.detail.direction;
     
     cornerstoneTools.setToolActive('Brush', {mouseButtonMask: 1});
   }

@@ -6,9 +6,9 @@ import { Typography } from '@material-ui/core';
 
 const WindowingSlider = ({ matNVol, sliceRef, cornerstoneElementRef }) => {
 
-  const [value, setValue] = useState<number[]>([0, 0.5]);
+  const [value, setValue] = useState<number[]>([0, 1]);
 
-  const valueText = (value) => `${value / 0.5}`;
+  const valueText = (value) => `${value}`;
 
   const handleSlider = (_, value) => {
     applyWindowingOnVolume3DMaterial(matNVol, sliceRef, cornerstoneElementRef, value[0], value[1]);
@@ -21,7 +21,7 @@ const WindowingSlider = ({ matNVol, sliceRef, cornerstoneElementRef }) => {
       <Slider
         value={value}
         min={0}
-        max={0.5}
+        max={1}
         step={0.01}
         onChange={handleSlider}
         valueLabelDisplay="auto"
@@ -29,7 +29,7 @@ const WindowingSlider = ({ matNVol, sliceRef, cornerstoneElementRef }) => {
         getAriaValueText={valueText}
       />
       <Typography color="textPrimary" gutterBottom align="center">
-        Contrast
+        HU Window
       </Typography>
     </div>
   );

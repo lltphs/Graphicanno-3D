@@ -1,7 +1,7 @@
 import * as cornerstone from 'cornerstone-core';
 import * as cornerstoneTools from 'cornerstone-tools';
 import { Vector3D } from '../VirtualSlice/VectorSystem/Vector3D';
-import { checkPointIsForeground } from '../Volume3D/manipulateForegroundOnVolume3D';
+import { checkPointIsForeground } from '../Volume3D/manipulateGroundTruthOnVolume3D';
 
 const displayImageOnCornerstoneElementFromVirtualSliceCanvas = async (cornerstoneElementRef) => {
   const image = await cornerstone.loadImage('_');
