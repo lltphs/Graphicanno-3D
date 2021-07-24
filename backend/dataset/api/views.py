@@ -12,7 +12,7 @@ from pydicom import dcmread
 from pydicom.filebase import DicomBytesIO
 import numpy as np
 import json
-from scipy.ndimage import zoom
+from scipy.ndimage import zoom, gaussian_filter
 
 from ..models import Dataset, Membership
 from ..serializers import DatasetSerializer
@@ -127,7 +127,7 @@ class DatasetViewSet(viewsets.ModelViewSet):
 
         if not os.path.exists(f'nrrd/{id}'):
             os.makedirs(f'nrrd/{id}')
-        nrrd.write(f'nrrd/{id}/volume.nrrd', volume, index_order='C')
+        nrrd.write(f'nrrd/{id}/volume.nrrd', gaussian_filter(volume, 1), index_order='C')
 
         url = 'https://ws.dscilab.com:20007/dragon/med20/web/predict'
         files = {'file':open(f'nrrd/{id}/volume.nrrd', 'rb')}

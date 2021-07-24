@@ -11,7 +11,7 @@ export default class VirtualSlice {
   O2D!: Vector2D
   u2D!: Vector2D
   v2D!: Vector2D
-  sliceOffset: number = 0.2
+  sliceOffset: number = 0.3
 
   constructor(volume) {
     this.createOriginAndBasisVectorsIn3D(volume);

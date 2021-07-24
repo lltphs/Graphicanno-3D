@@ -3,7 +3,7 @@ import { TextureLoader, DataTexture3D, RedFormat, FloatType, LinearFilter, Unifo
 import { VolumeRenderShader1 } from 'three/examples/jsm/shaders/VolumeShader';
 
 import { getDataset } from 'api/dataset'
-import { GRAY_WITH_ANNOTATION_TEXTURE_URL } from '../constants';
+import { ANNOTATION_TEXTURE_URL, LIVER_TEXTURE_URL } from '../constants';
 
 const createVolume3DMaterialAndVolume = (id) => {
   const volume = getDataset(id);
@@ -33,7 +33,7 @@ const createVolume3DMaterialAndVolume = (id) => {
 
 const createDataTexture3D = (volume, forAnnotation=false) => {
   const dataTexture3D = new DataTexture3D(
-    !forAnnotation ? volume.data.slice(0) : volume.data.map((_)=>0),
+    forAnnotation ? volume.data.map((_)=>0) : volume.data.slice(0),
     volume.xLength,
     volume.yLength,
     volume.zLength
@@ -48,15 +48,15 @@ const createDataTexture3D = (volume, forAnnotation=false) => {
 }
 
 const createUniforms = (dataTexture3D, forAnnotation=false) => {
-	const grayWithAnnotationTexture = useLoader(TextureLoader, GRAY_WITH_ANNOTATION_TEXTURE_URL)
+	const grayWithAnnotationTexture = useLoader(TextureLoader, forAnnotation ? ANNOTATION_TEXTURE_URL : LIVER_TEXTURE_URL)
 
   const uniforms = UniformsUtils.clone(VolumeRenderShader1.uniforms);
 
   uniforms['u_data'].value = dataTexture3D;
   uniforms['u_size'].value.set(dataTexture3D.image.width, dataTexture3D.image.height, dataTexture3D.image.depth);
   uniforms['u_clim'].value.set(0, 1)
-  uniforms['u_renderstyle'].value = forAnnotation ? 1 : 1 //mips style = 0, iso style = 1
-  uniforms['u_renderthreshold'].value = 0.0 //for iso style, does not matter
+  uniforms['u_renderstyle'].value = forAnnotation ? 1 : 1 //mip style = 0, iso style = 1
+  uniforms['u_renderthreshold'].value = 0 //for iso style, does not matter
   uniforms['u_cmdata'].value = grayWithAnnotationTexture
 
   return uniforms;

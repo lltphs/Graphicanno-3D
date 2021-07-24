@@ -1,5 +1,5 @@
 import { ListItem, ListItemIcon, ListItemText, Tooltip } from "@material-ui/core";
-import GetAppIcon from '@material-ui/icons/GetApp';
+import PublishIcon from '@material-ui/icons/Publish';
 import extractAnnotationFromVolume3D from "../../Volume3D/extractAnnotationFromVolume3D";
 import { updateAnnotation } from 'api/dataset'
 import { useParams } from 'react-router-dom';
@@ -12,7 +12,7 @@ const SaveYourWorkButton = ({ matNVol }) => {
       <ListItem button id='save_your_work_fake_tag' className="item">
         <Tooltip title="Save your mask">
           <ListItemIcon>
-            <GetAppIcon/>
+            <PublishIcon />
           </ListItemIcon>
         </Tooltip>
         <ListItemText/>

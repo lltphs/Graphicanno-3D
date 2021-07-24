@@ -1,6 +1,6 @@
 import { Container } from '@material-ui/core';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import NavigationBar from './NavigationBar/NavigationBar';
 import AnnotationUtilitiesAppBar from './AnnotationUtilitiesAppBar/AnnotationUtilitiesAppBar';
@@ -41,21 +41,15 @@ const Annotation = () => {
       className={classes.container}
       style={{backgroundColor: 'black'}}>
 
-      <NavigationBar sliceRef={sliceRef} matNVol={matNVol} cornerstoneElementRef={cornerstoneElementRef}/>
+      <NavigationBar/>
       
       <div className={classes.dicomWrapper} id="canvas">
         <div className={classes.ele}>
           <AnnotationUtilitiesAppBar matNVol={matNVol} sliceRef={sliceRef} cornerstoneElementRef={cornerstoneElementRef}/>
           <div className={classes.dicom} style={{display:"flex"}}>
-            <div style={{width:"50%"}}>
+            <div style={{width:"33%",}}>
               <Volume3D
                 material={matNVol.mat}
-                xLength={matNVol.vol.xLength}
-                yLength={matNVol.vol.yLength}
-                zLength={matNVol.vol.zLength}
-              />
-              <Volume3D
-                material={matNVol.annotation}
                 xLength={matNVol.vol.xLength}
                 yLength={matNVol.vol.yLength}
                 zLength={matNVol.vol.zLength}
@@ -65,7 +59,15 @@ const Annotation = () => {
                 ref={(input) => {
                   cornerstoneElementRef.current = input
             }}
-            style={{width:"50%"}}>
+            style={{width:"33%"}}>
+            </div>
+            <div style={{width:"33%"}}>
+              <Volume3D
+                material={matNVol.annotation}
+                xLength={matNVol.vol.xLength}
+                yLength={matNVol.vol.yLength}
+                zLength={matNVol.vol.zLength}
+              />
             </div>
           </div>
         <canvas id='vs' hidden></canvas>

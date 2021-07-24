@@ -1,28 +1,13 @@
 import React, { useReducer, useEffect } from 'react';
-import { useHistory, Link, Route, BrowserRouter, Switch , useRouteMatch} from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import clsx from 'clsx';
-import { makeStyles, useTheme } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import {
   AppBar,
-  Toolbar,
-  IconButton,
-  Drawer,
-  ListItemText
+  Toolbar
  } from '@material-ui/core';
-import MenuIcon from '@material-ui/icons/Menu';
-import Divider from '@material-ui/core/Divider';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Tooltip from '@material-ui/core/Tooltip';
-import LanguageIcon from '@material-ui/icons/Language';
-import { ArrowBack, ArrowForward, BorderOuter, RemoveCircle, RemoveRedEye } from '@material-ui/icons';
-import PublishIcon from '@material-ui/icons/Publish';
-import GetAppIcon from '@material-ui/icons/GetApp';
 
 import { RootDispatchType } from 'store';
 import { logout } from 'store/actions/auth';
@@ -30,8 +15,6 @@ import * as UserServices from 'api/user';
 
 import '../index.scss';
 import HeaderWorkspaces from '../HeaderWorkspaces';
-import LoadAIPredictionButton from './Items/LoadAIPredictionButton';
-import SaveYourWorkButton from './Items/SaveYourWorkButton';
 
 const drawerWidth = 240;
 
@@ -168,18 +151,9 @@ function userDetailReducer(
 }
 
 
-const NavigationBar = ({ sliceRef, matNVol, cornerstoneElementRef }) => {
-    const classes = useStyles();   
-    const theme = useTheme();
+const NavigationBar = () => {
+    const classes = useStyles();
     const [open, setOpen] = React.useState(false);
-
-    const handleDrawerOpen = () => {
-      setOpen(true);
-    };
-
-    const handleDrawerClose = () => {
-      setOpen(false);
-    };
 
 	const history = useHistory();
 
@@ -220,7 +194,6 @@ const NavigationBar = ({ sliceRef, matNVol, cornerstoneElementRef }) => {
     
     return (
       <div className={classes.root}>
-		<CssBaseline />
 		<AppBar
 			id="app-bar"
 			position="fixed" 
@@ -229,18 +202,6 @@ const NavigationBar = ({ sliceRef, matNVol, cornerstoneElementRef }) => {
 			})}
 		>
 			<Toolbar className={classes.toolbar}>
-				<IconButton
-					color="inherit"
-					aria-label="open drawer"
-					onClick={handleDrawerOpen}
-					edge="start"
-					className={clsx(classes.menuButton, {
-					[classes.hide]: open,
-					})}
-				>
-					<MenuIcon />
-				</IconButton>
-				
 				<HeaderWorkspaces	
 					username={userDetailState.username}
 					logout={() => {
@@ -255,108 +216,6 @@ const NavigationBar = ({ sliceRef, matNVol, cornerstoneElementRef }) => {
 				/>
 				</Toolbar>
 		</AppBar>
-		<Drawer 
-			variant="permanent"
-			id="drawer"
-			className={clsx(classes.drawer, {
-			[classes.drawerOpen]: open,
-			[classes.drawerClose]: !open,
-			})}
-			classes={{
-			paper: clsx({
-				[classes.drawerOpen]: open,
-				[classes.drawerClose]: !open,
-			}),
-			}}
-		>		
-			<div className={classes.toolbar}>
-				<IconButton onClick={handleDrawerClose}>
-					{theme.direction === 'rtl' ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-				</IconButton>
-			</div>
-
-			<Divider/>
-			
-			<div id="toggle_language" className="item">
-				<ListItem button id='toggle_language_fake_tag' className="item">
-					<Tooltip title='Vietnamese' placement="right">
-						<ListItemIcon>
-							<LanguageIcon />
-						</ListItemIcon>
-					</Tooltip>
-				</ListItem>
-      </div>
-
-			<div id="next_slice">
-				<ListItem button id='next_slice_fake_tag' className="item">
-					<Tooltip title='Next Slice'>
-						<ListItemIcon>
-							<ArrowForward />
-						</ListItemIcon>
-					</Tooltip>
-					<ListItemText/>
-				</ListItem>
-      </div>
-
-			<div id="prev_slice">
-				<ListItem button id='prev_slice_fake_tag' className="item">
-					<Tooltip title='Previous Slice'>
-						<ListItemIcon>
-							<ArrowBack />
-						</ListItemIcon>
-					</Tooltip>
-					<ListItemText/>
-				</ListItem>
-			</div>
-
-			<div id="show_all_labels">
-				<ListItem button id='show_all_labels_fake_tag' className="item">
-					<Tooltip title='Show all labels'>
-						<ListItemIcon>
-							<RemoveRedEye />
-						</ListItemIcon>
-					</Tooltip>
-					<ListItemText/>
-				</ListItem>
-			</div>
-
-			<div id="hide_all_labels">
-				<ListItem button id='hide_all_labels_fake_tag' className="item">
-					<Tooltip title= "Hide all labels">
-						<ListItemIcon>
-							<RemoveCircle />
-						</ListItemIcon>
-					</Tooltip>
-					<ListItemText/>
-				</ListItem>
-			</div>
-
-			<div id="boundary_mode">
-				<ListItem button id='boundary_mode_fake_tag' className="item">
-					<Tooltip title="Boundary Mode">
-						<ListItemIcon>
-							<BorderOuter />
-						</ListItemIcon>
-					</Tooltip>
-					<ListItemText/>
-				</ListItem>
-			</div>
-            
-			<div id="load_saved_mask">
-				<ListItem button id='load_saved_mask_fake_tag' className="item">
-					<Tooltip title="Load saved mask">
-						<ListItemIcon>
-							<PublishIcon />
-						</ListItemIcon>
-					</Tooltip>
-					<ListItemText/>
-				</ListItem>
-			</div>
-
-			<SaveYourWorkButton matNVol={matNVol}/>
-
-			<LoadAIPredictionButton sliceRef={sliceRef} matNVol={matNVol} cornerstoneElementRef={cornerstoneElementRef}/>
-		</Drawer>
 	</div>
 	);
 };

@@ -1,30 +1,29 @@
 import Slider from '@material-ui/core/Slider';
-import Grid from '@material-ui/core/Grid';
 import { useState } from 'react';
 import applyWindowingOnVolume3DMaterial from '../../Volume3D/windowingOnVolume3DMaterial';
 import { Typography } from '@material-ui/core';
 
 const WindowingSlider = ({ matNVol, sliceRef, cornerstoneElementRef }) => {
 
-  const [value, setValue] = useState<number[]>([0, 1]);
+  const [value, setValue] = useState<number[]>([-311, 394]);
 
-  const valueText = (value) => `${value}`;
+  const valueText = (value) => `${value} HU`;
 
   const handleSlider = (_, value) => {
-    applyWindowingOnVolume3DMaterial(matNVol, sliceRef, cornerstoneElementRef, value[0], value[1]);
+    applyWindowingOnVolume3DMaterial(matNVol, sliceRef, cornerstoneElementRef, (value[0] + 1024) / 2047, (value[1] + 1024) / 2047);
     
     setValue(value);
   }
 
   return (
-    <div style={{width:"15%", paddingTop:"2%"}}>
+    <div style={{width:"20%", paddingTop:"2%"}}>
       <Slider
         value={value}
-        min={0}
-        max={1}
-        step={0.01}
+        min={-1024}
+        max={1023}
+        step={1}
         onChange={handleSlider}
-        valueLabelDisplay="auto"
+        valueLabelDisplay="on"
         aria-labelledby="range-slider"
         getAriaValueText={valueText}
       />

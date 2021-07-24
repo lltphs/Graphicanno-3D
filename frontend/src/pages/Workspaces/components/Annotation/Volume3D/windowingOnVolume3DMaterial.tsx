@@ -1,37 +1,31 @@
-import { drawSliceOnCornerstoneElement, drawSliceOnVolume, notifyVolume3DUpdate } from "../VirtualSlice/ManipulateVirtualSlice/virtualSliceUtils";
-import { checkPointIsForeground } from "./manipulateGroundTruthOnVolume3D";
+import { annotatePointAsNotOnVirtualSlice, drawSliceOnCornerstoneElement, drawSliceOnVolume, notifyVolume3DUpdate } from "../VirtualSlice/ManipulateVirtualSlice/virtualSliceUtils";
 
 const applyWindowingOnVolume3DMaterial = (matNVol, sliceRef, cornerstoneElementRef, lower, upper) => {
   updateMatNVolWindowingBound(matNVol, lower, upper);
 
   for (let i = 0; i < matNVol.vol.data.length; i++) {
-    if (!checkPointIsForeground(matNVol, i)) {
-      assignWindowingedValueToPointOnVolume3DMaterial(matNVol, i);
-    }
+    annotatePointAsNotOnVirtualSlice(matNVol, i);
   }
-
-  notifyVolume3DUpdate(matNVol);
 
   drawSliceOnVolume(sliceRef.current, matNVol);
 
   drawSliceOnCornerstoneElement(sliceRef.current, matNVol, cornerstoneElementRef);
+
+  notifyVolume3DUpdate(matNVol);
 }
 const updateMatNVolWindowingBound = (matNVol, lower, upper) => {
   matNVol.windowingBound.low = lower;
   matNVol.windowingBound.high = upper;
 }
 
-export const assignWindowingedValueToPointOnVolume3DMaterial = (matNVol, position) => {
-  let pixelValue = calculatePixelValueAfterWindowing(matNVol, position);
-
-  matNVol.mat.uniforms['u_data'].value.image.data[position] = pixelValue;
-  matNVol.annotation.uniforms['u_data'].value.image.data[position] = 0;
-}
-
-export const calculatePixelValueAfterWindowing = (matNVol, position) => {
+export const calculatePixelValueAfterWindowing = (matNVol, position, forVirtualSlice = false) => {
   if (checkPointIsInWindowingRange(matNVol, position)) {
     let actualValue = matNVol.vol.data[position];
-    return (actualValue - matNVol.windowingBound.low) / (matNVol.windowingBound.high - matNVol.windowingBound.low);
+    if (forVirtualSlice) {
+      return (actualValue - matNVol.windowingBound.low) / (matNVol.windowingBound.high - matNVol.windowingBound.low);
+    } else {
+      return actualValue;
+    }
   } else {
     return 0;
   }
