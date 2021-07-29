@@ -76,11 +76,7 @@ const drawOrRemoveSliceOnVolume  = (slice: VirtualSlice, matNVol, isDraw) => {
   }
 }
 
-export const annotatePointAsOnVirtualSlice = (matNVol, position, slice) => {
-  // const sliceBrightnessUnclipped = calculatePixelValueAfterWindowing(matNVol, position) + slice.sliceOffset;
-
-  // const sliceBrightnessClipped = sliceBrightnessUnclipped > 1 ? 1 : sliceBrightnessUnclipped;
-  
+export const annotatePointAsOnVirtualSlice = (matNVol, position, slice) => {  
   matNVol.mat.uniforms['u_data'].value.image.data[position] = slice.sliceOffset;
   if (!checkPointIsForeground(matNVol, position)) {
     matNVol.annotation.uniforms['u_data'].value.image.data[position] = slice.sliceOffset;

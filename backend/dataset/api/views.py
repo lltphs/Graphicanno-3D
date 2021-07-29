@@ -1,8 +1,8 @@
 # Create your views here.
 from django.contrib.auth import get_user_model
-from rest_framework import viewsets, status, serializers
+from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from django.http import HttpResponse
 from rest_framework.decorators import action
 
@@ -21,6 +21,7 @@ import requests
 
 User = get_user_model()
 
+annotation_info = dict()
 
 class DatasetViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
@@ -127,14 +128,18 @@ class DatasetViewSet(viewsets.ModelViewSet):
 
         if not os.path.exists(f'nrrd/{id}'):
             os.makedirs(f'nrrd/{id}')
-        nrrd.write(f'nrrd/{id}/volume.nrrd', gaussian_filter(volume, 1), index_order='C')
+        nrrd.write(f'nrrd/{id}/volume.nrrd', gaussian_filter(volume, 2), index_order='C')
 
-        url = 'https://ws.dscilab.com:20007/dragon/med20/web/predict'
-        files = {'file':open(f'nrrd/{id}/volume.nrrd', 'rb')}
-        data = {'min_HU':min_HU,'max_HU':max_HU}
-        file = open(f'nrrd/{id}/annotation.nrrd', 'wb')
-        file.write(requests.post(url, files=files, data=data, verify=False).content)
-
+        global annotation_info
+        annotation_info[id] = {'min_HU':min_HU,'max_HU':max_HU, 'is_ready': False}
+        # pk = id
+        # annotation_info[pk]['is_ready'] = True
+        # url = 'https://ws.dscilab.com:20007/dragon/med20/web/predict'
+        # files = {'file':open(f'nrrd/{id}/volume.nrrd', 'rb')}
+        # data = {'min_HU':min_HU,'max_HU':max_HU}
+        # file = open(f'nrrd/{id}/annotation.nrrd', 'wb')
+        # file.write(requests.post(url, files=files, data=data, verify=False).content)
+        
         return Response(
             {
                 "data": DatasetSerializer(dataset, context={'request': request}).data
@@ -183,6 +188,15 @@ class DatasetViewSet(viewsets.ModelViewSet):
             return Response({"data": {"message": "Successfully."}}, status=status.HTTP_400_BAD_REQUEST)
 
         if request.method == 'GET':
+            global annotation_info
+            pk = int(pk)
+            if not annotation_info[pk]['is_ready']:
+                annotation_info[pk]['is_ready'] = True
+                url = 'https://ws.dscilab.com:20007/dragon/med20/web/predict'
+                files = {'file':open(f'nrrd/{pk}/volume.nrrd', 'rb')}
+                data = {'min_HU':annotation_info[pk]['min_HU'],'max_HU':annotation_info[pk]['max_HU']}
+                file = open(f'nrrd/{pk}/annotation.nrrd', 'wb')
+                file.write(requests.post(url, files=files, data=data, verify=False).content)
             return HttpResponse(open(f'nrrd/{pk}/annotation.nrrd', 'rb'))
 
         annotation_info = json.loads(request.body)

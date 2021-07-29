@@ -5,7 +5,7 @@ import { Typography } from '@material-ui/core';
 
 const WindowingSlider = ({ matNVol, sliceRef, cornerstoneElementRef }) => {
 
-  const [value, setValue] = useState<number[]>([-311, 394]);
+  const [value, setValue] = useState<number[]>([-1024, 1023]);
 
   const valueText = (value) => `${value} HU`;
 

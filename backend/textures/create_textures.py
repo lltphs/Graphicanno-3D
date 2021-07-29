@@ -1,11 +1,11 @@
 import numpy as np
 import cv2
 
-src = cv2.imread('templatet.png')
+src = cv2.imread('ct-cardiac3.png')
 
-des = src[410:411,2:-105]
+des = src[0:1]
 
-des = np.concatenate((np.zeros((1,100,3)),des), 1)
+des = np.concatenate((des,np.array([[[i] for i in range(des.shape[1])]])), 2)
 
 cv2.imwrite('liver_preset.png', des)
 # texture = np.zeros((1,257,3))

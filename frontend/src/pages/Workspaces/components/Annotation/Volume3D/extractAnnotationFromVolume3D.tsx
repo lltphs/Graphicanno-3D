@@ -2,9 +2,6 @@ import { checkPointIsForeground } from "./manipulateGroundTruthOnVolume3D";
 
 const extractAnnotationFromVolume3D = (matNVol) => {
   const annotationFlatArray = matNVol.annotation.uniforms['u_data'].value.image.data.map((value, position) => checkPointIsForeground(matNVol, position) ? 1 : 0);
-  console.log(matNVol.vol.xLength)
-  console.log(matNVol.vol.yLength)
-  console.log(matNVol.vol.zLength)
   const width = matNVol.mat.uniforms['u_data'].value.image.width;
   const height = matNVol.mat.uniforms['u_data'].value.image.height;
   const depth = matNVol.mat.uniforms['u_data'].value.image.depth;

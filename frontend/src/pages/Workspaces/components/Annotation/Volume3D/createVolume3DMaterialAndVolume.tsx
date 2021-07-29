@@ -1,5 +1,5 @@
 import { useLoader } from '@react-three/fiber';
-import { TextureLoader, DataTexture3D, RedFormat, FloatType, LinearFilter, UniformsUtils, ShaderMaterial, BackSide } from 'three';
+import { TextureLoader, DataTexture3D, RedFormat, RGBFormat, AlphaFormat, FloatType, LinearFilter, UniformsUtils, ShaderMaterial, BackSide } from 'three';
 import { VolumeRenderShader1 } from 'three/examples/jsm/shaders/VolumeShader';
 
 import { getDataset } from 'api/dataset'
@@ -25,8 +25,8 @@ const createVolume3DMaterialAndVolume = (id) => {
     vol: volume,
     annotation: annotationMaterial,
     windowingBound: {
-      low: 0,
-      high: 1
+      low: (-311 + 1024) / 2047,
+      high: (394 + 1024) / 2047
     }
   };
 }
@@ -48,8 +48,9 @@ const createDataTexture3D = (volume, forAnnotation=false) => {
 }
 
 const createUniforms = (dataTexture3D, forAnnotation=false) => {
-	const grayWithAnnotationTexture = useLoader(TextureLoader, forAnnotation ? ANNOTATION_TEXTURE_URL : LIVER_TEXTURE_URL)
-
+	const grayWithAnnotationTexture = useLoader(TextureLoader, forAnnotation ? ANNOTATION_TEXTURE_URL : LIVER_TEXTURE_URL);
+  console.log(grayWithAnnotationTexture);
+  grayWithAnnotationTexture.premultiplyAlpha = true;
   const uniforms = UniformsUtils.clone(VolumeRenderShader1.uniforms);
 
   uniforms['u_data'].value = dataTexture3D;

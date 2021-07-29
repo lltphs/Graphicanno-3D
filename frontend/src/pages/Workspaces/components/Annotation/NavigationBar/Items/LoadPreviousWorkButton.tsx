@@ -12,7 +12,7 @@ const LoadPreviousWorkButton = ({ sliceRef, matNVol, cornerstoneElementRef }) =>
   return (
     <div id="load_ai_prediction" onClick={() => handleLoadOldWorkButton(sliceRef, matNVol, cornerstoneElementRef, datasetId)}>
       <ListItem button id='load_ai_prediction_fake_tag' className="item">
-          <Tooltip title="Load your previous work">
+          <Tooltip title="Load AI Prediction/Previous work">
             <ListItemIcon>
               <GetAppIcon/>
             </ListItemIcon>

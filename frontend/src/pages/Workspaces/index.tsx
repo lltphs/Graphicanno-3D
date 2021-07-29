@@ -294,9 +294,6 @@ const WorkspacesLayout = (): JSX.Element => {
       >
         <Box flexGrow={0} />
         <Switch>
-          {/* <Route path="/overview">
-            <Annotation nrrdUrl="http://localhost/api/get-nrrd-volume/admin/liver_01^patient/undefined/" />
-          </Route> */}
           <Route exact path={'/workspaces/labeling/:datasetId'}>
 						<Annotation />
 					</Route>
